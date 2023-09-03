@@ -13,14 +13,20 @@
 // limitations under the License.
 
 import * as React from 'react';
-import {Appbar, Avatar, Text} from 'react-native-paper';
+import { Searchbar } from 'react-native-paper';
 
-const Header = () => (
-  <Appbar.Header>
-    <Appbar.Content title="Casdoor" />
-    <Avatar.Image size={32} style={{marginRight: '10px', backgroundColor: 'white'}} source={'https://cdn.casbin.com/casdoor/avatar/built-in/admin.jpeg'} />
-    <Text style={{marginRight: '10px'}} variant="titleMedium">Admin</Text>
-  </Appbar.Header>
-);
+const SearchBar = () => {
+  const [searchQuery, setSearchQuery] = React.useState('');
 
-export default Header;
+  const onChangeSearch = query => setSearchQuery(query);
+
+  return (
+    <Searchbar
+      placeholder="Search"
+      onChangeText={onChangeSearch}
+      value={searchQuery}
+    />
+  );
+};
+
+export default SearchBar;

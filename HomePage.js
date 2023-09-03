@@ -14,10 +14,12 @@
 
 import * as React from 'react';
 import {Avatar, List} from "react-native-paper";
+import SearchBar from "./SearchBar";
 
 export default function HomePage() {
   return (
     <div>
+      <SearchBar />
       <List.Item
         title="Casdoor"
         description="admin"
