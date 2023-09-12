@@ -48,7 +48,7 @@ const ScanQRCode = ({onClose, showScanner, onAdd}) => {
     let secretCode = data.match(/secret=([^&]+)/); // secretCode II5UO7HIA3SPVXAB6KPAIXZ33AQP7C3R
 
     if(description && secretCode){
-      onAdd({description: description[0], secretCode: secretCode[1]});
+      onAdd({description: description[1], secretCode: secretCode[1]});
     }
 
     closeOptions();
