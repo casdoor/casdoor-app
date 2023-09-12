@@ -12,12 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import React from "react";
 
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Text, BottomNavigation } from 'react-native-paper';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import {createBottomTabNavigator} from "@react-navigation/bottom-tabs";
+import {BottomNavigation} from "react-native-paper";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import HomePage from "./HomePage";
 import {CommonActions} from "@react-navigation/native";
 import SettingPage from "./SettingPage";
@@ -30,13 +29,13 @@ export default function NavigationBar() {
       screenOptions={{
         headerShown: false,
       }}
-      tabBar={({ navigation, state, descriptors, insets }) => (
+      tabBar={({navigation, state, descriptors, insets}) => (
         <BottomNavigation.Bar
           navigationState={state}
           safeAreaInsets={insets}
-          onTabPress={({ route, preventDefault }) => {
+          onTabPress={({route, preventDefault}) => {
             const event = navigation.emit({
-              type: 'tabPress',
+              type: "tabPress",
               target: route.key,
               canPreventDefault: true,
             });
@@ -50,16 +49,16 @@ export default function NavigationBar() {
               });
             }
           }}
-          renderIcon={({ route, focused, color }) => {
-            const { options } = descriptors[route.key];
+          renderIcon={({route, focused, color}) => {
+            const {options} = descriptors[route.key];
             if (options.tabBarIcon) {
-              return options.tabBarIcon({ focused, color, size: 24 });
+              return options.tabBarIcon({focused, color, size: 24});
             }
 
             return null;
           }}
-          getLabelText={({ route }) => {
-            const { options } = descriptors[route.key];
+          getLabelText={({route}) => {
+            const {options} = descriptors[route.key];
             const label =
               options.tabBarLabel !== undefined
                 ? options.tabBarLabel
@@ -76,8 +75,8 @@ export default function NavigationBar() {
         name="Home"
         component={HomePage}
         options={{
-          tabBarLabel: 'Home',
-          tabBarIcon: ({ color, size }) => {
+          tabBarLabel: "Home",
+          tabBarIcon: ({color, size}) => {
             return <Icon name="home" size={size} color={color} />;
           },
         }}
@@ -86,8 +85,8 @@ export default function NavigationBar() {
         name="Settings"
         component={SettingPage}
         options={{
-          tabBarLabel: 'Settings',
-          tabBarIcon: ({ color, size }) => {
+          tabBarLabel: "Settings",
+          tabBarIcon: ({color, size}) => {
             return <Icon name="cog" size={size} color={color} />;
           },
         }}
@@ -95,11 +94,3 @@ export default function NavigationBar() {
     </Tab.Navigator>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});

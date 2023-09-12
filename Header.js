@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as React from 'react';
-import {Appbar, Avatar, Text} from 'react-native-paper';
+import * as React from "react";
+import {Appbar, Avatar, Text} from "react-native-paper";
 
 const Header = () => (
   <Appbar.Header>
     <Appbar.Content title="Casdoor" />
-    <Avatar.Image size={32} style={{marginRight: '10px', backgroundColor: 'white'}} source={'https://cdn.casbin.com/casdoor/avatar/built-in/admin.jpeg'} />
-    <Text style={{marginRight: '10px'}} variant="titleMedium">Admin</Text>
+    <Avatar.Image size={32} style={{marginRight: 10, backgroundColor: "white"}} source={{uri: "https://cdn.casbin.com/casdoor/avatar/built-in/admin.jpeg"}} />
+    <Text style={{marginRight: 10}} variant="titleMedium">Admin</Text>
   </Appbar.Header>
 );
 

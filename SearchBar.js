@@ -12,17 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as React from 'react';
-import { Searchbar } from 'react-native-paper';
+import * as React from "react";
+import {Searchbar} from "react-native-paper";
 
-const SearchBar = ({ onSearch }) => {
-  const [searchQuery, setSearchQuery] = React.useState('');
+const SearchBar = ({onSearch}) => {
+  const [searchQuery, setSearchQuery] = React.useState("");
 
   const onChangeSearch = query => {
     setSearchQuery(query);
     onSearch(query);
-  }
-
+  };
   return (
     <Searchbar
       placeholder="Search"
