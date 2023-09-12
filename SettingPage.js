@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as React from 'react';
+import * as React from "react";
 import {Button} from "react-native-paper";
 import {View} from "react-native";
 
 export default function SettingPage() {
   return (
     <View>
-      <Button style={{marginTop: '50%',marginLeft: '20%', marginRight: '20%' }} icon="login" mode="contained" onPress={() => console.log('Login Button Pressed')}>
+      <Button style={{marginTop: "50%", marginLeft: "20%", marginRight: "20%"}} icon="login" mode="contained" onPress={() => {}}>
         Login with Casdoor
       </Button>
     </View>

@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as React from 'react';
-import {PaperProvider} from 'react-native-paper';
+import * as React from "react";
+import {PaperProvider} from "react-native-paper";
 import NavigationBar from "./NavigationBar";
-import { NavigationContainer } from '@react-navigation/native';
+import {NavigationContainer} from "@react-navigation/native";
 import Header from "./Header";
 
 export default function App() {

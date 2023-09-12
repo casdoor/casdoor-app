@@ -12,8 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
-import totp from 'totp-generator';
+import totp from "totp-generator";
 
 class Account {
   constructor(description, secretCode, onUpdate) {
@@ -21,13 +20,13 @@ class Account {
     this.secretCode = secretCode;
     this.countdowns = 30;
     this.timer = setInterval(this.updateCountdown.bind(this), 1000);
-    this.token = '';
+    this.token = "";
     this.onUpdate = onUpdate;
   }
 
   generateToken() {
-    if(this.secretCode != null && this.secretCode != undefined && this.secretCode != ''){
-      let token = totp(this.secretCode);
+    if (this.secretCode !== null && this.secretCode !== undefined && this.secretCode !== "") {
+      const token = totp(this.secretCode);
       return token;
     }
   }
