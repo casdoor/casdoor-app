@@ -14,13 +14,14 @@
 
 import * as React from 'react';
 import {Button} from "react-native-paper";
+import {View} from "react-native";
 
 export default function SettingPage() {
   return (
-    <div>
-      <Button style={{marginTop: "50%"}} icon="login" mode="contained" onPress={() => console.log('Pressed')}>
+    <View>
+      <Button style={{marginTop: '50%',marginLeft: '20%', marginRight: '20%' }} icon="login" mode="contained" onPress={() => console.log('Login Button Pressed')}>
         Login with Casdoor
       </Button>
-    </div>
+    </View>
   );
 }

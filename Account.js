@@ -13,9 +13,7 @@
 // limitations under the License.
 
 
-import {default as hotptotp} from 'hotp-totp';
-const {totp} = hotptotp;
-window.Buffer = window.Buffer || require("buffer").Buffer;
+import totp from 'totp-generator';
 
 class Account {
   constructor(description, secretCode, onUpdate) {
@@ -24,26 +22,28 @@ class Account {
     this.countdowns = 30;
     this.timer = setInterval(this.updateCountdown.bind(this), 1000);
     this.token = '';
-    this.tokenInterval = setInterval(this.generateAndSetToken.bind(this), 30000);
     this.onUpdate = onUpdate;
   }
 
-  generateToken = async () => {
-    let token = await totp(this.secretCode);
-    return token;
+  generateToken() {
+    if(this.secretCode != null && this.secretCode != undefined && this.secretCode != ''){
+      let token = totp(this.secretCode);
+      return token;
+    }
   }
 
-  generateAndSetToken = async () => {
-    this.token = await this.generateToken();
+  generateAndSetToken() {
+    this.token = this.generateToken();
     this.onUpdate();
   }
 
   updateCountdown() {
     this.countdowns = Math.max(0, this.countdowns - 1);
     if (this.countdowns === 0) {
+      this.generateAndSetToken();
       this.countdowns = 30;
-      this.onUpdate();
     }
+    this.onUpdate();
   }
 }
 

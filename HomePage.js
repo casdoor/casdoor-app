@@ -13,12 +13,13 @@
 // limitations under the License.
 
 import * as React from 'react';
-import { View, TouchableOpacity, Text, FlatList } from 'react-native';
-import { Avatar, List, Portal, Modal, IconButton } from 'react-native-paper';
+import {View, TouchableOpacity, Text, FlatList, Dimensions} from 'react-native';
+import { List, Portal, Modal, IconButton } from 'react-native-paper';
 import SearchBar from './SearchBar';
 
 import EnterAccountDetails from './EnterAccountDetails';
 import Account from "./Account";
+import ScanQRCode from './ScanQRCode';
 
 export default function HomePage() {
   const [isPlusButton, setIsPlusButton] = React.useState(true);
@@ -27,6 +28,17 @@ export default function HomePage() {
   const [accountList, setAccountList] = React.useState([]);
   const [searchQuery, setSearchQuery] = React.useState('');
   const [filteredData, setFilteredData] = React.useState(accountList);
+  const [showScanner, setShowScanner] = React.useState(false);
+
+  const handleScanPress = () => {
+    setShowScanner(true);
+    setIsPlusButton(true);
+    setShowOptions(false);
+  };
+
+  const handleCloseScanner = () => {
+    setShowScanner(false);
+  };
 
   const togglePlusButton = () => {
     setIsPlusButton(!isPlusButton);
@@ -36,6 +48,7 @@ export default function HomePage() {
   const closeOptions = () => {
     setIsPlusButton(true);
     setShowOptions(false);
+    setShowScanner(false);
   };
 
   const openEnterAccountModal = () => {
@@ -47,22 +60,17 @@ export default function HomePage() {
     setShowEnterAccountModal(false);
   };
 
-  const handleAddAccount = async (accountData) => {
+  const handleAddAccount = (accountData) => {
     const onUpdate = () => {
       setAccountList(prevList => [...prevList]);
     };
-
     const newAccount = new Account(accountData.description, accountData.secretCode, onUpdate);
-    const token = await newAccount.generateToken();
+    const token = newAccount.generateToken();
     newAccount.token = token;
 
-    await setAccountList(prevList => [...prevList, newAccount]);
+    setAccountList(prevList => [...prevList, newAccount]);
     closeEnterAccountModal();
   };
-  React.useEffect(() => {
-    setAccountList(prevList => [...prevList]);
-  }, [accountList]);
-
 
   const handleSearch = (query) => {
     setSearchQuery(query);
@@ -77,6 +85,11 @@ export default function HomePage() {
     }
   };
 
+  const { width, height } = Dimensions.get('window');
+
+  const offsetX = width * 0.45;
+  const offsetY = height * 0.2;
+
   return (
       <View style={{ flex: 1 }}>
         <SearchBar onSearch={ handleSearch } />
@@ -87,18 +100,16 @@ export default function HomePage() {
             renderItem={({ item }) => (
                 <List.Item
                     title={
-                      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <Text style={{ fontSize: 20, width: 80 }}>{item.title}</Text>
-                        <Text style={{ marginLeft: 20, fontSize: 30 }}>{item.token}</Text>
-                        <Text style={{ marginLeft: 20, fontSize: 20, width: 20 }}>{item.countdowns}s</Text>
+                      <View>
+                        <Text style={{ fontSize: 20 }}>{item.title}</Text>
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                          <Text style={{ fontSize: 40, width: 180}}>{item.token}</Text>
+                          <Text style={{ fontSize: 20, width: 40 }}>{item.countdowns}s</Text>
+                        </View>
                       </View>
                     }
                     left={(props) => (
-                        <Avatar.Image
-                            size={60}
-                            style={{ marginLeft: '20px', backgroundColor: 'rgb(242,242,242)' }}
-                            source={'https://cdn.casbin.org/img/social_casdoor.png'}
-                        />
+                        <IconButton icon={'account'} size={70} style={{marginLeft: 20}} />
                     )}
                 />
             )}
@@ -117,15 +128,12 @@ export default function HomePage() {
                 position: 'absolute',
                 top: '50%',
                 left: '50%',
-                transform: [{ translateX: '-50%' }, { translateY: '-50%' }],
+                transform: [{ translateX: -150 }, { translateY: -75 }],
               }}
           >
             <TouchableOpacity
                 style={{ flexDirection: 'row', alignItems: 'center'}}
-                onPress={() => {
-                  // Handle scanning QR code operation...
-                  // closeOptions();
-                }}
+                onPress={handleScanPress}
             >
               <IconButton icon={'camera'} size={35} />
               <Text style={{fontSize: 18}} >Scan QR code</Text>
@@ -139,7 +147,6 @@ export default function HomePage() {
             </TouchableOpacity>
           </Modal>
         </Portal>
-
         <Portal>
           <Modal
               visible={showEnterAccountModal}
@@ -153,12 +160,15 @@ export default function HomePage() {
                 position: 'absolute',
                 top: '50%',
                 left: '50%',
-                transform: [{ translateX: '-50%' }, { translateY: '-50%' }],
+                transform: [{ translateX: -offsetX }, { translateY: -offsetY }],
               }}
           >
             <EnterAccountDetails onClose={closeEnterAccountModal} onAdd={handleAddAccount} />
           </Modal>
         </Portal>
+        {showScanner && (
+            <ScanQRCode onClose={handleCloseScanner} showScanner={showScanner} onAdd={handleAddAccount} />
+        )}
 
         <TouchableOpacity
             style={{
@@ -168,7 +178,7 @@ export default function HomePage() {
               width: 70,
               height: 70,
               borderRadius: 35,
-              backgroundColor: '#393544',
+              backgroundColor: '#E6DFF3',
               alignItems: 'center',
               justifyContent: 'center',
             }}

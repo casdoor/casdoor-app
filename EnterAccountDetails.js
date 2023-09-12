@@ -14,11 +14,27 @@
 
 import React, { useState } from 'react';
 import { View, Text, TextInput } from 'react-native';
-import { Button, IconButton } from 'react-native-paper';
+import {Button, Divider, IconButton, Menu} from 'react-native-paper';
+import PropTypes from "prop-types";
 
 export default function EnterAccountDetails({ onClose, onAdd }) {
+  EnterAccountDetails.propTypes = {
+    onClose: PropTypes.func.isRequired,
+    onAdd: PropTypes.func.isRequired,
+  };
+
   const [description, setDescription] = useState('');
   const [secretCode, setSecretCode] = useState('');
+
+  const [visible, setVisible] = React.useState(false);
+  const openMenu = () => setVisible(true);
+  const closeMenu = () => setVisible(false);
+  const [selectedItem, setSelectedItem] = useState('Time based');
+
+  const handleMenuItemPress = (item) => {
+    setSelectedItem(item);
+    closeMenu();
+  };
 
   const handleAddAccount = () => {
     onAdd({ description, secretCode });
@@ -29,8 +45,9 @@ export default function EnterAccountDetails({ onClose, onAdd }) {
   return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <Text style={{fontSize: 24, marginBottom: 5}}>Add new 2FA account</Text>
-        <div style={{display: 'flex', marginTop: 10}}>
-          <IconButton icon='account-details' size={35}></IconButton>
+
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <IconButton icon='account-details' size={35} />
           <TextInput
               placeholder='Description'
               value={description}
@@ -38,9 +55,10 @@ export default function EnterAccountDetails({ onClose, onAdd }) {
               style={{ borderWidth: 3, borderColor: 'white', margin: 10, width: 230, height: 50, borderRadius: 5, fontSize: 18,
                 color: 'gray', paddingLeft: 10}}
           />
-        </div>
-        <div style={{display: 'flex'}}>
-          <IconButton icon='account-key' size={35}></IconButton>
+        </View>
+
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <IconButton icon='account-key' size={35} />
           <TextInput
               placeholder='Secret code'
               value={secretCode}
@@ -49,24 +67,48 @@ export default function EnterAccountDetails({ onClose, onAdd }) {
               style={{ borderWidth: 3, borderColor: 'white', margin: 10, width: 230, height: 50, borderRadius: 5, fontSize: 18,
                 color: 'gray', paddingLeft: 10 }}
           />
-        </div>
+        </View>
         <Button
             icon='account-plus'
             style={{
-              backgroundColor: '#393544',
+              backgroundColor: '#E6DFF3',
               borderRadius: 5,
               margin: 10,
               alignItems: 'center',
               position: 'absolute',
-              top: 260,
-              width: 300,
-              // height: 50
+              top: 230,
+              right: 30,
+              width: 90,
             }}
             onPress={handleAddAccount}
         >
           <Text style={{fontSize: 18}}>Add</Text>
         </Button>
         <IconButton icon={'close'} size={30} onPress={onClose} style={{position: 'absolute', top: 5, right: 5}} />
+        <View
+            style={{
+              backgroundColor: '#E6DFF3',
+              borderRadius: 5,
+              position: 'absolute',
+              left: 30,
+              top: 240,
+              width: 140,
+            }}
+        >
+          <Menu
+              visible={visible}
+              onDismiss={closeMenu}
+              anchor={
+                <Button style={{ alignItems: 'left'}} icon={'chevron-down'} onPress={openMenu}>
+                  {selectedItem}
+                </Button>
+              }
+          >
+            <Menu.Item onPress={() => handleMenuItemPress('Time based')} title='Time based' />
+            <Divider />
+            <Menu.Item onPress={() => handleMenuItemPress('Counter based')} title='Counter based' />
+          </Menu>
+        </View>
       </View>
   );
 }
