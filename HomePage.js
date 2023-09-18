@@ -14,12 +14,14 @@
 
 import * as React from "react";
 import {Dimensions, FlatList, Text, TouchableOpacity, View} from "react-native";
-import {IconButton, List, Modal, Portal} from "react-native-paper";
+import {Avatar, Divider, IconButton, List, Modal, Portal} from "react-native-paper";
 import SearchBar from "./SearchBar";
+import {GestureHandlerRootView, Swipeable} from "react-native-gesture-handler";
 
 import EnterAccountDetails from "./EnterAccountDetails";
 import Account from "./Account";
 import ScanQRCode from "./ScanQRCode";
+import EditAccountDetails from "./EditAccountDetails";
 
 export default function HomePage() {
   const [isPlusButton, setIsPlusButton] = React.useState(true);
@@ -29,7 +31,12 @@ export default function HomePage() {
   const [searchQuery, setSearchQuery] = React.useState("");
   const [filteredData, setFilteredData] = React.useState(accountList);
   const [showScanner, setShowScanner] = React.useState(false);
-
+  const [showEditAccountModal, setShowEditAccountModal] = React.useState(false);
+  const swipeableRef = React.useRef(null);
+  const [placeholder, setPlaceholder] = React.useState("");
+  const closeEditAccountModal = () => {
+    setShowEditAccountModal(false);
+  };
   const handleScanPress = () => {
     setShowScanner(true);
     setIsPlusButton(true);
@@ -60,16 +67,51 @@ export default function HomePage() {
     setShowEnterAccountModal(false);
   };
 
+  const onUpdate = () => {
+    setAccountList(prevList => [...prevList]);
+  };
   const handleAddAccount = (accountData) => {
-    const onUpdate = () => {
-      setAccountList(prevList => [...prevList]);
-    };
-    const newAccount = new Account(accountData.description, accountData.secretCode, onUpdate);
+    const newAccount = new Account(accountData.description, accountData.secretCode, onUpdate, accountData.icon);
     const token = newAccount.generateToken();
     newAccount.token = token;
 
     setAccountList(prevList => [...prevList, newAccount]);
     closeEnterAccountModal();
+  };
+
+  const handleDeleteAccount = (accountDescp) => {
+    const accountToDelete = accountList.find(account => {
+      return account.getTitle() === accountDescp;
+    });
+    if (accountToDelete) {
+      accountToDelete.deleteAccount();
+    }
+    setAccountList(prevList => prevList.filter(account => account.getTitle() !== accountDescp));
+  };
+  const handleEditAccount = (accountDescp) => {
+    closeSwipeableMenu();
+    setPlaceholder(accountDescp);
+    setShowEditAccountModal(true);
+    const accountToEdit = accountList.find(account => account.getTitle() === accountDescp);
+
+    if (accountToEdit) {
+      accountToEdit.setEditingStatus(true);
+    }
+  };
+
+  const onAccountEdit = (accountDescp) => {
+    const accountToEdit = accountList.find(account => account.getEditStatus() === true);
+    if (accountToEdit) {
+      accountToEdit.setTitle(accountDescp);
+    }
+    setPlaceholder("");
+    closeEditAccountModal();
+  };
+
+  const closeSwipeableMenu = () => {
+    if (swipeableRef.current) {
+      swipeableRef.current.close();
+    }
   };
 
   const handleSearch = (query) => {
@@ -94,25 +136,50 @@ export default function HomePage() {
     <View style={{flex: 1}}>
       <SearchBar onSearch={handleSearch} />
       <FlatList
-        // data={accountList}
         data={searchQuery.trim() !== "" ? filteredData : accountList}
         keyExtractor={(item, index) => index.toString()}
         renderItem={({item}) => (
-          <List.Item
-            title={
-              <View>
-                <Text style={{fontSize: 20}}>{item.title}</Text>
+          <GestureHandlerRootView>
+            <Swipeable
+              ref={swipeableRef}
+              renderRightActions={(progress, dragX) => (
                 <View style={{flexDirection: "row", alignItems: "center"}}>
-                  <Text style={{fontSize: 40, width: 180}}>{item.token}</Text>
-                  <Text style={{fontSize: 20, width: 40}}>{item.countdowns}s</Text>
+                  <TouchableOpacity
+                    style={{height: 70, width: 80, backgroundColor: "#E6DFF3", alignItems: "center", justifyContent: "center"}}
+                    onPress={handleEditAccount.bind(this, item.title)}
+                  >
+                    <Text>Edit</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={{height: 70, width: 80, backgroundColor: "#FFC0CB", alignItems: "center", justifyContent: "center"}}
+                    onPress={handleDeleteAccount.bind(this, item.title)}
+                  >
+                    <Text>Delete</Text>
+                  </TouchableOpacity>
                 </View>
-              </View>
-            }
-            left={(props) => (
-              <IconButton icon={"account"} size={70} style={{marginLeft: 20}} />
-            )}
-          />
+              )}
+            >
+              <List.Item
+                style={{height: 80, alignItems: "center", justifyContent: "center"}}
+                title={
+                  <View>
+                    <Text style={{fontSize: 20}}>{item.title}</Text>
+                    <View style={{flexDirection: "row", alignItems: "center"}}>
+                      <Text style={{fontSize: 35, width: 180}}>{item.token}</Text>
+                      <Text style={{fontSize: 20, width: 40}}>{item.countdowns}s</Text>
+                    </View>
+                  </View>
+                }
+                left={(props) => (
+                  item.icon ?
+                    <Avatar.Image size={60} source={{uri: item.icon}} style={{marginLeft: 20, marginRight: 20, borderRadius: 10, backgroundColor: "transparent"}} />
+                    : <Avatar.Icon size={80} icon={"account"} color={"black"} style={{marginLeft: 10, marginRight: 10, borderRadius: 10, backgroundColor: "transparent"}} />
+                )}
+              />
+            </Swipeable>
+          </GestureHandlerRootView>
         )}
+        ItemSeparatorComponent={() => <Divider />}
       />
 
       <Portal>
@@ -164,6 +231,25 @@ export default function HomePage() {
           }}
         >
           <EnterAccountDetails onClose={closeEnterAccountModal} onAdd={handleAddAccount} />
+        </Modal>
+      </Portal>
+      <Portal>
+        <Modal
+          visible={showEditAccountModal}
+          onDismiss={closeEditAccountModal}
+          contentContainerStyle={{
+            backgroundColor: "white",
+            padding: 1,
+            borderRadius: 10,
+            width: "90%",
+            height: "30%",
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: [{translateX: -offsetX}, {translateY: -offsetY}],
+          }}
+        >
+          <EditAccountDetails onClose={closeEditAccountModal} onEdit={onAccountEdit} placeholder={placeholder} />
         </Modal>
       </Portal>
       {showScanner && (

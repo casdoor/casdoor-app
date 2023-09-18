@@ -31,6 +31,7 @@ export default function NavigationBar() {
       }}
       tabBar={({navigation, state, descriptors, insets}) => (
         <BottomNavigation.Bar
+          style={{height: 80}}
           navigationState={state}
           safeAreaInsets={insets}
           onTabPress={({route, preventDefault}) => {
