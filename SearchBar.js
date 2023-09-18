@@ -27,6 +27,8 @@ const SearchBar = ({onSearch}) => {
       placeholder="Search"
       onChangeText={onChangeSearch}
       value={searchQuery}
+      style={{height: 48, backgroundColor: "#E6DFF3"}}
+      inputStyle={{textAlignVertical: "center", justifyContent: "center", alignItems: "center"}}
     />
   );
 };

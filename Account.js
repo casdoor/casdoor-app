@@ -15,19 +15,22 @@
 import totp from "totp-generator";
 
 class Account {
-  constructor(description, secretCode, onUpdate) {
+  constructor(description, secretCode, onUpdate, icon) {
     this.title = description;
     this.secretCode = secretCode;
     this.countdowns = 30;
     this.timer = setInterval(this.updateCountdown.bind(this), 1000);
     this.token = "";
     this.onUpdate = onUpdate;
+    this.isEditing = false;
+    this.icon = icon ? icon : null;
   }
 
   generateToken() {
     if (this.secretCode !== null && this.secretCode !== undefined && this.secretCode !== "") {
       const token = totp(this.secretCode);
-      return token;
+      const tokenWithSpace = token.slice(0, 3) + " " + token.slice(3);
+      return tokenWithSpace;
     }
   }
 
@@ -42,6 +45,25 @@ class Account {
       this.generateAndSetToken();
       this.countdowns = 30;
     }
+    this.onUpdate();
+  }
+  getTitle() {
+    return this.title;
+  }
+  setTitle(title) {
+    this.title = title;
+    this.setEditingStatus(false);
+  }
+  setEditingStatus(status) {
+    this.isEditing = status;
+    this.onUpdate();
+  }
+  getEditStatus() {
+    return this.isEditing;
+  }
+
+  deleteAccount() {
+    clearInterval(this.timer);
     this.onUpdate();
   }
 }

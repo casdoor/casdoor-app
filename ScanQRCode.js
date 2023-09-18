@@ -42,12 +42,11 @@ const ScanQRCode = ({onClose, showScanner, onAdd}) => {
     // type org.iso.QRCode
     // data otpauth://totp/casdoor:built-in/admin?algorithm=SHA1&digits=6&issuer=casdoor&period=30&secret=DL5XI33M772GSGU73GJPCOIBNJE7TG3J
     // console.log(`Bar code with type ${type} and data ${data} has been scanned!`);
-
-    const description = data.match(/casdoor:([^?]+)/); // description casdoor:built-in/admin
+    const description = data.match(/otpauth:\/\/totp\/([^?]+)/); // description casdoor:built-in/admin
     const secretCode = data.match(/secret=([^&]+)/); // secretCode II5UO7HIA3SPVXAB6KPAIXZ33AQP7C3R
-
+    const icon = data.match(/issuer=([^&]+)/);
     if (description && secretCode) {
-      onAdd({description: description[1], secretCode: secretCode[1]});
+      onAdd({description: description[1], secretCode: secretCode[1], icon: `https://cdn.casbin.org/img/social_${icon && icon[1].toLowerCase()}.png`});
     }
 
     closeOptions();
