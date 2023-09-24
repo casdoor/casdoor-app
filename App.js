@@ -17,14 +17,24 @@ import {PaperProvider} from "react-native-paper";
 import NavigationBar from "./NavigationBar";
 import {NavigationContainer} from "@react-navigation/native";
 import Header from "./Header";
+import {UserProvider} from "./UserContext";
+import {CasdoorServerProvider} from "./CasdoorServerContext";
 
-export default function App() {
+const App = () => {
+  const [userInfo, setUserInfo] = React.useState(null);
+  const [casdoorServer, setCasdoorServer] = React.useState(null);
   return (
-    <NavigationContainer>
-      <PaperProvider>
-        <Header />
-        <NavigationBar />
-      </PaperProvider>
-    </NavigationContainer>
+    <CasdoorServerProvider value={{casdoorServer, setCasdoorServer}} >
+      <UserProvider value={{userInfo, setUserInfo}} >
+        <NavigationContainer>
+          <PaperProvider>
+            <Header />
+            <NavigationBar />
+          </PaperProvider>
+        </NavigationContainer>
+      </UserProvider>
+    </CasdoorServerProvider>
+
   );
-}
+};
+export default App;

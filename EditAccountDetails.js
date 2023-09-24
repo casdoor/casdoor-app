@@ -38,6 +38,7 @@ export default function EnterAccountDetails({onClose, onEdit, placeholder}) {
           placeholder={placeholder}
           value={description}
           onChangeText={(text) => setDescription(text)}
+          autoCapitalize="none"
           style={{borderWidth: 3, borderColor: "white", margin: 10, width: 230, height: 50, borderRadius: 5, fontSize: 18, color: "gray", paddingLeft: 10}}
         />
       </View>

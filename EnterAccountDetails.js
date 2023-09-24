@@ -48,8 +48,10 @@ export default function EnterAccountDetails({onClose, onAdd}) {
       <View style={{flexDirection: "row", alignItems: "center"}}>
         <IconButton icon="account-details" size={35} />
         <TextInput
+          label="Description"
           placeholder="Description"
           value={description}
+          autoCapitalize="none"
           onChangeText={(text) => setDescription(text)}
           style={{borderWidth: 3, borderColor: "white", margin: 10, width: 230, height: 50, borderRadius: 5, fontSize: 18, color: "gray", paddingLeft: 10}}
         />
@@ -58,8 +60,10 @@ export default function EnterAccountDetails({onClose, onAdd}) {
       <View style={{flexDirection: "row", alignItems: "center"}}>
         <IconButton icon="account-key" size={35} />
         <TextInput
+          label="Secret code"
           placeholder="Secret code"
           value={secretCode}
+          autoCapitalize="none"
           onChangeText={(text) => setSecretCode(text)}
           secureTextEntry
           style={{borderWidth: 3, borderColor: "white", margin: 10, width: 230, height: 50, borderRadius: 5, fontSize: 18, color: "gray", paddingLeft: 10}}
