@@ -12,7 +12,7 @@
     "@expo/webpack-config": "^19.0.0",
     "@react-navigation/bottom-tabs": "^6.5.8",
     "@react-navigation/native": "^6.1.7",
-    "casdoor-react-native-sdk": "^1.1.0",
+    "casdoor-react-native-sdk": "1.1.0",
     "eslint-plugin-import": "^2.28.1",
     "expo": "~49.0.8",
     "expo-barcode-scanner": "^12.5.3",
