@@ -13,7 +13,7 @@
 // limitations under the License.
 
 const DefaultCasdoorSdkConfig = {
-  serverUrl: "https://demo.casdoor.com",
+  serverUrl: "https://door.casdoor.com",
   clientId: "b800a86702dd4d29ec4d",
   appName: "app-example",
   organizationName: "casbin",
