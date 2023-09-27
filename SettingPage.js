@@ -15,13 +15,36 @@
 import * as React from "react";
 import {Button} from "react-native-paper";
 import {View} from "react-native";
+import CasdoorLoginPage, {CasdoorLogout} from "./CasdoorLoginPage";
+import UserContext from "./UserContext";
 
-export default function SettingPage() {
+const SettingPage = () => {
+  const [showLoginPage, setShowLoginPage] = React.useState(false);
+  const {userInfo, setUserInfo} = React.useContext(UserContext);
+  const handleCasdoorLogin = () => {
+    setShowLoginPage(true);
+  };
+  const handleCasdoorLogout = () => {
+    CasdoorLogout();
+    setUserInfo(null);
+  };
+  const handleHideLoginPage = () => {
+    setShowLoginPage(false);
+  };
+
   return (
     <View>
-      <Button style={{marginTop: "50%", marginLeft: "20%", marginRight: "20%"}} icon="login" mode="contained" onPress={() => {}}>
-        Login with Casdoor
+      <Button
+        style={{marginTop: "50%", marginLeft: "20%", marginRight: "20%"}}
+        icon={userInfo === null ? "login" : "logout"}
+        mode="contained"
+        onPress={userInfo === null ? handleCasdoorLogin : handleCasdoorLogout}
+      >
+        {userInfo === null ? "Login with Casdoor" : "Logout"}
       </Button>
+      {showLoginPage && <CasdoorLoginPage onWebviewClose={handleHideLoginPage} />}
     </View>
   );
-}
+};
+
+export default SettingPage;

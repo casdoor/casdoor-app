@@ -13,14 +13,65 @@
 // limitations under the License.
 
 import * as React from "react";
-import {Appbar, Avatar, Text} from "react-native-paper";
+import {Appbar, Avatar, Button, Menu, Text} from "react-native-paper";
+import UserContext from "./UserContext";
+import {View} from "react-native";
+import CasdoorLoginPage, {CasdoorLogout} from "./CasdoorLoginPage";
 
-const Header = () => (
-  <Appbar.Header style={{height: 40}}>
-    <Appbar.Content title="Casdoor" />
-    <Avatar.Image size={32} source={{uri: "https://cdn.casbin.org/img/social_casdoor.png"}} style={{marginRight: 10, backgroundColor: "transparent"}} />
-    <Text style={{marginRight: 10}} variant="titleMedium">Admin</Text>
-  </Appbar.Header>
-);
+const Header = () => {
+  const {userInfo, setUserInfo} = React.useContext(UserContext);
+  const [showLoginPage, setShowLoginPage] = React.useState(false);
+  const [menuVisible, setMenuVisible] = React.useState(false);
+  const openMenu = () => setMenuVisible(true);
+  const closeMenu = () => setMenuVisible(false);
+  const handleMenuLogoutClicked = () => {
+    handleCasdoorLogout();
+    closeMenu();
+  };
+
+  const handleCasdoorLogin = () => {
+    setShowLoginPage(true);
+  };
+  const handleCasdoorLogout = () => {
+    CasdoorLogout();
+    setUserInfo(null);
+  };
+  const handleHideLoginPage = () => {
+    setShowLoginPage(false);
+  };
+  return (
+    <View>
+      <Appbar.Header style={{height: 40}}>
+        <Appbar.Content title="Casdoor" />
+        <Menu
+          visible={menuVisible}
+          anchor={
+            <Button
+              style={{marginRight: 10, backgroundColor: "transparent", height: 40}}
+              onPress={userInfo === null ? handleCasdoorLogin : openMenu}
+            >
+              {
+                userInfo === null ?
+                  null :
+                  <Avatar.Image
+                    size={32}
+                    source={{uri: userInfo.avatar}}
+                    style={{marginRight: 10, backgroundColor: "transparent"}}
+                  />
+              }
+              <Text style={{marginRight: 10}} variant="titleMedium">
+                {userInfo === null ? "Login" : userInfo.name}
+              </Text>
+            </Button>
+          }
+          onDismiss={closeMenu}
+        >
+          <Menu.Item onPress={() => handleMenuLogoutClicked()} title="Logout" />
+        </Menu>
+      </Appbar.Header>
+      {showLoginPage && <CasdoorLoginPage onWebviewClose={handleHideLoginPage} />}
+    </View>
+  );
+};
 
 export default Header;
