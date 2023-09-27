@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import React, {useState} from "react";
-import {Text, View} from "react-native";
+import {Alert, Text, View} from "react-native";
 import {Button, IconButton, Portal, TextInput} from "react-native-paper";
 import DefaultCasdoorSdkConfig from "./DefaultCasdoorSdkConfig";
 import CasdoorServerContext from "./CasdoorServerContext";
@@ -28,10 +28,9 @@ const EnterCasdoorSdkConfig = ({onClose, onWebviewClose}) => {
   const [CasdoorSdkConfig, setCasdoorSdkConfig] = useState({
     serverUrl: "",
     clientId: "",
-    clientSecret: "",
     appName: "",
     organizationName: "",
-    redirectPath: "",
+    redirectPath: "http://casdoor-app",
     signinPath: "/api/signin",
   });
 
@@ -47,11 +46,11 @@ const EnterCasdoorSdkConfig = ({onClose, onWebviewClose}) => {
     if (
       !CasdoorSdkConfig.serverUrl ||
       !CasdoorSdkConfig.clientId ||
-      !CasdoorSdkConfig.clientSecret ||
       !CasdoorSdkConfig.appName ||
       !CasdoorSdkConfig.organizationName ||
       !CasdoorSdkConfig.redirectPath
     ) {
+      Alert.alert("Please fill in all the fields!");
       return;
     }
     setCasdoorServer(CasdoorSdkConfig);
@@ -102,23 +101,6 @@ const EnterCasdoorSdkConfig = ({onClose, onWebviewClose}) => {
             }}
           />
           <TextInput
-            label="ClientSecret"
-            value={CasdoorSdkConfig.clientSecret}
-            onChangeText={(text) => handleInputChange("clientSecret", text)}
-            autoCapitalize="none"
-            style={{
-              borderWidth: 3,
-              borderColor: "white",
-              margin: 10,
-              width: 300,
-              height: 50,
-              borderRadius: 5,
-              fontSize: 18,
-              color: "gray",
-              paddingLeft: 10,
-            }}
-          />
-          <TextInput
             label="appName"
             value={CasdoorSdkConfig.appName}
             onChangeText={(text) => handleInputChange("appName", text)}
@@ -152,23 +134,6 @@ const EnterCasdoorSdkConfig = ({onClose, onWebviewClose}) => {
               paddingLeft: 10,
             }}
           />
-          <TextInput
-            label="redirectPath"
-            value={CasdoorSdkConfig.redirectPath}
-            onChangeText={(text) => handleInputChange("redirectPath", text)}
-            autoCapitalize="none"
-            style={{
-              borderWidth: 3,
-              borderColor: "white",
-              margin: 10,
-              width: 300,
-              height: 50,
-              borderRadius: 5,
-              fontSize: 18,
-              color: "gray",
-              paddingLeft: 10,
-            }}
-          />
           <Button
             mode="contained"
             onPress={handleSave}
@@ -178,7 +143,7 @@ const EnterCasdoorSdkConfig = ({onClose, onWebviewClose}) => {
               margin: 10,
               alignItems: "center",
               position: "absolute",
-              top: 675,
+              top: 600,
               width: 300,
               height: 50,
               display: "flex",
@@ -196,13 +161,13 @@ const EnterCasdoorSdkConfig = ({onClose, onWebviewClose}) => {
               margin: 10,
               alignItems: "center",
               position: "absolute",
-              top: 735,
+              top: 660,
               width: 300,
             }}
           >
             <Text style={{fontSize: 18, width: 300, color: "black"}}>Use Casdoor Demo Site</Text>
           </Button>
-          <IconButton icon={"close"} size={30} onPress={closeConfigPage} style={{position: "absolute", top: 120, right: 5}} />
+          <IconButton icon={"close"} size={30} onPress={closeConfigPage} style={{position: "absolute", top: 120, right: -30}} />
         </View>
       </View>
     </Portal>
