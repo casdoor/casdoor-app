@@ -20,14 +20,16 @@ import UserContext from "./UserContext";
 
 const SettingPage = () => {
   const [showLoginPage, setShowLoginPage] = React.useState(false);
-  const {userInfo, setUserInfo} = React.useContext(UserContext);
+  const {userInfo, setUserInfo, setToken} = React.useContext(UserContext);
   const handleCasdoorLogin = () => {
     setShowLoginPage(true);
   };
   const handleCasdoorLogout = () => {
     CasdoorLogout();
     setUserInfo(null);
+    setToken(null);
   };
+
   const handleHideLoginPage = () => {
     setShowLoginPage(false);
   };

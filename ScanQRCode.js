@@ -15,7 +15,7 @@
 import React, {useEffect, useState} from "react";
 import {Dimensions, Text, View} from "react-native";
 import {IconButton, Modal, Portal} from "react-native-paper";
-import {BarCodeScanner} from "expo-barcode-scanner";
+import {Camera, CameraView} from "expo-camera";
 import PropTypes from "prop-types";
 
 const ScanQRCode = ({onClose, showScanner, onAdd}) => {
@@ -28,10 +28,12 @@ const ScanQRCode = ({onClose, showScanner, onAdd}) => {
   const [hasPermission, setHasPermission] = useState(null);
 
   useEffect(() => {
-    (async() => {
-      const {status} = await BarCodeScanner.requestPermissionsAsync();
+    const getCameraPermissions = async() => {
+      const {status} = await Camera.requestCameraPermissionsAsync();
       setHasPermission(status === "granted");
-    })();
+    };
+
+    getCameraPermissions();
   }, []);
 
   const closeOptions = () => {
@@ -42,11 +44,11 @@ const ScanQRCode = ({onClose, showScanner, onAdd}) => {
     // type org.iso.QRCode
     // data otpauth://totp/casdoor:built-in/admin?algorithm=SHA1&digits=6&issuer=casdoor&period=30&secret=DL5XI33M772GSGU73GJPCOIBNJE7TG3J
     // console.log(`Bar code with type ${type} and data ${data} has been scanned!`);
-    const description = data.match(/otpauth:\/\/totp\/([^?]+)/); // description casdoor:built-in/admin
-    const secretCode = data.match(/secret=([^&]+)/); // secretCode II5UO7HIA3SPVXAB6KPAIXZ33AQP7C3R
-    const icon = data.match(/issuer=([^&]+)/);
-    if (description && secretCode) {
-      onAdd({description: description[1], secretCode: secretCode[1], icon: `https://cdn.casbin.org/img/social_${icon && icon[1].toLowerCase()}.png`});
+    const accountName = data.match(/otpauth:\/\/totp\/([^?]+)/); // accountName casdoor:built-in/admin
+    const secretKey = data.match(/secret=([^&]+)/); // secretKey II5UO7HIA3SPVXAB6KPAIXZ33AQP7C3R
+    const issuer = data.match(/issuer=([^&]+)/);
+    if (accountName && secretKey) {
+      onAdd({accountName: accountName[1], issuer: issuer[1], secretKey: secretKey[1]});
     }
 
     closeOptions();
@@ -77,8 +79,11 @@ const ScanQRCode = ({onClose, showScanner, onAdd}) => {
           ) : hasPermission === false ? (
             <Text style={{marginLeft: "20%", marginRight: "20%"}}>No access to camera</Text>
           ) : (
-            <BarCodeScanner
-              onBarCodeScanned={handleBarCodeScanned}
+            <CameraView
+              onBarcodeScanned={handleBarCodeScanned}
+              barcodeScannerSettings={{
+                barcodeTypes: ["qr", "pdf417"],
+              }}
               style={{flex: 1}}
             />
           )}

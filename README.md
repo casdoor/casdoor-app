@@ -6,7 +6,7 @@ Casdoor Authenticator App is a mobile application for iOS and Android that provi
 
 - [x] Multi-platform support (iOS/Android)
 - [x] TOTP-based multi-factor authentication
-- [ ] Account synchronization with Casdoor
+- [x] Account synchronization with Casdoor
 - [ ] Integration with Casdoor's central service and desktop client
 
 ## Quick Start
@@ -21,7 +21,7 @@ npm install && npm run start
 
 - Open the app on your mobile device.
 - Scan QR codes to add accounts and generate TOTP codes for login.
-- Log in to your accounts for synchronization with Casdoor. (In progress)
+- Log in to your accounts for synchronization with Casdoor.
 
 ## License
 

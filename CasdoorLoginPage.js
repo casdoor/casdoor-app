@@ -30,7 +30,7 @@ const CasdoorLoginPage = ({onWebviewClose}) => {
     onWebviewClose: PropTypes.func.isRequired,
   };
   const [casdoorLoginURL, setCasdoorLoginURL] = React.useState("");
-  const {setUserInfo} = React.useContext(UserContext);
+  const {setUserInfo, setToken} = React.useContext(UserContext);
   const [showConfigPage, setShowConfigPage] = React.useState(true);
   const {casdoorServer} = React.useContext(CasdoorServerContext);
   const handleHideConfigPage = () => {
@@ -53,6 +53,7 @@ const CasdoorLoginPage = ({onWebviewClose}) => {
       onWebviewClose();
       const token = await sdk.getAccessToken(navState.url);
       const userInfo = sdk.JwtDecode(token);
+      setToken(token);
       setUserInfo(userInfo);
     }
   };

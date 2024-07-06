@@ -12,40 +12,85 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as React from "react";
-import {Dimensions, FlatList, Text, TouchableOpacity, View} from "react-native";
-import {Avatar, Divider, IconButton, List, Modal, Portal} from "react-native-paper";
-import SearchBar from "./SearchBar";
+import React, {useContext, useEffect, useRef, useState} from "react";
+import {Dimensions, FlatList, RefreshControl, Text, TouchableOpacity, View} from "react-native";
+import {Divider, IconButton, List, Modal, Portal} from "react-native-paper";
 import {GestureHandlerRootView, Swipeable} from "react-native-gesture-handler";
 
+import SearchBar from "./SearchBar";
 import EnterAccountDetails from "./EnterAccountDetails";
-import Account from "./Account";
 import ScanQRCode from "./ScanQRCode";
 import EditAccountDetails from "./EditAccountDetails";
+import AvatarWithFallback from "./AvatarWithFallback";
+import Account from "./Account";
+import UserContext from "./UserContext";
+import CasdoorServerContext from "./CasdoorServerContext";
+import useSync, {SYNC_STATUS} from "./useSync";
+
+const {width, height} = Dimensions.get("window");
+const OFFSET_X = width * 0.45;
+const OFFSET_Y = height * 0.2;
 
 export default function HomePage() {
-  const [isPlusButton, setIsPlusButton] = React.useState(true);
-  const [showOptions, setShowOptions] = React.useState(false);
-  const [showEnterAccountModal, setShowEnterAccountModal] = React.useState(false);
-  const [accountList, setAccountList] = React.useState([]);
-  const [searchQuery, setSearchQuery] = React.useState("");
-  const [filteredData, setFilteredData] = React.useState(accountList);
-  const [showScanner, setShowScanner] = React.useState(false);
-  const [showEditAccountModal, setShowEditAccountModal] = React.useState(false);
-  const swipeableRef = React.useRef(null);
-  const [placeholder, setPlaceholder] = React.useState("");
-  const closeEditAccountModal = () => {
-    setShowEditAccountModal(false);
+  const [isPlusButton, setIsPlusButton] = useState(true);
+  const [showOptions, setShowOptions] = useState(false);
+  const [showEnterAccountModal, setShowEnterAccountModal] = useState(false);
+  const [accountList, setAccountList] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filteredData, setFilteredData] = useState(accountList);
+  const [showScanner, setShowScanner] = useState(false);
+  const [showEditAccountModal, setShowEditAccountModal] = useState(false);
+  const [placeholder, setPlaceholder] = useState("");
+  const [refreshing, setRefreshing] = useState(false);
+
+  const swipeableRef = useRef(null);
+  const isSyncing = useRef(false);
+
+  const {userInfo, token} = useContext(UserContext);
+  const {casdoorServer} = useContext(CasdoorServerContext);
+  const {syncAccounts, syncSignal, resetSyncSignal, addToSyncData} = useSync(userInfo, token, casdoorServer);
+
+  const handleSync = async() => {
+    if (isSyncing.current) {return;}
+    isSyncing.current = true;
+    try {
+      const syncedAccounts = await syncAccounts();
+      if (syncedAccounts.success && syncedAccounts.accountList) {
+        accountList.forEach(account => account.deleteAccount());
+        const newAccountList = syncedAccounts.accountList.map(account => new Account(
+          account.accountName,
+          account.issuer,
+          account.secretKey,
+          onUpdate
+        ));
+        setAccountList(newAccountList);
+      }
+    } finally {
+      isSyncing.current = false;
+      setRefreshing(false);
+      resetSyncSignal();
+    }
   };
+
+  useEffect(() => {
+    if ((syncSignal || refreshing) && !isSyncing.current) {
+      handleSync();
+    }
+  }, [syncSignal, refreshing]);
+
+  const onRefresh = () => {
+    setRefreshing(true);
+  };
+
+  const closeEditAccountModal = () => setShowEditAccountModal(false);
+
   const handleScanPress = () => {
     setShowScanner(true);
     setIsPlusButton(true);
     setShowOptions(false);
   };
 
-  const handleCloseScanner = () => {
-    setShowScanner(false);
-  };
+  const handleCloseScanner = () => setShowScanner(false);
 
   const togglePlusButton = () => {
     setIsPlusButton(!isPlusButton);
@@ -63,46 +108,43 @@ export default function HomePage() {
     closeOptions();
   };
 
-  const closeEnterAccountModal = () => {
-    setShowEnterAccountModal(false);
-  };
+  const closeEnterAccountModal = () => setShowEnterAccountModal(false);
 
-  const onUpdate = () => {
-    setAccountList(prevList => [...prevList]);
-  };
+  const onUpdate = () => setAccountList(prev => [...prev]);
+
   const handleAddAccount = (accountData) => {
-    const newAccount = new Account(accountData.description, accountData.secretCode, onUpdate, accountData.icon);
-    const token = newAccount.generateToken();
-    newAccount.token = token;
+    const newAccount = new Account(accountData.accountName, accountData.issuer, accountData.secretKey, onUpdate);
+    addToSyncData(newAccount, SYNC_STATUS.ADD);
+    newAccount.token = newAccount.generateToken();
 
-    setAccountList(prevList => [...prevList, newAccount]);
+    setAccountList(prev => [...prev, newAccount]);
     closeEnterAccountModal();
   };
 
-  const handleDeleteAccount = (accountDescp) => {
-    const accountToDelete = accountList.find(account => {
-      return account.getTitle() === accountDescp;
-    });
+  const handleDeleteAccount = (accountName) => {
+    const accountToDelete = accountList.find(account => account.accountName === accountName);
     if (accountToDelete) {
       accountToDelete.deleteAccount();
+      addToSyncData(accountToDelete, SYNC_STATUS.DELETE);
     }
-    setAccountList(prevList => prevList.filter(account => account.getTitle() !== accountDescp));
+    setAccountList(prevList => prevList.filter(account => account.accountName !== accountName));
   };
-  const handleEditAccount = (accountDescp) => {
-    closeSwipeableMenu();
-    setPlaceholder(accountDescp);
-    setShowEditAccountModal(true);
-    const accountToEdit = accountList.find(account => account.getTitle() === accountDescp);
 
+  const handleEditAccount = (accountName) => {
+    closeSwipeableMenu();
+    const accountToEdit = accountList.find(account => account.accountName === accountName);
     if (accountToEdit) {
+      setPlaceholder(accountToEdit.accountName);
+      setShowEditAccountModal(true);
       accountToEdit.setEditingStatus(true);
     }
   };
 
-  const onAccountEdit = (accountDescp) => {
+  const onAccountEdit = (newAccountName) => {
     const accountToEdit = accountList.find(account => account.getEditStatus() === true);
     if (accountToEdit) {
-      accountToEdit.setTitle(accountDescp);
+      addToSyncData(accountToEdit, SYNC_STATUS.EDIT, newAccountName);
+      accountToEdit.setAccountName(newAccountName);
     }
     setPlaceholder("");
     closeEditAccountModal();
@@ -116,21 +158,11 @@ export default function HomePage() {
 
   const handleSearch = (query) => {
     setSearchQuery(query);
-
-    if (query.trim() !== "") {
-      const filteredResults = accountList.filter(item =>
-        item.title.toLowerCase().includes(query.toLowerCase())
-      );
-      setFilteredData(filteredResults);
-    } else {
-      setFilteredData(accountList);
-    }
+    setFilteredData(query.trim() !== ""
+      ? accountList.filter(item => item.accountName.toLowerCase().includes(query.toLowerCase()))
+      : accountList
+    );
   };
-
-  const {width, height} = Dimensions.get("window");
-
-  const offsetX = width * 0.45;
-  const offsetY = height * 0.2;
 
   return (
     <View style={{flex: 1}}>
@@ -138,6 +170,9 @@ export default function HomePage() {
       <FlatList
         data={searchQuery.trim() !== "" ? filteredData : accountList}
         keyExtractor={(item, index) => index.toString()}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
         renderItem={({item}) => (
           <GestureHandlerRootView>
             <Swipeable
@@ -146,13 +181,13 @@ export default function HomePage() {
                 <View style={{flexDirection: "row", alignItems: "center"}}>
                   <TouchableOpacity
                     style={{height: 70, width: 80, backgroundColor: "#E6DFF3", alignItems: "center", justifyContent: "center"}}
-                    onPress={handleEditAccount.bind(this, item.title)}
+                    onPress={handleEditAccount.bind(this, item.accountName)}
                   >
                     <Text>Edit</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={{height: 70, width: 80, backgroundColor: "#FFC0CB", alignItems: "center", justifyContent: "center"}}
-                    onPress={handleDeleteAccount.bind(this, item.title)}
+                    onPress={handleDeleteAccount.bind(this, item.accountName)}
                   >
                     <Text>Delete</Text>
                   </TouchableOpacity>
@@ -163,7 +198,7 @@ export default function HomePage() {
                 style={{height: 80, alignItems: "center", justifyContent: "center"}}
                 title={
                   <View>
-                    <Text style={{fontSize: 20}}>{item.title}</Text>
+                    <Text style={{fontSize: 20}}>{item.accountName}</Text>
                     <View style={{flexDirection: "row", alignItems: "center"}}>
                       <Text style={{fontSize: 35, width: 180}}>{item.token}</Text>
                       <Text style={{fontSize: 20, width: 40}}>{item.countdowns}s</Text>
@@ -171,9 +206,12 @@ export default function HomePage() {
                   </View>
                 }
                 left={(props) => (
-                  item.icon ?
-                    <Avatar.Image size={60} source={{uri: item.icon}} style={{marginLeft: 20, marginRight: 20, borderRadius: 10, backgroundColor: "transparent"}} />
-                    : <Avatar.Icon size={80} icon={"account"} color={"black"} style={{marginLeft: 10, marginRight: 10, borderRadius: 10, backgroundColor: "transparent"}} />
+                  <AvatarWithFallback
+                    source={{uri: item.issuer ? `https://cdn.casbin.org/img/social_${item.issuer.toLowerCase()}.png` : "https://cdn.casbin.org/img/social_default.png"}}
+                    fallbackSource={{uri: "https://cdn.casbin.org/img/social_default.png"}}
+                    size={60}
+                    style={{marginLeft: 10, marginRight: 10, borderRadius: 10, backgroundColor: "transparent"}}
+                  />
                 )}
               />
             </Swipeable>
@@ -203,7 +241,7 @@ export default function HomePage() {
             onPress={handleScanPress}
           >
             <IconButton icon={"camera"} size={35} />
-            <Text style={{fontSize: 18}} >Scan QR code</Text>
+            <Text style={{fontSize: 18}}>Scan QR code</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={{flexDirection: "row", alignItems: "center", marginTop: 10}}
@@ -214,6 +252,7 @@ export default function HomePage() {
           </TouchableOpacity>
         </Modal>
       </Portal>
+
       <Portal>
         <Modal
           visible={showEnterAccountModal}
@@ -227,12 +266,13 @@ export default function HomePage() {
             position: "absolute",
             top: "50%",
             left: "50%",
-            transform: [{translateX: -offsetX}, {translateY: -offsetY}],
+            transform: [{translateX: -OFFSET_X}, {translateY: -OFFSET_Y}],
           }}
         >
           <EnterAccountDetails onClose={closeEnterAccountModal} onAdd={handleAddAccount} />
         </Modal>
       </Portal>
+
       <Portal>
         <Modal
           visible={showEditAccountModal}
@@ -246,12 +286,13 @@ export default function HomePage() {
             position: "absolute",
             top: "50%",
             left: "50%",
-            transform: [{translateX: -offsetX}, {translateY: -offsetY}],
+            transform: [{translateX: -OFFSET_X}, {translateY: -OFFSET_Y}],
           }}
         >
           <EditAccountDetails onClose={closeEditAccountModal} onEdit={onAccountEdit} placeholder={placeholder} />
         </Modal>
       </Portal>
+
       {showScanner && (
         <ScanQRCode onClose={handleCloseScanner} showScanner={showScanner} onAdd={handleAddAccount} />
       )}
