@@ -12,9 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {useCallback, useContext, useEffect, useState} from "react";
-import UserContext from "./UserContext";
-import CasdoorServerContext from "./CasdoorServerContext";
+import {useCallback, useEffect, useState} from "react";
 import * as api from "./api";
 import useNetworkStatus from "./useNetworkStatus";
 

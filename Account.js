@@ -19,11 +19,14 @@ class Account {
     this.accountName = accountName;
     this.secretKey = secretKey;
     this.onUpdate = onUpdate;
-    this.countdowns = 30;
-    this.timer = setInterval(this.updateCountdown.bind(this), 1000);
     this.token = this.generateToken();
     this.isEditing = false;
     this.issuer = issuer;
+  }
+
+  calculateCountdown() {
+    const currentTime = Math.floor(Date.now() / 1000);
+    return 30 - (currentTime % 30);
   }
 
   generateToken() {
@@ -36,15 +39,6 @@ class Account {
 
   generateAndSetToken() {
     this.token = this.generateToken();
-    this.onUpdate();
-  }
-
-  updateCountdown() {
-    this.countdowns = Math.max(0, this.countdowns - 1);
-    if (this.countdowns === 0) {
-      this.generateAndSetToken();
-      this.countdowns = 30;
-    }
     this.onUpdate();
   }
 
@@ -63,7 +57,6 @@ class Account {
   }
 
   deleteAccount() {
-    clearInterval(this.timer);
     this.onUpdate();
   }
 }

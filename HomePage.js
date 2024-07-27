@@ -16,6 +16,7 @@ import React, {useContext, useEffect, useRef, useState} from "react";
 import {Dimensions, FlatList, RefreshControl, Text, TouchableOpacity, View} from "react-native";
 import {Divider, IconButton, List, Modal, Portal} from "react-native-paper";
 import {GestureHandlerRootView, Swipeable} from "react-native-gesture-handler";
+import {CountdownCircleTimer} from "react-native-countdown-circle-timer";
 
 import SearchBar from "./SearchBar";
 import EnterAccountDetails from "./EnterAccountDetails";
@@ -195,14 +196,11 @@ export default function HomePage() {
               )}
             >
               <List.Item
-                style={{height: 80, alignItems: "center", justifyContent: "center"}}
+                style={{height: 80, alignItems: "center", justifyContent: "center", marginLeft: 10}}
                 title={
                   <View>
                     <Text style={{fontSize: 20}}>{item.accountName}</Text>
-                    <View style={{flexDirection: "row", alignItems: "center"}}>
-                      <Text style={{fontSize: 35, width: 180}}>{item.token}</Text>
-                      <Text style={{fontSize: 20, width: 40}}>{item.countdowns}s</Text>
-                    </View>
+                    <Text style={{fontSize: 35, width: 180}}>{item.token}</Text>
                   </View>
                 }
                 left={(props) => (
@@ -212,6 +210,22 @@ export default function HomePage() {
                     size={60}
                     style={{marginLeft: 10, marginRight: 10, borderRadius: 10, backgroundColor: "transparent"}}
                   />
+                )}
+                right={(props) => (
+                  <CountdownCircleTimer
+                    isPlaying={true}
+                    duration={30}
+                    initialRemainingTime={item.calculateCountdown()}
+                    colors={["#004777", "#0072A0", "#0099CC", "#FF6600", "#CC3300", "#A30000"]}
+                    colorsTime={[30, 24, 18, 12, 6, 0]}
+                    size={60}
+                    onComplete={() => {item.generateAndSetToken(); return {shouldRepeat: true};}}
+                    strokeWidth={5}
+                  >
+                    {({remainingTime}) => (
+                      <Text style={{fontSize: 20}}>{remainingTime}s</Text>
+                    )}
+                  </CountdownCircleTimer>
                 )}
               />
             </Swipeable>
