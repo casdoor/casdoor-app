@@ -22,8 +22,6 @@ export const SYNC_STATUS = {
   DELETE: "delete",
 };
 
-const REFRESH_INTERVAL = 10000;
-
 const applySync = (serverAccountList, toSyncData) => {
   return toSyncData.reduce((acc, syncItem) => {
     switch (syncItem.status) {
@@ -115,11 +113,6 @@ const useSync = (userInfo, token, casdoorServer) => {
       return {success: false, error: error.message};
     }
   }, [canSync, casdoorServer, userInfo, token, toSyncData]);
-
-  useEffect(() => {
-    const timer = setInterval(triggerSync, REFRESH_INTERVAL);
-    return () => clearInterval(timer);
-  }, [triggerSync]);
 
   useEffect(() => {
     if (canSync) {triggerSync();}

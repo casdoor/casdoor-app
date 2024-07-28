@@ -29,6 +29,7 @@ import CasdoorServerContext from "./CasdoorServerContext";
 import useSync, {SYNC_STATUS} from "./useSync";
 
 const {width, height} = Dimensions.get("window");
+const REFRESH_INTERVAL = 10000;
 const OFFSET_X = width * 0.45;
 const OFFSET_Y = height * 0.2;
 
@@ -78,6 +79,11 @@ export default function HomePage() {
       handleSync();
     }
   }, [syncSignal, refreshing]);
+
+  useEffect(() => {
+    const timer = setInterval(handleSync, REFRESH_INTERVAL);
+    return () => clearInterval(timer);
+  }, [handleSync]);
 
   const onRefresh = () => {
     setRefreshing(true);
