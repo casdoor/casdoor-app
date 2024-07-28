@@ -23,8 +23,8 @@ export default function EnterAccountDetails({onClose, onAdd}) {
     onAdd: PropTypes.func.isRequired,
   };
 
-  const [description, setDescription] = useState("");
-  const [secretCode, setSecretCode] = useState("");
+  const [accountName, setAccountName] = useState("");
+  const [secretKey, setSecretKey] = useState("");
 
   const [visible, setVisible] = React.useState(false);
   const openMenu = () => setVisible(true);
@@ -37,9 +37,9 @@ export default function EnterAccountDetails({onClose, onAdd}) {
   };
 
   const handleAddAccount = () => {
-    onAdd({description, secretCode});
-    setDescription("");
-    setSecretCode("");
+    onAdd({accountName, secretKey});
+    setAccountName("");
+    setSecretKey("");
   };
 
   return (
@@ -48,11 +48,11 @@ export default function EnterAccountDetails({onClose, onAdd}) {
       <View style={{flexDirection: "row", alignItems: "center"}}>
         <IconButton icon="account-details" size={35} />
         <TextInput
-          label="Description"
-          placeholder="Description"
-          value={description}
+          label="Account Name"
+          placeholder="Account Name"
+          value={accountName}
           autoCapitalize="none"
-          onChangeText={(text) => setDescription(text)}
+          onChangeText={(text) => setAccountName(text)}
           style={{borderWidth: 3, borderColor: "white", margin: 10, width: 230, height: 50, borderRadius: 5, fontSize: 18, color: "gray", paddingLeft: 10}}
         />
       </View>
@@ -60,11 +60,11 @@ export default function EnterAccountDetails({onClose, onAdd}) {
       <View style={{flexDirection: "row", alignItems: "center"}}>
         <IconButton icon="account-key" size={35} />
         <TextInput
-          label="Secret code"
-          placeholder="Secret code"
-          value={secretCode}
+          label="Secret Key"
+          placeholder="Secret Key"
+          value={secretKey}
           autoCapitalize="none"
-          onChangeText={(text) => setSecretCode(text)}
+          onChangeText={(text) => setSecretKey(text)}
           secureTextEntry
           style={{borderWidth: 3, borderColor: "white", margin: 10, width: 230, height: 50, borderRadius: 5, fontSize: 18, color: "gray", paddingLeft: 10}}
         />

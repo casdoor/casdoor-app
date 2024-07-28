@@ -15,20 +15,23 @@
 import totp from "totp-generator";
 
 class Account {
-  constructor(description, secretCode, onUpdate, icon) {
-    this.title = description;
-    this.secretCode = secretCode;
-    this.countdowns = 30;
-    this.timer = setInterval(this.updateCountdown.bind(this), 1000);
-    this.token = "";
+  constructor(accountName, issuer, secretKey, onUpdate) {
+    this.accountName = accountName;
+    this.secretKey = secretKey;
     this.onUpdate = onUpdate;
+    this.token = this.generateToken();
     this.isEditing = false;
-    this.icon = icon ? icon : null;
+    this.issuer = issuer;
+  }
+
+  calculateCountdown() {
+    const currentTime = Math.floor(Date.now() / 1000);
+    return 30 - (currentTime % 30);
   }
 
   generateToken() {
-    if (this.secretCode !== null && this.secretCode !== undefined && this.secretCode !== "") {
-      const token = totp(this.secretCode);
+    if (this.secretKey !== null && this.secretKey !== undefined && this.secretKey !== "") {
+      const token = totp(this.secretKey);
       const tokenWithSpace = token.slice(0, 3) + " " + token.slice(3);
       return tokenWithSpace;
     }
@@ -39,31 +42,21 @@ class Account {
     this.onUpdate();
   }
 
-  updateCountdown() {
-    this.countdowns = Math.max(0, this.countdowns - 1);
-    if (this.countdowns === 0) {
-      this.generateAndSetToken();
-      this.countdowns = 30;
-    }
-    this.onUpdate();
-  }
-  getTitle() {
-    return this.title;
-  }
-  setTitle(title) {
-    this.title = title;
+  setAccountName(accountName) {
+    this.accountName = accountName;
     this.setEditingStatus(false);
   }
+
   setEditingStatus(status) {
     this.isEditing = status;
     this.onUpdate();
   }
+
   getEditStatus() {
     return this.isEditing;
   }
 
   deleteAccount() {
-    clearInterval(this.timer);
     this.onUpdate();
   }
 }

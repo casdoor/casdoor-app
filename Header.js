@@ -15,11 +15,11 @@
 import * as React from "react";
 import {Appbar, Avatar, Button, Menu, Text} from "react-native-paper";
 import UserContext from "./UserContext";
-import {View} from "react-native";
+import {StyleSheet, View} from "react-native";
 import CasdoorLoginPage, {CasdoorLogout} from "./CasdoorLoginPage";
 
 const Header = () => {
-  const {userInfo, setUserInfo} = React.useContext(UserContext);
+  const {userInfo, setUserInfo, setToken} = React.useContext(UserContext);
   const [showLoginPage, setShowLoginPage] = React.useState(false);
   const [menuVisible, setMenuVisible] = React.useState(false);
   const openMenu = () => setMenuVisible(true);
@@ -35,33 +35,50 @@ const Header = () => {
   const handleCasdoorLogout = () => {
     CasdoorLogout();
     setUserInfo(null);
+    setToken(null);
   };
   const handleHideLoginPage = () => {
     setShowLoginPage(false);
   };
+
   return (
     <View>
       <Appbar.Header style={{height: 40}}>
-        <Appbar.Content title="Casdoor" />
+        <View style={[StyleSheet.absoluteFill, {alignItems: "center", justifyContent: "center"}]} pointerEvents="box-none">
+          <Appbar.Content title="Casdoor" style={{
+            alignItems: "center",
+            justifyContent: "center",
+          }} />
+        </View>
+        <View style={{flex: 1}} />
         <Menu
           visible={menuVisible}
           anchor={
             <Button
-              style={{marginRight: 10, backgroundColor: "transparent", height: 40}}
+              style={{
+                marginRight: 2,
+                backgroundColor: "transparent",
+                height: 40,
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
               onPress={userInfo === null ? handleCasdoorLogin : openMenu}
             >
-              {
-                userInfo === null ?
-                  null :
+              <View style={{flexDirection: "row", alignItems: "center"}}>
+                <View style={{position: "relative", height: 32, justifyContent: "flex-end", marginRight: 8}}>
+                  <Text variant="titleMedium">
+                    {userInfo === null ? "Login" : userInfo.name}
+                  </Text>
+                </View>
+                {userInfo !== null && (
                   <Avatar.Image
                     size={32}
                     source={{uri: userInfo.avatar}}
-                    style={{marginRight: 10, backgroundColor: "transparent"}}
+                    style={{backgroundColor: "transparent"}}
                   />
-              }
-              <Text style={{marginRight: 10}} variant="titleMedium">
-                {userInfo === null ? "Login" : userInfo.name}
-              </Text>
+                )}
+              </View>
             </Button>
           }
           onDismiss={closeMenu}

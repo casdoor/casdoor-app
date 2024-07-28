@@ -24,20 +24,20 @@ export default function EnterAccountDetails({onClose, onEdit, placeholder}) {
     placeholder: PropTypes.string.isRequired,
   };
 
-  const [description, setDescription] = useState("");
+  const [accountName, setAccountName] = useState("");
 
   const handleConfirm = () => {
-    onEdit(description);
+    onEdit(accountName);
   };
   return (
     <View style={{flex: 1, justifyContent: "center", alignItems: "center"}}>
-      <Text style={{fontSize: 24, marginBottom: 5}}>Enter new description</Text>
+      <Text style={{fontSize: 24, marginBottom: 5}}>Enter new account name</Text>
       <View style={{flexDirection: "row", alignItems: "center"}}>
         <IconButton icon="account-details" size={35} />
         <TextInput
           placeholder={placeholder}
-          value={description}
-          onChangeText={(text) => setDescription(text)}
+          value={accountName}
+          onChangeText={(text) => setAccountName(text)}
           autoCapitalize="none"
           style={{borderWidth: 3, borderColor: "white", margin: 10, width: 230, height: 50, borderRadius: 5, fontSize: 18, color: "gray", paddingLeft: 10}}
         />

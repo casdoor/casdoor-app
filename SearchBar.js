@@ -28,7 +28,7 @@ const SearchBar = ({onSearch}) => {
       onChangeText={onChangeSearch}
       value={searchQuery}
       style={{height: 48, backgroundColor: "#E6DFF3"}}
-      inputStyle={{textAlignVertical: "center", justifyContent: "center", alignItems: "center"}}
+      inputStyle={{textAlignVertical: "center", justifyContent: "center", alignItems: "center", minHeight: 0}}
     />
   );
 };
