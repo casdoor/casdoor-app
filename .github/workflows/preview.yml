@@ -1,0 +1,44 @@
+name: Build preview for pull requests
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    concurrency: fingerprint-${{ github.event_name != 'pull_request' && 'master' || github.run_id }}
+    permissions:
+      pull-requests: write
+      actions: write
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🏗  Setup EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: 🚀 Create preview
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: expo/expo-github-action/preview@v8
+        with:
+          command: eas update --auto --branch ${{ github.event.pull_request.head.ref }}
+          comment: true
+          qr-target: 'expo-go'
+          working-directory: ${{ github.workspace }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create preview builds if needed
+        uses: expo/expo-github-action/preview-build@main
+        with:
+          command: eas build --profile development --platform all
