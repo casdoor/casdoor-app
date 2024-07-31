@@ -3,7 +3,7 @@ name: Build preview for pull requests
 on:
   push:
     branches: [master]
-  pull_request:
+  pull_request_target:
     types: [opened, synchronize]
 
 jobs:
