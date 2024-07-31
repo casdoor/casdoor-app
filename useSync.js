@@ -14,7 +14,7 @@
 
 import {useCallback, useEffect, useState} from "react";
 import * as api from "./api";
-import useNetworkStatus from "./useNetworkStatus";
+import {useNetInfo} from "@react-native-community/netinfo";
 
 export const SYNC_STATUS = {
   ADD: "add",
@@ -48,7 +48,7 @@ const applySync = (serverAccountList, toSyncData) => {
 const useSync = (userInfo, token, casdoorServer) => {
   const [toSyncData, setToSyncData] = useState([]);
   const [syncSignal, setSyncSignal] = useState(false);
-  const isConnected = useNetworkStatus();
+  const {isConnected} = useNetInfo();
   const [canSync, setCanSync] = useState(false);
 
   useEffect(() => {
