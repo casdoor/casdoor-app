@@ -1,44 +1,133 @@
-name: Build preview for pull requests
+name: Manual Expo Preview
 
 on:
-  push:
-    branches: [master]
-  pull_request:
-    types: [opened, synchronize]
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
 
 jobs:
-  build:
+  check_permissions:
     runs-on: ubuntu-latest
-    concurrency: fingerprint-${{ github.event_name != 'pull_request' && 'master' || github.run_id }}
-    permissions:
-      pull-requests: write
-      actions: write
-      contents: read
-      packages: write
+    if: github.event_name == 'issue_comment' && contains(github.event.comment.body, '/preview') && github.event.issue.pull_request
+    outputs:
+      has_permissions: ${{ steps.check.outputs.has_permissions }}
+      pr_number: ${{ steps.get_pr_details.outputs.pr_number }}
+      pr_head_ref: ${{ steps.get_pr_details.outputs.pr_head_ref }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: 🏗  Setup EAS
-        uses: expo/expo-github-action@v8
+      - name: Get PR details
+        id: get_pr_details
+        uses: actions/github-script@v7
         with:
-          eas-version: latest
-          token: ${{ secrets.EXPO_TOKEN }}
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const { data: pullRequest } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number
+            });
+            core.setOutput('pr_number', pullRequest.number);
+            core.setOutput('pr_head_ref', pullRequest.head.ref);
+
+      - name: Check permissions
+        id: check
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const { data: permission } = await github.rest.repos.getCollaboratorPermissionLevel({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              username: context.payload.comment.user.login
+            });
+            const hasPermissions = ['admin', 'write'].includes(permission.permission);
+            core.setOutput('has_permissions', hasPermissions);
+
+  preview:
+    needs: check_permissions
+    if: needs.check_permissions.outputs.has_permissions == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get PR details
+        uses: actions/github-script@v7
+        id: pr-details
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: ${{ needs.check_permissions.outputs.pr_number }}
+            });
+            core.setOutput('head_sha', pr.head.sha);
+            core.setOutput('head_repo', pr.head.repo.full_name);
+            core.setOutput('head_ref', pr.head.ref);
+
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ steps.pr-details.outputs.head_repo }}
+          ref: ${{ steps.pr-details.outputs.head_ref }}
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
 
       - name: Install dependencies
         run: npm install
 
-      - name: 🚀 Create preview
-        if: ${{ github.event_name == 'pull_request' }}
+      - name: Setup Expo
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          eas-cache: true
+          expo-version: latest
+          expo-cache: true
+          packager: npm
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Create preview
+        id: preview
         uses: expo/expo-github-action/preview@v8
         with:
-          command: eas update --auto --branch ${{ github.event.pull_request.head.ref }}
-          comment: true
+          comment: false
           qr-target: 'expo-go'
-          working-directory: ${{ github.workspace }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          command: eas update --auto --branch pr-${{ needs.check_permissions.outputs.pr_head_ref }}
 
-      - name: Create preview builds if needed
-        uses: expo/expo-github-action/preview-build@main
+      - name: Find Comment
+        uses: peter-evans/find-comment@v3
+        id: find_comment
         with:
-          command: eas build --profile development --platform all
+          issue-number: ${{ needs.check_permissions.outputs.pr_number }}
+          comment-author: 'github-actions[bot]'
+          body-includes: Expo Preview
+
+      - name: Create or Update Comment
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ needs.check_permissions.outputs.pr_number }}
+          comment-id: ${{ steps.find_comment.outputs.comment-id }}
+          body: |
+            ## Expo Preview
+            ${{steps.preview.outputs.comment}}
+            > Commit hash: ${{steps.preview.outputs.gitCommitHash}}
+            > Update published at: ${{steps.preview.outputs.createdAt}}
+          edit-mode: replace
+
+  pr_comment:
+    needs: check_permissions
+    if: needs.check_permissions.outputs.has_permissions != 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Comment on PR (insufficient permissions)
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ needs.check_permissions.outputs.pr_number }}
+          body: |
+            Sorry, you do not have the required permissions to trigger an Expo preview. 
+            Please ask a maintainer to review and trigger the preview if necessary.
