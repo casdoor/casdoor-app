@@ -6,9 +6,12 @@
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "release": "npx -p semantic-release-expo -p semantic-release -p @semantic-release/git -p @semantic-release/changelog -p @semantic-release/exec semantic-release"
   },
   "dependencies": {
+    "@react-native-async-storage/async-storage": "1.23.1",
+    "@react-native-community/masked-view": "^0.1.11",
     "@react-native-community/netinfo": "11.3.1",
     "@react-navigation/bottom-tabs": "^6.5.8",
     "@react-navigation/native": "^6.1.7",
@@ -19,6 +22,7 @@
     "expo-dev-client": "^4.0.21",
     "expo-image": "^1.12.13",
     "expo-status-bar": "~1.12.1",
+    "expo-system-ui": "~3.0.7",
     "expo-updates": "~0.25.21",
     "hotp-totp": "^1.0.6",
     "prop-types": "^15.8.1",
@@ -28,11 +32,60 @@
     "react-native-countdown-circle-timer": "^3.2.1",
     "react-native-gesture-handler": "~2.16.1",
     "react-native-paper": "^5.10.3",
+    "react-native-reanimated": "~3.10.1",
     "react-native-root-toast": "^3.6.0",
+    "react-native-safe-area-context": "4.10.5",
+    "react-native-screens": "^3.31.1",
     "react-native-svg": "15.2.0",
     "react-native-web": "~0.19.6",
     "react-native-webview": "13.8.6",
     "totp-generator": "^0.0.14"
+  },
+  "verifyConditions": [
+    "semantic-release-expo",
+    "@semantic-release/changelog",
+    "@semantic-release/git"
+  ],
+  "release": {
+    "branches": [
+      "master"
+    ],
+    "plugins": [
+      [
+        "semantic-release-expo",
+        {
+          "versions": {
+            "version": "${next.raw}",
+            "android": "${code}",
+            "ios": "${next.raw}"
+          }
+        }
+      ],
+      "@semantic-release/commit-analyzer",
+      "@semantic-release/release-notes-generator",
+      [
+        "@semantic-release/git",
+        {
+          "assets": [
+            "package.json",
+            "package-lock.json",
+            "app.json"
+          ],
+          "message": "chore(release): ${nextRelease.version} [skip ci]"
+        }
+      ],
+      [
+        "@semantic-release/github",
+        {
+          "assets": [
+            {
+              "path": "release/android/*.apk",
+              "label": "Android"
+            }
+          ]
+        }
+      ]
+    ]
   },
   "devDependencies": {
     "@babel/core": "^7.24.0",

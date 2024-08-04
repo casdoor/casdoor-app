@@ -17,6 +17,35 @@ cd casdoor-app
 npm install && npm run start
 ```
 
+## Installation
+
+You can download the latest version of the Casdoor Authenticator App from the GitHub Releases page.
+
+- Android: Download and install the APK file directly on your device.
+
+### Building from Source
+
+If you prefer to build the app yourself, follow these steps:
+
+### Common Steps
+
+```bash
+git clone git@github.com:casdoor/casdoor-app.git
+cd casdoor-app
+npm install
+```
+
+### android build
+
+  ```bash
+  npm install && npx expo prebuild --platform android
+  cd android && ./gradlew assembleRelease
+  ```
+
+  The APK file in the `app/build/outputs/apk/release/` directory.
+
+Note: You'll need to have the necessary development environments set up for React Native, Android. Refer to the React Native documentation for detailed setup instructions.
+
 ## Usage
 
 - Open the app on your mobile device.
