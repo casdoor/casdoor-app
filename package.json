@@ -79,10 +79,6 @@
         {
           "assets": [
             {
-              "path": "release/ios/*.ipa",
-              "label": "iOS"
-            },
-            {
               "path": "release/android/*.apk",
               "label": "Android"
             }

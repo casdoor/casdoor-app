@@ -22,7 +22,6 @@ npm install && npm run start
 You can download the latest version of the Casdoor Authenticator App from the GitHub Releases page.
 
 - Android: Download and install the APK file directly on your device.
-- iOS: Download the IPA file. Due to Apple's restrictions, you'll need to use AltStore or other tools for installation. For detailed instructions, please refer to the [AltStore FAQ](https://faq.altstore.io/).
 
 ### Building from Source
 
@@ -45,38 +44,7 @@ npm install
 
   The APK file in the `app/build/outputs/apk/release/` directory.
 
-### ios build (macOS only)
-
-  ```bash
-  APP_NAME="casdoorapp"
-  WORKSPACE="$APP_NAME.xcworkspace"
-  SCHEME="$APP_NAME"
-  ARCHIVE_PATH="build/$APP_NAME.xcarchive"
-  BUILD_PATH="build"
-  PAYLOAD_PATH="$BUILD_PATH/Payload"
-  IPA_NAME="$APP_NAME.ipa"
-
-  # Prepare the environment
-  npx expo prebuild --platform ios
-  cd ios && rm -f Podfile.lock
-  pod install --repo-update
-
-  # Build and archive the app
-  xcodebuild -scheme "$SCHEME" -workspace "$WORKSPACE" \
-    -configuration Release clean archive -archivePath "$ARCHIVE_PATH" \
-    CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
-
-  # Prepare for IPA creation
-  cd .. && mkdir -p "$PAYLOAD_PATH"
-  mv "$ARCHIVE_PATH/Products/Applications/$APP_NAME.app" "$PAYLOAD_PATH/"
-
-  # Create IPA
-  cd "$BUILD_PATH" && zip -r "$IPA_NAME" Payload/
-  ```
-
-  The IPA file will be generated in the `build` directory.
-
-Note: You'll need to have the necessary development environments set up for React Native, Android, and iOS. Refer to the React Native documentation for detailed setup instructions.
+Note: You'll need to have the necessary development environments set up for React Native, Android. Refer to the React Native documentation for detailed setup instructions.
 
 ## Usage
 
