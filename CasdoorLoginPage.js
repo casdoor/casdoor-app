@@ -12,15 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import {WebView} from "react-native-webview";
 import {View} from "react-native";
 import {Portal} from "react-native-paper";
 import SDK from "casdoor-react-native-sdk";
-import UserContext from "./UserContext";
 import PropTypes from "prop-types";
 import EnterCasdoorSdkConfig from "./EnterCasdoorSdkConfig";
-import CasdoorServerContext from "./CasdoorServerContext";
+import useStore from "./useStorage";
 // import {LogBox} from "react-native";
 // LogBox.ignoreAllLogs();
 
@@ -29,10 +28,20 @@ const CasdoorLoginPage = ({onWebviewClose}) => {
   CasdoorLoginPage.propTypes = {
     onWebviewClose: PropTypes.func.isRequired,
   };
-  const [casdoorLoginURL, setCasdoorLoginURL] = React.useState("");
-  const {setUserInfo, setToken} = React.useContext(UserContext);
-  const [showConfigPage, setShowConfigPage] = React.useState(true);
-  const {casdoorServer} = React.useContext(CasdoorServerContext);
+  const [casdoorLoginURL, setCasdoorLoginURL] = useState("");
+  const [showConfigPage, setShowConfigPage] = useState(true);
+
+  const {
+    serverUrl,
+    clientId,
+    redirectPath,
+    appName,
+    organizationName,
+    getCasdoorConfig,
+    setUserInfo,
+    setToken,
+  } = useStore();
+
   const handleHideConfigPage = () => {
     setShowConfigPage(false);
   };
@@ -42,14 +51,15 @@ const CasdoorLoginPage = ({onWebviewClose}) => {
   };
 
   useEffect(() => {
-    if (casdoorServer) {
-      sdk = new SDK(casdoorServer);
+    if (serverUrl && clientId && redirectPath && appName && organizationName) {
+      sdk = new SDK(getCasdoorConfig());
       getCasdoorSignInUrl();
     }
-  }, [casdoorServer]);
+  }, [serverUrl, clientId, redirectPath, appName, organizationName]);
 
   const onNavigationStateChange = async(navState) => {
-    if (navState.url.startsWith(casdoorServer.redirectPath)) {
+    const {redirectPath} = getCasdoorConfig();
+    if (navState.url.startsWith(redirectPath)) {
       onWebviewClose();
       const token = await sdk.getAccessToken(navState.url);
       const userInfo = sdk.JwtDecode(token);
@@ -75,7 +85,9 @@ const CasdoorLoginPage = ({onWebviewClose}) => {
     </Portal>
   );
 };
+
 export const CasdoorLogout = () => {
-  sdk.clearState();
+  if (sdk) {sdk.clearState();}
 };
+
 export default CasdoorLoginPage;

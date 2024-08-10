@@ -15,28 +15,24 @@
 import * as React from "react";
 import {PaperProvider} from "react-native-paper";
 import {NavigationContainer} from "@react-navigation/native";
+import {BulletList} from "react-content-loader/native";
+import {SQLiteProvider} from "expo-sqlite";
 import Header from "./Header";
 import NavigationBar from "./NavigationBar";
-import {UserProvider} from "./UserContext";
-import {CasdoorServerProvider} from "./CasdoorServerContext";
+import {migrateDb} from "./TotpDatabase";
 
 const App = () => {
-
-  const [userInfo, setUserInfo] = React.useState(null);
-  const [token, setToken] = React.useState(null);
-  const [casdoorServer, setCasdoorServer] = React.useState(null);
-
   return (
-    <CasdoorServerProvider value={{casdoorServer, setCasdoorServer}} >
-      <UserProvider value={{userInfo, setUserInfo, token, setToken}} >
+    <React.Suspense fallback={<BulletList />}>
+      <SQLiteProvider databaseName="totp.db" onInit={migrateDb} options={{enableChangeListener: true}}>
         <NavigationContainer>
           <PaperProvider>
             <Header />
             <NavigationBar />
           </PaperProvider>
         </NavigationContainer>
-      </UserProvider>
-    </CasdoorServerProvider>
+      </SQLiteProvider>
+    </React.Suspense>
   );
 };
 export default App;

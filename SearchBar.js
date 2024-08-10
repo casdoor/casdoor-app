@@ -22,6 +22,7 @@ const SearchBar = ({onSearch}) => {
     setSearchQuery(query);
     onSearch(query);
   };
+
   return (
     <Searchbar
       placeholder="Search"

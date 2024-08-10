@@ -12,21 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React, {useContext, useEffect, useRef, useState} from "react";
-import {Dimensions, FlatList, RefreshControl, Text, TouchableOpacity, View} from "react-native";
-import {Divider, IconButton, List, Modal, Portal} from "react-native-paper";
+import React, {useEffect, useRef, useState} from "react";
+import {Dimensions, RefreshControl, TouchableOpacity, View} from "react-native";
+import {Divider, IconButton, List, Modal, Portal, Text} from "react-native-paper";
 import {GestureHandlerRootView, Swipeable} from "react-native-gesture-handler";
 import {CountdownCircleTimer} from "react-native-countdown-circle-timer";
+import {useNetInfo} from "@react-native-community/netinfo";
+import {FlashList} from "@shopify/flash-list";
+import * as SQLite from "expo-sqlite/next";
 
 import SearchBar from "./SearchBar";
 import EnterAccountDetails from "./EnterAccountDetails";
 import ScanQRCode from "./ScanQRCode";
 import EditAccountDetails from "./EditAccountDetails";
 import AvatarWithFallback from "./AvatarWithFallback";
-import Account from "./Account";
-import UserContext from "./UserContext";
-import CasdoorServerContext from "./CasdoorServerContext";
-import useSync, {SYNC_STATUS} from "./useSync";
+import * as TotpDatabase from "./TotpDatabase";
+import useStore from "./useStorage";
+import useSyncStore from "./useSyncStore";
 
 const {width, height} = Dimensions.get("window");
 const REFRESH_INTERVAL = 10000;
@@ -37,56 +39,83 @@ export default function HomePage() {
   const [isPlusButton, setIsPlusButton] = useState(true);
   const [showOptions, setShowOptions] = useState(false);
   const [showEnterAccountModal, setShowEnterAccountModal] = useState(false);
-  const [accountList, setAccountList] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filteredData, setFilteredData] = useState(accountList);
+  const [accounts, setAccounts] = useState([]);
+  const [filteredData, setFilteredData] = useState(accounts);
   const [showScanner, setShowScanner] = useState(false);
   const [showEditAccountModal, setShowEditAccountModal] = useState(false);
+  const [editingAccount, setEditingAccount] = useState(null);
   const [placeholder, setPlaceholder] = useState("");
   const [refreshing, setRefreshing] = useState(false);
+  const {isConnected} = useNetInfo();
+  const [canSync, setCanSync] = useState(false);
 
   const swipeableRef = useRef(null);
-  const isSyncing = useRef(false);
+  const {userInfo, serverUrl, token} = useStore();
+  const {startSync} = useSyncStore();
+  const db = SQLite.useSQLiteContext();
 
-  const {userInfo, token} = useContext(UserContext);
-  const {casdoorServer} = useContext(CasdoorServerContext);
-  const {syncAccounts, syncSignal, resetSyncSignal, addToSyncData} = useSync(userInfo, token, casdoorServer);
-
-  const handleSync = async() => {
-    if (isSyncing.current) {return;}
-    isSyncing.current = true;
-    try {
-      const syncedAccounts = await syncAccounts();
-      if (syncedAccounts.success && syncedAccounts.accountList) {
-        accountList.forEach(account => account.deleteAccount());
-        const newAccountList = syncedAccounts.accountList.map(account => new Account(
-          account.accountName,
-          account.issuer,
-          account.secretKey,
-          onUpdate
-        ));
-        setAccountList(newAccountList);
-      }
-    } finally {
-      isSyncing.current = false;
-      setRefreshing(false);
-      resetSyncSignal();
+  useEffect(() => {
+    if (db) {
+      const subscription = SQLite.addDatabaseChangeListener((event) => {loadAccounts();});
+      return () => {if (subscription) {subscription.remove();}};
     }
+  }, [db]);
+
+  useEffect(() => {
+    setCanSync(Boolean(isConnected && userInfo && serverUrl));
+  }, [isConnected, userInfo, serverUrl]);
+
+  useEffect(() => {
+    setFilteredData(accounts);
+  }, [accounts]);
+
+  useEffect(() => {
+    loadAccounts();
+  }, []);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      if (canSync) {startSync(db, userInfo, serverUrl, token);}
+    }, REFRESH_INTERVAL);
+    return () => clearInterval(timer);
+  }, [startSync]);
+
+  const loadAccounts = async() => {
+    const loadedAccounts = await TotpDatabase.getAllAccounts(db);
+    setAccounts(loadedAccounts);
+    setFilteredData(loadedAccounts);
   };
 
-  useEffect(() => {
-    if ((syncSignal || refreshing) && !isSyncing.current) {
-      handleSync();
-    }
-  }, [syncSignal, refreshing]);
-
-  useEffect(() => {
-    const timer = setInterval(handleSync, REFRESH_INTERVAL);
-    return () => clearInterval(timer);
-  }, [handleSync]);
-
-  const onRefresh = () => {
+  const onRefresh = async() => {
     setRefreshing(true);
+    if (canSync) {await startSync(db, userInfo, serverUrl, token);}
+    setRefreshing(false);
+  };
+
+  const handleAddAccount = async(accountData) => {
+    await TotpDatabase.insertAccount(db, accountData);
+    closeEnterAccountModal();
+  };
+
+  const handleDeleteAccount = async(id) => {
+    await TotpDatabase.deleteAccount(db, id);
+  };
+
+  const handleEditAccount = (account) => {
+    closeSwipeableMenu();
+    setEditingAccount(account);
+    setPlaceholder(account.accountName);
+    setShowEditAccountModal(true);
+  };
+
+  const onAccountEdit = async(newAccountName) => {
+    if (editingAccount) {
+      await TotpDatabase.updateAccountName(db, editingAccount.id, newAccountName);
+      setPlaceholder("");
+      setEditingAccount(null);
+      closeEditAccountModal();
+    }
   };
 
   const closeEditAccountModal = () => setShowEditAccountModal(false);
@@ -117,46 +146,6 @@ export default function HomePage() {
 
   const closeEnterAccountModal = () => setShowEnterAccountModal(false);
 
-  const onUpdate = () => setAccountList(prev => [...prev]);
-
-  const handleAddAccount = (accountData) => {
-    const newAccount = new Account(accountData.accountName, accountData.issuer, accountData.secretKey, onUpdate);
-    addToSyncData(newAccount, SYNC_STATUS.ADD);
-    newAccount.token = newAccount.generateToken();
-
-    setAccountList(prev => [...prev, newAccount]);
-    closeEnterAccountModal();
-  };
-
-  const handleDeleteAccount = (accountName) => {
-    const accountToDelete = accountList.find(account => account.accountName === accountName);
-    if (accountToDelete) {
-      accountToDelete.deleteAccount();
-      addToSyncData(accountToDelete, SYNC_STATUS.DELETE);
-    }
-    setAccountList(prevList => prevList.filter(account => account.accountName !== accountName));
-  };
-
-  const handleEditAccount = (accountName) => {
-    closeSwipeableMenu();
-    const accountToEdit = accountList.find(account => account.accountName === accountName);
-    if (accountToEdit) {
-      setPlaceholder(accountToEdit.accountName);
-      setShowEditAccountModal(true);
-      accountToEdit.setEditingStatus(true);
-    }
-  };
-
-  const onAccountEdit = (newAccountName) => {
-    const accountToEdit = accountList.find(account => account.getEditStatus() === true);
-    if (accountToEdit) {
-      addToSyncData(accountToEdit, SYNC_STATUS.EDIT, newAccountName);
-      accountToEdit.setAccountName(newAccountName);
-    }
-    setPlaceholder("");
-    closeEditAccountModal();
-  };
-
   const closeSwipeableMenu = () => {
     if (swipeableRef.current) {
       swipeableRef.current.close();
@@ -166,17 +155,18 @@ export default function HomePage() {
   const handleSearch = (query) => {
     setSearchQuery(query);
     setFilteredData(query.trim() !== ""
-      ? accountList.filter(item => item.accountName.toLowerCase().includes(query.toLowerCase()))
-      : accountList
+      ? accounts.filter(item => item.accountName.toLowerCase().includes(query.toLowerCase()))
+      : accounts
     );
   };
 
   return (
     <View style={{flex: 1}}>
       <SearchBar onSearch={handleSearch} />
-      <FlatList
-        data={searchQuery.trim() !== "" ? filteredData : accountList}
-        keyExtractor={(item, index) => index.toString()}
+      <FlashList
+        data={searchQuery.trim() !== "" ? filteredData : accounts}
+        keyExtractor={(item) => `${item.id}`}
+        estimatedItemSize={10}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
@@ -184,17 +174,17 @@ export default function HomePage() {
           <GestureHandlerRootView>
             <Swipeable
               ref={swipeableRef}
-              renderRightActions={(progress, dragX) => (
+              renderRightActions={() => (
                 <View style={{flexDirection: "row", alignItems: "center"}}>
                   <TouchableOpacity
                     style={{height: 70, width: 80, backgroundColor: "#E6DFF3", alignItems: "center", justifyContent: "center"}}
-                    onPress={handleEditAccount.bind(this, item.accountName)}
+                    onPress={() => handleEditAccount(item)}
                   >
                     <Text>Edit</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={{height: 70, width: 80, backgroundColor: "#FFC0CB", alignItems: "center", justifyContent: "center"}}
-                    onPress={handleDeleteAccount.bind(this, item.accountName)}
+                    onPress={() => handleDeleteAccount(item.id)}
                   >
                     <Text>Delete</Text>
                   </TouchableOpacity>
@@ -202,36 +192,49 @@ export default function HomePage() {
               )}
             >
               <List.Item
-                style={{height: 80, alignItems: "center", justifyContent: "center", marginLeft: 10}}
+                style={{
+                  height: 80,
+                  paddingVertical: 5,
+                  paddingHorizontal: 25,
+                }}
                 title={
-                  <View>
-                    <Text style={{fontSize: 20}}>{item.accountName}</Text>
-                    <Text style={{fontSize: 35, width: 180}}>{item.token}</Text>
+                  <View style={{flex: 1, justifyContent: "center"}}>
+                    <Text variant="titleMedium">{item.accountName}</Text>
+                    <Text variant="headlineSmall" style={{fontWeight: "bold"}}>{item.token}</Text>
                   </View>
                 }
-                left={(props) => (
+                left={() => (
                   <AvatarWithFallback
                     source={{uri: item.issuer ? `https://cdn.casbin.org/img/social_${item.issuer.toLowerCase()}.png` : "https://cdn.casbin.org/img/social_default.png"}}
                     fallbackSource={{uri: "https://cdn.casbin.org/img/social_default.png"}}
                     size={60}
-                    style={{marginLeft: 10, marginRight: 10, borderRadius: 10, backgroundColor: "transparent"}}
+                    style={{
+                      marginRight: 15,
+                      borderRadius: 10,
+                      backgroundColor: "transparent",
+                    }}
                   />
                 )}
-                right={(props) => (
-                  <CountdownCircleTimer
-                    isPlaying={true}
-                    duration={30}
-                    initialRemainingTime={item.calculateCountdown()}
-                    colors={["#004777", "#0072A0", "#0099CC", "#FF6600", "#CC3300", "#A30000"]}
-                    colorsTime={[30, 24, 18, 12, 6, 0]}
-                    size={60}
-                    onComplete={() => {item.generateAndSetToken(); return {shouldRepeat: true};}}
-                    strokeWidth={5}
-                  >
-                    {({remainingTime}) => (
-                      <Text style={{fontSize: 20}}>{remainingTime}s</Text>
-                    )}
-                  </CountdownCircleTimer>
+                right={() => (
+                  <View style={{justifyContent: "center", alignItems: "center"}}>
+                    <CountdownCircleTimer
+                      isPlaying={true}
+                      duration={30}
+                      initialRemainingTime={TotpDatabase.calculateCountdown()}
+                      colors={["#004777", "#0072A0", "#0099CC", "#FF6600", "#CC3300", "#A30000"]}
+                      colorsTime={[30, 24, 18, 12, 6, 0]}
+                      size={60}
+                      onComplete={() => {
+                        TotpDatabase.updateToken(db, item.id);
+                        return {shouldRepeat: true, delay: 0};
+                      }}
+                      strokeWidth={5}
+                    >
+                      {({remainingTime}) => (
+                        <Text style={{fontSize: 18, fontWeight: "bold"}}>{remainingTime}s</Text>
+                      )}
+                    </CountdownCircleTimer>
+                  </View>
                 )}
               />
             </Swipeable>

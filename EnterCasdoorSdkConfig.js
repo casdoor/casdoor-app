@@ -12,52 +12,46 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React, {useState} from "react";
+import React from "react";
 import {Alert, Text, View} from "react-native";
 import {Button, IconButton, Portal, TextInput} from "react-native-paper";
 import DefaultCasdoorSdkConfig from "./DefaultCasdoorSdkConfig";
-import CasdoorServerContext from "./CasdoorServerContext";
 import PropTypes from "prop-types";
+import useStore from "./useStorage";
 
 const EnterCasdoorSdkConfig = ({onClose, onWebviewClose}) => {
   EnterCasdoorSdkConfig.propTypes = {
     onClose: PropTypes.func.isRequired,
   };
-  const {setCasdoorServer} = React.useContext(CasdoorServerContext);
 
-  const [CasdoorSdkConfig, setCasdoorSdkConfig] = useState({
-    serverUrl: "",
-    clientId: "",
-    appName: "",
-    organizationName: "",
-    redirectPath: "http://casdoor-app",
-    signinPath: "/api/signin",
-  });
-
-  const handleInputChange = (key, value) => {
-    setCasdoorSdkConfig({...CasdoorSdkConfig, [key]: value});
-  };
+  const {
+    serverUrl,
+    clientId,
+    redirectPath,
+    appName,
+    organizationName,
+    setServerUrl,
+    setClientId,
+    setAppName,
+    setOrganizationName,
+    setCasdoorConfig,
+  } = useStore();
 
   const closeConfigPage = () => {
     onClose();
     onWebviewClose();
   };
+
   const handleSave = () => {
-    if (
-      !CasdoorSdkConfig.serverUrl ||
-      !CasdoorSdkConfig.clientId ||
-      !CasdoorSdkConfig.appName ||
-      !CasdoorSdkConfig.organizationName ||
-      !CasdoorSdkConfig.redirectPath
-    ) {
+    if (!serverUrl || !clientId || !appName || !organizationName || !redirectPath) {
       Alert.alert("Please fill in all the fields!");
       return;
     }
-    setCasdoorServer(CasdoorSdkConfig);
     onClose();
   };
+
   const handleUseDefault = () => {
-    setCasdoorServer(DefaultCasdoorSdkConfig);
+    setCasdoorConfig(DefaultCasdoorSdkConfig);
     onClose();
   };
 
@@ -68,8 +62,8 @@ const EnterCasdoorSdkConfig = ({onClose, onWebviewClose}) => {
           <Text style={{fontSize: 24, marginBottom: 5}}>Casdoor server</Text>
           <TextInput
             label="Endpoint"
-            value={CasdoorSdkConfig.serverUrl}
-            onChangeText={(text) => handleInputChange("serverUrl", text)}
+            value={serverUrl}
+            onChangeText={setServerUrl}
             autoCapitalize="none"
             style={{
               borderWidth: 3,
@@ -85,8 +79,8 @@ const EnterCasdoorSdkConfig = ({onClose, onWebviewClose}) => {
           />
           <TextInput
             label="ClientID"
-            value={CasdoorSdkConfig.clientId}
-            onChangeText={(text) => handleInputChange("clientId", text)}
+            value={clientId}
+            onChangeText={setClientId}
             autoCapitalize="none"
             style={{
               borderWidth: 3,
@@ -102,8 +96,8 @@ const EnterCasdoorSdkConfig = ({onClose, onWebviewClose}) => {
           />
           <TextInput
             label="appName"
-            value={CasdoorSdkConfig.appName}
-            onChangeText={(text) => handleInputChange("appName", text)}
+            value={appName}
+            onChangeText={setAppName}
             autoCapitalize="none"
             style={{
               borderWidth: 3,
@@ -119,8 +113,8 @@ const EnterCasdoorSdkConfig = ({onClose, onWebviewClose}) => {
           />
           <TextInput
             label="organizationName"
-            value={CasdoorSdkConfig.organizationName}
-            onChangeText={(text) => handleInputChange("organizationName", text)}
+            value={organizationName}
+            onChangeText={setOrganizationName}
             autoCapitalize="none"
             style={{
               borderWidth: 3,
@@ -173,4 +167,5 @@ const EnterCasdoorSdkConfig = ({onClose, onWebviewClose}) => {
     </Portal>
   );
 };
+
 export default EnterCasdoorSdkConfig;
