@@ -16,22 +16,18 @@ import * as React from "react";
 import {Button} from "react-native-paper";
 import {View} from "react-native";
 import CasdoorLoginPage, {CasdoorLogout} from "./CasdoorLoginPage";
-import UserContext from "./UserContext";
+import useStore from "./useStorage";
 
 const SettingPage = () => {
   const [showLoginPage, setShowLoginPage] = React.useState(false);
-  const {userInfo, setUserInfo, setToken} = React.useContext(UserContext);
-  const handleCasdoorLogin = () => {
-    setShowLoginPage(true);
-  };
+  const {userInfo, clearAll} = useStore();
+
+  const handleCasdoorLogin = () => setShowLoginPage(true);
+  const handleHideLoginPage = () => setShowLoginPage(false);
+
   const handleCasdoorLogout = () => {
     CasdoorLogout();
-    setUserInfo(null);
-    setToken(null);
-  };
-
-  const handleHideLoginPage = () => {
-    setShowLoginPage(false);
+    clearAll();
   };
 
   return (

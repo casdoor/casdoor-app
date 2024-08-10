@@ -29,6 +29,7 @@ export default function EnterAccountDetails({onClose, onEdit, placeholder}) {
   const handleConfirm = () => {
     onEdit(accountName);
   };
+
   return (
     <View style={{flex: 1, justifyContent: "center", alignItems: "center"}}>
       <Text style={{fontSize: 24, marginBottom: 5}}>Enter new account name</Text>
