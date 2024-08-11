@@ -12,104 +12,230 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React, {useState} from "react";
-import {Text, TextInput, View} from "react-native";
-import {Button, Divider, IconButton, Menu} from "react-native-paper";
+import React, {useCallback, useState} from "react";
+import {View} from "react-native";
+import {Button, IconButton, Menu, Text, TextInput} from "react-native-paper";
+import Toast from "react-native-toast-message";
 import PropTypes from "prop-types";
 
-export default function EnterAccountDetails({onClose, onAdd}) {
+const EnterAccountDetails = ({onClose, onAdd, validateSecret}) => {
   EnterAccountDetails.propTypes = {
     onClose: PropTypes.func.isRequired,
     onAdd: PropTypes.func.isRequired,
+    validateSecret: PropTypes.func.isRequired,
   };
 
   const [accountName, setAccountName] = useState("");
   const [secretKey, setSecretKey] = useState("");
+  const [secretError, setSecretError] = useState("");
+  const [accountNameError, setAccountNameError] = useState("");
+  const [visible, setVisible] = useState(false);
+  const [selectedItem, setSelectedItem] = useState("Time based");
+  const [showPassword, setShowPassword] = useState(false);
 
-  const [visible, setVisible] = React.useState(false);
   const openMenu = () => setVisible(true);
   const closeMenu = () => setVisible(false);
-  const [selectedItem, setSelectedItem] = useState("Time based");
 
-  const handleMenuItemPress = (item) => {
+  const handleMenuItemPress = useCallback((item) => {
     setSelectedItem(item);
     closeMenu();
-  };
+  }, []);
 
-  const handleAddAccount = () => {
+  const handleAddAccount = useCallback(() => {
+    if (accountName.trim() === "") {
+      setAccountNameError("Account Name is required");
+    }
+
+    if (secretKey.trim() === "") {
+      setSecretError("Secret Key is required");
+    }
+
+    if (accountName.trim() === "" || secretKey.trim() === "") {
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Please fill in all the fields!",
+        autoHide: true,
+      });
+      return;
+    }
+
+    if (secretError) {
+      Toast.show({
+        type: "error",
+        text1: "Invalid Secret Key",
+        text2: "Please check your secret key and try again.",
+        autoHide: true,
+      });
+      return;
+    }
+
     onAdd({accountName, secretKey});
     setAccountName("");
     setSecretKey("");
-  };
+    setAccountNameError("");
+    setSecretError("");
+  }, [accountName, secretKey, secretError, onAdd]);
+
+  const handleSecretKeyChange = useCallback((text) => {
+    setSecretKey(text);
+    if (validateSecret) {
+      const isValid = validateSecret(text);
+      setSecretError(isValid || text.trim() === "" ? "" : "Invalid Secret Key");
+    }
+  }, [validateSecret]);
+
+  const handleAccountNameChange = useCallback((text) => {
+    setAccountName(text);
+    if (accountNameError) {
+      setAccountNameError("");
+    }
+  }, [accountNameError]);
 
   return (
-    <View style={{flex: 1, justifyContent: "center", alignItems: "center"}}>
-      <Text style={{fontSize: 24, marginBottom: 5}}>Add new 2FA account</Text>
-      <View style={{flexDirection: "row", alignItems: "center"}}>
-        <IconButton icon="account-details" size={35} />
+    <View style={styles.container}>
+      <View style={styles.content}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Add Account</Text>
+          <IconButton
+            icon="close"
+            size={24}
+            onPress={onClose}
+            style={styles.closeButton}
+          />
+        </View>
         <TextInput
           label="Account Name"
-          placeholder="Account Name"
           value={accountName}
-          autoCapitalize="none"
-          onChangeText={(text) => setAccountName(text)}
-          style={{borderWidth: 3, borderColor: "white", margin: 10, width: 230, height: 50, borderRadius: 5, fontSize: 18, color: "gray", paddingLeft: 10}}
+          onChangeText={handleAccountNameChange}
+          error={!!accountNameError}
+          style={styles.input}
+          mode="outlined"
         />
-      </View>
-
-      <View style={{flexDirection: "row", alignItems: "center"}}>
-        <IconButton icon="account-key" size={35} />
         <TextInput
           label="Secret Key"
-          placeholder="Secret Key"
           value={secretKey}
-          autoCapitalize="none"
-          onChangeText={(text) => setSecretKey(text)}
-          secureTextEntry
-          style={{borderWidth: 3, borderColor: "white", margin: 10, width: 230, height: 50, borderRadius: 5, fontSize: 18, color: "gray", paddingLeft: 10}}
-        />
-      </View>
-      <Button
-        icon="account-plus"
-        style={{
-          backgroundColor: "#E6DFF3",
-          borderRadius: 5,
-          margin: 10,
-          alignItems: "center",
-          position: "absolute",
-          top: 230,
-          right: 30,
-          width: 90,
-        }}
-        onPress={handleAddAccount}
-      >
-        <Text style={{fontSize: 18}}>Add</Text>
-      </Button>
-      <IconButton icon={"close"} size={30} onPress={onClose} style={{position: "absolute", top: 5, right: 5}} />
-      <View
-        style={{
-          backgroundColor: "#E6DFF3",
-          borderRadius: 5,
-          position: "absolute",
-          left: 30,
-          top: 240,
-          width: 140,
-        }}
-      >
-        <Menu
-          visible={visible}
-          onDismiss={closeMenu}
-          anchor={
-            <Button style={{alignItems: "left"}} icon={"chevron-down"} onPress={openMenu}>
-              {selectedItem}
-            </Button>
+          onChangeText={handleSecretKeyChange}
+          secureTextEntry={!showPassword}
+          error={!!secretError}
+          style={styles.input}
+          mode="outlined"
+          right={
+            <TextInput.Icon
+              icon={showPassword ? "eye-off" : "eye"}
+              onPress={() => setShowPassword(!showPassword)}
+            />
           }
-        >
-          <Menu.Item onPress={() => handleMenuItemPress("Time based")} title="Time based" />
-          <Divider />
-          <Menu.Item onPress={() => handleMenuItemPress("Counter based")} title="Counter based" />
-        </Menu>
+        />
+        <View style={styles.buttonContainer}>
+          <Menu
+            visible={visible}
+            onDismiss={closeMenu}
+            anchor={
+              <Button
+                onPress={openMenu}
+                mode="outlined"
+                icon="chevron-down"
+                contentStyle={styles.menuButtonContent}
+                style={styles.menuButton}
+              >
+                {selectedItem}
+              </Button>
+            }
+            contentStyle={styles.menuContent}
+          >
+            <Menu.Item onPress={() => handleMenuItemPress("Time based")} title="Time based" />
+            <Menu.Item onPress={() => handleMenuItemPress("Counter based")} title="Counter based" />
+          </Menu>
+          <Button
+            mode="contained"
+            onPress={handleAddAccount}
+            style={styles.addButton}
+            labelStyle={styles.buttonLabel}
+          >
+            Add Account
+          </Button>
+        </View>
       </View>
     </View>
   );
-}
+};
+
+const styles = {
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  content: {
+    width: "100%",
+    borderRadius: 10,
+    padding: 20,
+    backgroundColor: "#F5F5F5",
+    shadowColor: "#000",
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 5,
+  },
+  header: {
+    position: "relative",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#333",
+    textAlign: "center",
+  },
+  closeButton: {
+    position: "absolute",
+    right: 0,
+    top: -8,
+  },
+  input: {
+    marginVertical: 10,
+    fontSize: 16,
+    backgroundColor: "white",
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 10,
+  },
+  menuButton: {
+    flex: 1,
+    marginRight: 10,
+    height: 50,
+    justifyContent: "center",
+    fontSize: 12,
+  },
+  menuButtonContent: {
+    height: 50,
+    justifyContent: "center",
+  },
+  menuContent: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 8,
+    elevation: 3,
+    shadowColor: "#000000",
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+  },
+  addButton: {
+    flex: 1,
+    backgroundColor: "#8A7DF7",
+    height: 50,
+    justifyContent: "center",
+    paddingHorizontal: 5,
+  },
+  buttonLabel: {
+    fontSize: 14,
+    color: "white",
+    textAlign: "center",
+  },
+};
+
+export default EnterAccountDetails;

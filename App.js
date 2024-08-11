@@ -17,6 +17,7 @@ import {PaperProvider} from "react-native-paper";
 import {NavigationContainer} from "@react-navigation/native";
 import {BulletList} from "react-content-loader/native";
 import {SQLiteProvider} from "expo-sqlite";
+import Toast from "react-native-toast-message";
 import Header from "./Header";
 import NavigationBar from "./NavigationBar";
 import {migrateDb} from "./TotpDatabase";
@@ -31,6 +32,7 @@ const App = () => {
             <NavigationBar />
           </PaperProvider>
         </NavigationContainer>
+        <Toast />
       </SQLiteProvider>
     </React.Suspense>
   );

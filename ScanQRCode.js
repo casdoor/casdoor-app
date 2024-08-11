@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import React, {useEffect, useState} from "react";
-import {Dimensions, Text, View} from "react-native";
-import {IconButton, Modal, Portal} from "react-native-paper";
+import {Text, View} from "react-native";
+import {IconButton, Portal} from "react-native-paper";
 import {Camera, CameraView} from "expo-camera";
 import PropTypes from "prop-types";
 
@@ -54,41 +54,23 @@ const ScanQRCode = ({onClose, showScanner, onAdd}) => {
     closeOptions();
   };
 
-  const {width, height} = Dimensions.get("window");
-  const offsetX = width * 0.5;
-  const offsetY = height * 0.5;
-
   return (
     <View style={{marginTop: "50%", flex: 1}} >
       <Portal>
-        <Modal
-          visible={showScanner}
-          onDismiss={closeOptions}
-          contentContainerStyle={{
-            backgroundColor: "white",
-            width: width,
-            height: height,
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: [{translateX: -offsetX}, {translateY: -offsetY}],
-          }}
-        >
-          {hasPermission === null ? (
-            <Text style={{marginLeft: "20%", marginRight: "20%"}}>Requesting for camera permission</Text>
-          ) : hasPermission === false ? (
-            <Text style={{marginLeft: "20%", marginRight: "20%"}}>No access to camera</Text>
-          ) : (
-            <CameraView
-              onBarcodeScanned={handleBarCodeScanned}
-              barcodeScannerSettings={{
-                barcodeTypes: ["qr", "pdf417"],
-              }}
-              style={{flex: 1}}
-            />
-          )}
-          <IconButton icon={"close"} size={40} onPress={onClose} style={{position: "absolute", top: 30, right: 5}} />
-        </Modal>
+        {hasPermission === null ? (
+          <Text style={{marginLeft: "20%", marginRight: "20%"}}>Requesting for camera permission</Text>
+        ) : hasPermission === false ? (
+          <Text style={{marginLeft: "20%", marginRight: "20%"}}>No access to camera</Text>
+        ) : (
+          <CameraView
+            onBarcodeScanned={handleBarCodeScanned}
+            barcodeScannerSettings={{
+              barcodeTypes: ["qr", "pdf417"],
+            }}
+            style={{flex: 1}}
+          />
+        )}
+        <IconButton icon={"close"} size={40} onPress={onClose} style={{position: "absolute", top: 30, right: 5}} />
       </Portal>
     </View>
   );
