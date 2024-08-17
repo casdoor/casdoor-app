@@ -15,13 +15,16 @@
 import * as React from "react";
 import {Dimensions, StyleSheet, View} from "react-native";
 import {Appbar, Avatar, Menu, Text, TouchableRipple} from "react-native-paper";
+import Toast from "react-native-toast-message";
 import CasdoorLoginPage, {CasdoorLogout} from "./CasdoorLoginPage";
 import useStore from "./useStorage";
+import useSyncStore from "./useSyncStore";
 
 const {width} = Dimensions.get("window");
 
 const Header = () => {
   const {userInfo, clearAll} = useStore();
+  const syncError = useSyncStore(state => state.syncError);
   const [showLoginPage, setShowLoginPage] = React.useState(false);
   const [menuVisible, setMenuVisible] = React.useState(false);
 
@@ -41,8 +44,27 @@ const Header = () => {
     clearAll();
   };
 
+  const handleSyncErrorPress = () => {
+    Toast.show({
+      type: "error",
+      text1: "Sync Error",
+      text2: syncError || "An unknown error occurred during synchronization.",
+      autoHide: true,
+    });
+  };
+
   return (
-    <Appbar.Header>
+    <Appbar.Header mode="center-aligned">
+      <View style={styles.leftContainer}>
+        {true && syncError && (
+          <Appbar.Action
+            icon="sync-alert"
+            color="#E53935"
+            size={24}
+            onPress={handleSyncErrorPress}
+          />
+        )}
+      </View>
       <Appbar.Content
         title="Casdoor"
         titleStyle={styles.titleText}

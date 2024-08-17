@@ -14,10 +14,12 @@
 
 import React, {useEffect, useState} from "react";
 import {WebView} from "react-native-webview";
-import {View} from "react-native";
+import {Platform, SafeAreaView, StatusBar, StyleSheet, Text, TouchableOpacity} from "react-native";
 import {Portal} from "react-native-paper";
 import SDK from "casdoor-react-native-sdk";
 import PropTypes from "prop-types";
+import Toast from "react-native-toast-message";
+
 import EnterCasdoorSdkConfig from "./EnterCasdoorSdkConfig";
 import useStore from "./useStorage";
 // import {LogBox} from "react-native";
@@ -28,6 +30,7 @@ const CasdoorLoginPage = ({onWebviewClose}) => {
   CasdoorLoginPage.propTypes = {
     onWebviewClose: PropTypes.func.isRequired,
   };
+
   const [casdoorLoginURL, setCasdoorLoginURL] = useState("");
   const [showConfigPage, setShowConfigPage] = useState(true);
 
@@ -45,6 +48,11 @@ const CasdoorLoginPage = ({onWebviewClose}) => {
   const handleHideConfigPage = () => {
     setShowConfigPage(false);
   };
+
+  const handleShowConfigPage = () => {
+    setShowConfigPage(true);
+  };
+
   const getCasdoorSignInUrl = async() => {
     const signinUrl = await sdk.getSigninUrl();
     setCasdoorLoginURL(signinUrl);
@@ -68,23 +76,70 @@ const CasdoorLoginPage = ({onWebviewClose}) => {
     }
   };
 
+  const handleErrorResponse = (error) => {
+    Toast.show({
+      type: "error",
+      text1: "Error",
+      text2: error.description,
+      autoHide: true,
+    });
+    setShowConfigPage(true);
+  };
+
   return (
     <Portal>
-      <View style={{flex: 1}}>
-        {showConfigPage && <EnterCasdoorSdkConfig onClose={handleHideConfigPage} onWebviewClose={onWebviewClose} />}
-        {!showConfigPage && casdoorLoginURL !== "" && (
-          <WebView
-            source={{uri: casdoorLoginURL}}
-            onNavigationStateChange={onNavigationStateChange}
-            style={{flex: 1}}
-            mixedContentMode="always"
-            javaScriptEnabled={true}
+      <SafeAreaView style={styles.container}>
+        {showConfigPage && (
+          <EnterCasdoorSdkConfig
+            onClose={handleHideConfigPage}
+            onWebviewClose={onWebviewClose}
           />
         )}
-      </View>
+        {!showConfigPage && casdoorLoginURL !== "" && (
+          <>
+            <TouchableOpacity
+              style={styles.backButton}
+              onPress={handleShowConfigPage}
+            >
+              <Text style={styles.backButtonText}>Back to Config</Text>
+            </TouchableOpacity>
+            <WebView
+              source={{uri: casdoorLoginURL}}
+              onNavigationStateChange={onNavigationStateChange}
+              onError={(syntheticEvent) => {
+                const {nativeEvent} = syntheticEvent;
+                handleErrorResponse(nativeEvent);
+              }}
+              style={styles.webview}
+              mixedContentMode="always"
+              javaScriptEnabled={true}
+            />
+          </>
+        )}
+      </SafeAreaView>
     </Portal>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "white",
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+  },
+  webview: {
+    flex: 1,
+  },
+  backButton: {
+    padding: 10,
+    backgroundColor: "#007AFF",
+    alignItems: "center",
+  },
+  backButtonText: {
+    color: "white",
+    fontWeight: "bold",
+  },
+});
 
 export const CasdoorLogout = () => {
   if (sdk) {sdk.clearState();}

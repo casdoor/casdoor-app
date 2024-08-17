@@ -19,6 +19,7 @@ import {GestureHandlerRootView, Swipeable} from "react-native-gesture-handler";
 import {CountdownCircleTimer} from "react-native-countdown-circle-timer";
 import {useNetInfo} from "@react-native-community/netinfo";
 import {FlashList} from "@shopify/flash-list";
+import Toast from "react-native-toast-message";
 import * as SQLite from "expo-sqlite/next";
 
 import SearchBar from "./SearchBar";
@@ -49,11 +50,13 @@ export default function HomePage() {
   const [refreshing, setRefreshing] = useState(false);
   const {isConnected} = useNetInfo();
   const [canSync, setCanSync] = useState(false);
+  const [key, setKey] = useState(0);
 
   const swipeableRef = useRef(null);
+  const db = SQLite.useSQLiteContext();
   const {userInfo, serverUrl, token} = useStore();
   const {startSync} = useSyncStore();
-  const db = SQLite.useSQLiteContext();
+  const syncError = useSyncStore(state => state.syncError);
 
   useEffect(() => {
     if (db) {
@@ -89,11 +92,29 @@ export default function HomePage() {
 
   const onRefresh = async() => {
     setRefreshing(true);
-    if (canSync) {await startSync(db, userInfo, serverUrl, token);}
+    if (canSync) {
+      await startSync(db, userInfo, serverUrl, token);
+      if (syncError) {
+        Toast.show({
+          type: "error",
+          text1: "Sync error",
+          text2: syncError,
+          autoHide: true,
+        });
+      } else {
+        Toast.show({
+          type: "success",
+          text1: "Sync success",
+          text2: "All your accounts are up to date.",
+          autoHide: true,
+        });
+      }
+    }
     setRefreshing(false);
   };
 
   const handleAddAccount = async(accountData) => {
+    setKey(prevKey => prevKey + 1);
     await TotpDatabase.insertAccount(db, accountData);
     closeEnterAccountModal();
   };
@@ -218,6 +239,7 @@ export default function HomePage() {
                 right={() => (
                   <View style={{justifyContent: "center", alignItems: "center"}}>
                     <CountdownCircleTimer
+                      key={key}
                       isPlaying={true}
                       duration={30}
                       initialRemainingTime={TotpDatabase.calculateCountdown()}
@@ -226,7 +248,11 @@ export default function HomePage() {
                       size={60}
                       onComplete={() => {
                         TotpDatabase.updateToken(db, item.id);
-                        return {shouldRepeat: true, delay: 0};
+                        return {
+                          shouldRepeat: true,
+                          delay: 0,
+                          newInitialRemainingTime: TotpDatabase.calculateCountdown(),
+                        };
                       }}
                       strokeWidth={5}
                     >
@@ -292,7 +318,7 @@ export default function HomePage() {
             transform: [{translateX: -OFFSET_X}, {translateY: -OFFSET_Y}],
           }}
         >
-          <EnterAccountDetails onClose={closeEnterAccountModal} onAdd={handleAddAccount} />
+          <EnterAccountDetails onClose={closeEnterAccountModal} onAdd={handleAddAccount} validateSecret={TotpDatabase.validateSecret} />
         </Modal>
       </Portal>
 

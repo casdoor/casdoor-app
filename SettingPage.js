@@ -13,14 +13,15 @@
 // limitations under the License.
 
 import * as React from "react";
-import {Button} from "react-native-paper";
-import {View} from "react-native";
+import {StyleSheet, View, useWindowDimensions} from "react-native";
+import {Button, Surface, Text} from "react-native-paper";
 import CasdoorLoginPage, {CasdoorLogout} from "./CasdoorLoginPage";
 import useStore from "./useStorage";
 
 const SettingPage = () => {
   const [showLoginPage, setShowLoginPage] = React.useState(false);
   const {userInfo, clearAll} = useStore();
+  const {width} = useWindowDimensions();
 
   const handleCasdoorLogin = () => setShowLoginPage(true);
   const handleHideLoginPage = () => setShowLoginPage(false);
@@ -30,16 +31,42 @@ const SettingPage = () => {
     clearAll();
   };
 
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      padding: 16,
+    },
+    surface: {
+      padding: 16,
+      width: width > 600 ? 400 : "100%",
+      maxWidth: 400,
+      alignItems: "center",
+    },
+    title: {
+      fontSize: 24,
+      marginBottom: 24,
+    },
+    button: {
+      marginTop: 16,
+      width: "100%",
+    },
+  });
+
   return (
-    <View>
-      <Button
-        style={{marginTop: "50%", marginLeft: "20%", marginRight: "20%"}}
-        icon={userInfo === null ? "login" : "logout"}
-        mode="contained"
-        onPress={userInfo === null ? handleCasdoorLogin : handleCasdoorLogout}
-      >
-        {userInfo === null ? "Login with Casdoor" : "Logout"}
-      </Button>
+    <View style={styles.container}>
+      <Surface style={styles.surface} elevation={4}>
+        <Text style={styles.title}>Account Settings</Text>
+        <Button
+          style={styles.button}
+          icon={userInfo === null ? "login" : "logout"}
+          mode="contained"
+          onPress={userInfo === null ? handleCasdoorLogin : handleCasdoorLogout}
+        >
+          {userInfo === null ? "Login with Casdoor" : "Logout"}
+        </Button>
+      </Surface>
       {showLoginPage && <CasdoorLoginPage onWebviewClose={handleHideLoginPage} />}
     </View>
   );

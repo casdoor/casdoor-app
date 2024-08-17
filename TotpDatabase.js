@@ -45,6 +45,17 @@ CREATE TABLE accounts (
   await db.execAsync(`PRAGMA user_version = ${DATABASE_VERSION}`);
 }
 
+export async function clearDatabase(db) {
+  try {
+    await db.execAsync("DELETE FROM accounts");
+    await db.execAsync("DELETE FROM sqlite_sequence WHERE name='accounts'");
+    await db.execAsync("PRAGMA user_version = 0");
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
 const generateToken = (secretKey) => {
   if (secretKey !== null && secretKey !== undefined && secretKey !== "") {
     try {
@@ -147,7 +158,6 @@ export async function getAllAccounts(db) {
     const mappedAccount = {
       ...account,
       accountName: account.account_name,
-      secretKey: account.secret,
     };
     return mappedAccount;
   });
@@ -173,8 +183,16 @@ async function updateSyncTimeForAll(db) {
 }
 
 export function calculateCountdown() {
-  const now = Math.floor(Date.now() / 1000);
+  const now = Math.round(new Date().getTime() / 1000.0);
   return 30 - (now % 30);
+}
+
+export function validateSecret(secret) {
+  const base32Regex = /^[A-Z2-7]+=*$/i;
+  if (!secret || secret.length % 8 !== 0) {
+    return false;
+  }
+  return base32Regex.test(secret);
 }
 
 async function updateLocalDatabase(db, mergedAccounts) {

@@ -13,8 +13,9 @@
 // limitations under the License.
 
 import React from "react";
-import {Alert, Text, View} from "react-native";
+import {ScrollView, Text, View} from "react-native";
 import {Button, IconButton, Portal, TextInput} from "react-native-paper";
+import Toast from "react-native-toast-message";
 import DefaultCasdoorSdkConfig from "./DefaultCasdoorSdkConfig";
 import PropTypes from "prop-types";
 import useStore from "./useStorage";
@@ -22,6 +23,7 @@ import useStore from "./useStorage";
 const EnterCasdoorSdkConfig = ({onClose, onWebviewClose}) => {
   EnterCasdoorSdkConfig.propTypes = {
     onClose: PropTypes.func.isRequired,
+    onWebviewClose: PropTypes.func.isRequired,
   };
 
   const {
@@ -44,10 +46,24 @@ const EnterCasdoorSdkConfig = ({onClose, onWebviewClose}) => {
 
   const handleSave = () => {
     if (!serverUrl || !clientId || !appName || !organizationName || !redirectPath) {
-      Alert.alert("Please fill in all the fields!");
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Please fill in all the fields!",
+        autoHide: true,
+      });
       return;
     }
     onClose();
+  };
+
+  const handleScanToLogin = () => {
+    Toast.show({
+      type: "info",
+      text1: "Info",
+      text2: "Scan to Login functionality not implemented yet.",
+      autoHide: true,
+    });
   };
 
   const handleUseDefault = () => {
@@ -57,115 +73,155 @@ const EnterCasdoorSdkConfig = ({onClose, onWebviewClose}) => {
 
   return (
     <Portal>
-      <View style={{flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "white"}}>
-        <View style={{top: -60, flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "white"}}>
-          <Text style={{fontSize: 24, marginBottom: 5}}>Casdoor server</Text>
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <View style={styles.content}>
+          <View style={styles.header}>
+            <Text style={styles.title}>Casdoor server</Text>
+            <IconButton
+              icon="close"
+              size={24}
+              onPress={closeConfigPage}
+              style={styles.closeButton}
+            />
+          </View>
           <TextInput
             label="Endpoint"
             value={serverUrl}
             onChangeText={setServerUrl}
             autoCapitalize="none"
-            style={{
-              borderWidth: 3,
-              borderColor: "white",
-              margin: 10,
-              width: 300,
-              height: 50,
-              borderRadius: 5,
-              fontSize: 18,
-              color: "gray",
-              paddingLeft: 10,
-            }}
+            style={styles.input}
+            mode="outlined"
           />
           <TextInput
-            label="ClientID"
+            label="Client ID"
             value={clientId}
             onChangeText={setClientId}
             autoCapitalize="none"
-            style={{
-              borderWidth: 3,
-              borderColor: "white",
-              margin: 10,
-              width: 300,
-              height: 50,
-              borderRadius: 5,
-              fontSize: 18,
-              color: "gray",
-              paddingLeft: 10,
-            }}
+            style={styles.input}
+            mode="outlined"
           />
           <TextInput
-            label="appName"
+            label="App Name"
             value={appName}
             onChangeText={setAppName}
             autoCapitalize="none"
-            style={{
-              borderWidth: 3,
-              borderColor: "white",
-              margin: 10,
-              width: 300,
-              height: 50,
-              borderRadius: 5,
-              fontSize: 18,
-              color: "gray",
-              paddingLeft: 10,
-            }}
+            style={styles.input}
+            mode="outlined"
           />
           <TextInput
-            label="organizationName"
+            label="Organization Name"
             value={organizationName}
             onChangeText={setOrganizationName}
             autoCapitalize="none"
-            style={{
-              borderWidth: 3,
-              borderColor: "white",
-              margin: 10,
-              width: 300,
-              height: 50,
-              borderRadius: 5,
-              fontSize: 18,
-              color: "gray",
-              paddingLeft: 10,
-            }}
+            style={styles.input}
+            mode="outlined"
           />
+          <View style={styles.buttonRow}>
+            <Button
+              mode="contained"
+              onPress={handleSave}
+              style={[styles.button, styles.confirmButton]}
+              labelStyle={styles.buttonLabel}
+            >
+              Confirm
+            </Button>
+            <Button
+              mode="contained"
+              onPress={handleScanToLogin}
+              style={[styles.button, styles.scanButton]}
+              labelStyle={styles.buttonLabel}
+            >
+              Scan to Login
+            </Button>
+          </View>
           <Button
-            mode="contained"
-            onPress={handleSave}
-            style={{
-              backgroundColor: "#E6DFF3",
-              borderRadius: 5,
-              margin: 10,
-              alignItems: "center",
-              position: "absolute",
-              top: 600,
-              width: 300,
-              height: 50,
-              display: "flex",
-              justifyContent: "center",
-            }}
-          >
-            <Text style={{fontSize: 21, width: 300, color: "black"}}>Confirm</Text>
-          </Button>
-          <Button
-            mode="contained"
+            mode="outlined"
             onPress={handleUseDefault}
-            style={{
-              backgroundColor: "#E6DFF3",
-              borderRadius: 5,
-              margin: 10,
-              alignItems: "center",
-              position: "absolute",
-              top: 660,
-              width: 300,
-            }}
+            style={[styles.button, styles.outlinedButton]}
+            labelStyle={styles.outlinedButtonLabel}
           >
-            <Text style={{fontSize: 18, width: 300, color: "black"}}>Use Casdoor Demo Site</Text>
+            Use Casdoor Demo Site
           </Button>
-          <IconButton icon={"close"} size={30} onPress={closeConfigPage} style={{position: "absolute", top: 120, right: -30}} />
         </View>
-      </View>
+      </ScrollView>
     </Portal>
   );
+};
+
+const styles = {
+  scrollContainer: {
+    flexGrow: 1,
+    width: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.5)",
+  },
+  content: {
+    width: "95%",
+    borderRadius: 10,
+    padding: 20,
+    backgroundColor: "#F5F5F5",
+    shadowColor: "#000",
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 5,
+  },
+  input: {
+    marginVertical: 10,
+    fontSize: 16,
+    backgroundColor: "white",
+  },
+  buttonRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 14,
+    marginBottom: 12,
+  },
+  button: {
+    borderRadius: 5,
+    paddingVertical: 8,
+  },
+  confirmButton: {
+    backgroundColor: "#6200EE",
+    flex: 1,
+    marginRight: 5,
+  },
+  scanButton: {
+    backgroundColor: "#03DAC6",
+    flex: 1,
+    marginLeft: 5,
+  },
+  buttonLabel: {
+    fontSize: 16,
+    color: "white",
+  },
+  outlinedButton: {
+    borderColor: "#6200EE",
+    borderWidth: 1,
+    width: "100%",
+  },
+  outlinedButtonLabel: {
+    color: "#6200EE",
+    fontSize: 16,
+    textAlign: "center",
+  },
+  header: {
+    position: "relative",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#333",
+    textAlign: "center",
+  },
+  closeButton: {
+    position: "absolute",
+    right: 0,
+    top: -8,
+  },
 };
 
 export default EnterCasdoorSdkConfig;
