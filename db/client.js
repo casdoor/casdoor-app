@@ -12,27 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {create} from "zustand";
-import * as TotpDatabase from "./TotpDatabase";
+import {drizzle} from "drizzle-orm/expo-sqlite";
+import {openDatabaseSync} from "expo-sqlite/next";
 
-const useSyncStore = create((set, get) => ({
-  isSyncing: false,
-  syncError: null,
+const expoDb = openDatabaseSync("account.db", {enableChangeListener: true});
 
-  startSync: async(db, userInfo, casdoorServer, token) => {
-    if (!get().isSyncing) {
-      set({isSyncing: true, syncError: null});
-      try {
-        await TotpDatabase.syncWithCloud(db, userInfo, casdoorServer, token);
-      } catch (error) {
-        set({syncError: error.message});
-      } finally {
-        set({isSyncing: false});
-      }
-    }
-  },
-
-  clearSyncError: () => set({syncError: null}),
-}));
-
-export default useSyncStore;
+export const db = drizzle(expoDb);
