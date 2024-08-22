@@ -20,16 +20,19 @@ import {CountdownCircleTimer} from "react-native-countdown-circle-timer";
 import {useNetInfo} from "@react-native-community/netinfo";
 import {FlashList} from "@shopify/flash-list";
 import Toast from "react-native-toast-message";
-import * as SQLite from "expo-sqlite/next";
+import {useLiveQuery} from "drizzle-orm/expo-sqlite";
+import {isNull} from "drizzle-orm";
 
 import SearchBar from "./SearchBar";
 import EnterAccountDetails from "./EnterAccountDetails";
 import ScanQRCode from "./ScanQRCode";
 import EditAccountDetails from "./EditAccountDetails";
 import AvatarWithFallback from "./AvatarWithFallback";
-import * as TotpDatabase from "./TotpDatabase";
 import useStore from "./useStorage";
-import useSyncStore from "./useSyncStore";
+import * as schema from "./db/schema";
+import {db} from "./db/client";
+import {calculateCountdown, validateSecret} from "./totpUtil";
+import {useAccountSync, useEditAccount, useUpdateAccountToken} from "./useAccountStore";
 
 const {width, height} = Dimensions.get("window");
 const REFRESH_INTERVAL = 10000;
@@ -41,7 +44,7 @@ export default function HomePage() {
   const [showOptions, setShowOptions] = useState(false);
   const [showEnterAccountModal, setShowEnterAccountModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [accounts, setAccounts] = useState([]);
+  const {data: accounts} = useLiveQuery(db.select().from(schema.accounts).where(isNull(schema.accounts.deletedAt)));
   const [filteredData, setFilteredData] = useState(accounts);
   const [showScanner, setShowScanner] = useState(false);
   const [showEditAccountModal, setShowEditAccountModal] = useState(false);
@@ -53,17 +56,10 @@ export default function HomePage() {
   const [key, setKey] = useState(0);
 
   const swipeableRef = useRef(null);
-  const db = SQLite.useSQLiteContext();
   const {userInfo, serverUrl, token} = useStore();
-  const {startSync} = useSyncStore();
-  const syncError = useSyncStore(state => state.syncError);
-
-  useEffect(() => {
-    if (db) {
-      const subscription = SQLite.addDatabaseChangeListener((event) => {loadAccounts();});
-      return () => {if (subscription) {subscription.remove();}};
-    }
-  }, [db]);
+  const {startSync} = useAccountSync();
+  const {updateToken} = useUpdateAccountToken();
+  const {setAccount, updateAccount, insertAccount, deleteAccount} = useEditAccount();
 
   useEffect(() => {
     setCanSync(Boolean(isConnected && userInfo && serverUrl));
@@ -74,26 +70,16 @@ export default function HomePage() {
   }, [accounts]);
 
   useEffect(() => {
-    loadAccounts();
-  }, []);
-
-  useEffect(() => {
     const timer = setInterval(() => {
-      if (canSync) {startSync(db, userInfo, serverUrl, token);}
+      if (canSync) {startSync(userInfo, serverUrl, token);}
     }, REFRESH_INTERVAL);
     return () => clearInterval(timer);
   }, [startSync]);
 
-  const loadAccounts = async() => {
-    const loadedAccounts = await TotpDatabase.getAllAccounts(db);
-    setAccounts(loadedAccounts);
-    setFilteredData(loadedAccounts);
-  };
-
   const onRefresh = async() => {
     setRefreshing(true);
     if (canSync) {
-      await startSync(db, userInfo, serverUrl, token);
+      const syncError = await startSync(userInfo, serverUrl, token);
       if (syncError) {
         Toast.show({
           type: "error",
@@ -110,17 +96,15 @@ export default function HomePage() {
         });
       }
     }
+    setKey(prevKey => prevKey + 1);
     setRefreshing(false);
   };
 
   const handleAddAccount = async(accountData) => {
     setKey(prevKey => prevKey + 1);
-    await TotpDatabase.insertAccount(db, accountData);
+    setAccount(accountData);
+    insertAccount();
     closeEnterAccountModal();
-  };
-
-  const handleDeleteAccount = async(id) => {
-    await TotpDatabase.deleteAccount(db, id);
   };
 
   const handleEditAccount = (account) => {
@@ -132,7 +116,8 @@ export default function HomePage() {
 
   const onAccountEdit = async(newAccountName) => {
     if (editingAccount) {
-      await TotpDatabase.updateAccountName(db, editingAccount.id, newAccountName);
+      setAccount({...editingAccount, accountName: newAccountName, oldAccountName: editingAccount.accountName});
+      updateAccount();
       setPlaceholder("");
       setEditingAccount(null);
       closeEditAccountModal();
@@ -176,7 +161,7 @@ export default function HomePage() {
   const handleSearch = (query) => {
     setSearchQuery(query);
     setFilteredData(query.trim() !== ""
-      ? accounts.filter(item => item.accountName.toLowerCase().includes(query.toLowerCase()))
+      ? accounts && accounts.filter(item => item.accountName.toLowerCase().includes(query.toLowerCase()))
       : accounts
     );
   };
@@ -205,7 +190,7 @@ export default function HomePage() {
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={{height: 70, width: 80, backgroundColor: "#FFC0CB", alignItems: "center", justifyContent: "center"}}
-                    onPress={() => handleDeleteAccount(item.id)}
+                    onPress={() => deleteAccount(item.id)}
                   >
                     <Text>Delete</Text>
                   </TouchableOpacity>
@@ -242,16 +227,16 @@ export default function HomePage() {
                       key={key}
                       isPlaying={true}
                       duration={30}
-                      initialRemainingTime={TotpDatabase.calculateCountdown()}
+                      initialRemainingTime={calculateCountdown()}
                       colors={["#004777", "#0072A0", "#0099CC", "#FF6600", "#CC3300", "#A30000"]}
                       colorsTime={[30, 24, 18, 12, 6, 0]}
                       size={60}
                       onComplete={() => {
-                        TotpDatabase.updateToken(db, item.id);
+                        updateToken(item.id);
                         return {
                           shouldRepeat: true,
                           delay: 0,
-                          newInitialRemainingTime: TotpDatabase.calculateCountdown(),
+                          newInitialRemainingTime: calculateCountdown(),
                         };
                       }}
                       strokeWidth={5}
@@ -318,7 +303,7 @@ export default function HomePage() {
             transform: [{translateX: -OFFSET_X}, {translateY: -OFFSET_Y}],
           }}
         >
-          <EnterAccountDetails onClose={closeEnterAccountModal} onAdd={handleAddAccount} validateSecret={TotpDatabase.validateSecret} />
+          <EnterAccountDetails onClose={closeEnterAccountModal} onAdd={handleAddAccount} validateSecret={validateSecret} />
         </Modal>
       </Portal>
 

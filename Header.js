@@ -18,13 +18,13 @@ import {Appbar, Avatar, Menu, Text, TouchableRipple} from "react-native-paper";
 import Toast from "react-native-toast-message";
 import CasdoorLoginPage, {CasdoorLogout} from "./CasdoorLoginPage";
 import useStore from "./useStorage";
-import useSyncStore from "./useSyncStore";
+import {useAccountSync} from "./useAccountStore";
 
 const {width} = Dimensions.get("window");
 
 const Header = () => {
   const {userInfo, clearAll} = useStore();
-  const syncError = useSyncStore(state => state.syncError);
+  const {syncError, clearSyncError} = useAccountSync();
   const [showLoginPage, setShowLoginPage] = React.useState(false);
   const [menuVisible, setMenuVisible] = React.useState(false);
 
@@ -42,6 +42,7 @@ const Header = () => {
   const handleCasdoorLogout = () => {
     CasdoorLogout();
     clearAll();
+    clearSyncError();
   };
 
   const handleSyncErrorPress = () => {

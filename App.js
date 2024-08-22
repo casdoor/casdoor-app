@@ -13,28 +13,59 @@
 // limitations under the License.
 
 import * as React from "react";
-import {PaperProvider} from "react-native-paper";
 import {NavigationContainer} from "@react-navigation/native";
-import {BulletList} from "react-content-loader/native";
-import {SQLiteProvider} from "expo-sqlite";
+import {PaperProvider} from "react-native-paper";
+import {SafeAreaView, Text} from "react-native";
+import ContentLoader, {Circle, Rect} from "react-content-loader/native";
 import Toast from "react-native-toast-message";
+import {useMigrations} from "drizzle-orm/expo-sqlite/migrator";
+
 import Header from "./Header";
 import NavigationBar from "./NavigationBar";
-import {migrateDb} from "./TotpDatabase";
+import {db} from "./db/client";
+import migrations from "./drizzle/migrations";
 
 const App = () => {
+  const {success, error} = useMigrations(db, migrations);
+
+  if (error) {
+    return (
+      <SafeAreaView style={{flex: 1}}>
+        <Text>Migration error: {error.message}</Text>
+      </SafeAreaView>
+    );
+  }
+
+  if (!success) {
+    return (
+      <ContentLoader
+        speed={2}
+        width={400}
+        height={150}
+        viewBox="0 0 400 150"
+        backgroundColor="#f3f3f3"
+        foregroundColor="#ecebeb"
+      >
+        <Circle cx="10" cy="20" r="8" />
+        <Rect x="25" y="15" rx="5" ry="5" width="220" height="10" />
+        <Circle cx="10" cy="50" r="8" />
+        <Rect x="25" y="45" rx="5" ry="5" width="220" height="10" />
+        <Circle cx="10" cy="80" r="8" />
+        <Rect x="25" y="75" rx="5" ry="5" width="220" height="10" />
+        <Circle cx="10" cy="110" r="8" />
+        <Rect x="25" y="105" rx="5" ry="5" width="220" height="10" />
+      </ContentLoader>
+    );
+  }
+
   return (
-    <React.Suspense fallback={<BulletList />}>
-      <SQLiteProvider databaseName="totp.db" onInit={migrateDb} options={{enableChangeListener: true}}>
-        <NavigationContainer>
-          <PaperProvider>
-            <Header />
-            <NavigationBar />
-          </PaperProvider>
-        </NavigationContainer>
-        <Toast />
-      </SQLiteProvider>
-    </React.Suspense>
+    <NavigationContainer>
+      <PaperProvider>
+        <Header />
+        <NavigationBar />
+      </PaperProvider>
+      <Toast />
+    </NavigationContainer>
   );
 };
 export default App;
