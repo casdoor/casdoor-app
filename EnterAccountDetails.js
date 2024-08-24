@@ -120,12 +120,12 @@ const EnterAccountDetails = ({onClose, onAdd, validateSecret}) => {
           error={!!secretError}
           style={styles.input}
           mode="outlined"
-          right={
+          right={(props) => (
             <TextInput.Icon
               icon={showPassword ? "eye-off" : "eye"}
               onPress={() => setShowPassword(!showPassword)}
             />
-          }
+          )}
         />
         <View style={styles.buttonContainer}>
           <Menu

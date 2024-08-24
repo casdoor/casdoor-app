@@ -14,9 +14,11 @@
 
 import React, {useEffect, useState} from "react";
 import {Text, View} from "react-native";
-import {IconButton, Portal} from "react-native-paper";
-import {Camera, CameraView} from "expo-camera";
+import {Button, IconButton, Portal} from "react-native-paper";
+import {Camera, CameraView, scanFromURLAsync} from "expo-camera";
+import * as ImagePicker from "expo-image-picker";
 import PropTypes from "prop-types";
+import useProtobufDecoder from "./useProtobufDecoder";
 
 const ScanQRCode = ({onClose, showScanner, onAdd}) => {
   ScanQRCode.propTypes = {
@@ -26,51 +28,100 @@ const ScanQRCode = ({onClose, showScanner, onAdd}) => {
   };
 
   const [hasPermission, setHasPermission] = useState(null);
+  const decoder = useProtobufDecoder(require("./google/google_auth.proto"));
 
   useEffect(() => {
-    const getCameraPermissions = async() => {
-      const {status} = await Camera.requestCameraPermissionsAsync();
-      setHasPermission(status === "granted");
+    const getPermissions = async() => {
+      const {status: cameraStatus} = await Camera.requestCameraPermissionsAsync();
+      setHasPermission(cameraStatus === "granted");
+      // const {status: mediaLibraryStatus} = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      // setHasMediaLibraryPermission(mediaLibraryStatus === "granted");
     };
 
-    getCameraPermissions();
+    getPermissions();
   }, []);
 
-  const closeOptions = () => {
-    onClose();
-  };
-
   const handleBarCodeScanned = ({type, data}) => {
-    // type org.iso.QRCode
-    // data otpauth://totp/casdoor:built-in/admin?algorithm=SHA1&digits=6&issuer=casdoor&period=30&secret=DL5XI33M772GSGU73GJPCOIBNJE7TG3J
     // console.log(`Bar code with type ${type} and data ${data} has been scanned!`);
-    const accountName = data.match(/otpauth:\/\/totp\/([^?]+)/); // accountName casdoor:built-in/admin
-    const secretKey = data.match(/secret=([^&]+)/); // secretKey II5UO7HIA3SPVXAB6KPAIXZ33AQP7C3R
-    const issuer = data.match(/issuer=([^&]+)/);
-    if (accountName && secretKey) {
-      onAdd({accountName: accountName[1], issuer: issuer[1], secretKey: secretKey[1]});
+    const supportedProtocols = ["otpauth", "otpauth-migration"];
+    const protocolMatch = data.match(new RegExp(`^(${supportedProtocols.join("|")}):`));
+    if (protocolMatch) {
+      const protocol = protocolMatch[1];
+      switch (protocol) {
+      case "otpauth":
+        handleOtpAuth(data);
+        break;
+      case "otpauth-migration":
+        handleGoogleMigration(data);
+        break;
+      default:
+        return;
+      }
+      onClose();
     }
-
-    closeOptions();
   };
+
+  const handleOtpAuth = (data) => {
+    const [, accountName] = data.match(/otpauth:\/\/totp\/([^?]+)/) || [];
+    const [, secretKey] = data.match(/secret=([^&]+)/) || [];
+    const [, issuer] = data.match(/issuer=([^&]+)/) || [];
+
+    if (accountName && secretKey) {
+      onAdd({accountName, issuer: issuer || null, secretKey});
+    }
+  };
+
+  const handleGoogleMigration = (data) => {
+    const accounts = decoder.decodeExportUri(data);
+    onAdd(accounts.map(({accountName, issuer, totpSecret}) => ({accountName, issuer, secretKey: totpSecret})));
+  };
+
+  const pickImage = async() => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 1,
+    });
+
+    if (!result.canceled && result.assets[0]) {
+      const scannedData = await scanFromURLAsync(result.assets[0].uri, ["qr", "pdf417"]);
+      if (scannedData[0]) {
+        handleBarCodeScanned({type: scannedData[0].type, data: scannedData[0].data});
+      }
+    }
+  };
+
+  if (hasPermission === null) {
+    return <Text style={{margin: "20%"}}>Requesting permissions...</Text>;
+  }
+
+  if (hasPermission === false) {
+    return <Text style={{margin: "20%"}}>No access to camera or media library</Text>;
+  }
 
   return (
-    <View style={{marginTop: "50%", flex: 1}} >
+    <View style={{marginTop: "50%", flex: 1}}>
       <Portal>
-        {hasPermission === null ? (
-          <Text style={{marginLeft: "20%", marginRight: "20%"}}>Requesting for camera permission</Text>
-        ) : hasPermission === false ? (
-          <Text style={{marginLeft: "20%", marginRight: "20%"}}>No access to camera</Text>
-        ) : (
-          <CameraView
-            onBarcodeScanned={handleBarCodeScanned}
-            barcodeScannerSettings={{
-              barcodeTypes: ["qr", "pdf417"],
-            }}
-            style={{flex: 1}}
-          />
-        )}
-        <IconButton icon={"close"} size={40} onPress={onClose} style={{position: "absolute", top: 30, right: 5}} />
+        <CameraView
+          onBarcodeScanned={handleBarCodeScanned}
+          barcodeScannerSettings={{
+            barcodeTypes: ["qr", "pdf417"],
+          }}
+          style={{flex: 1}}
+        />
+        <IconButton
+          icon="close"
+          size={40}
+          onPress={onClose}
+          style={{position: "absolute", top: 30, right: 5}}
+        />
+        <Button
+          icon="image"
+          mode="contained"
+          onPress={pickImage}
+          style={{position: "absolute", bottom: 20, alignSelf: "center"}}
+        >
+          Choose Image
+        </Button>
       </Portal>
     </View>
   );
