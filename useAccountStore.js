@@ -14,14 +14,27 @@
 
 import {db} from "./db/client";
 import * as schema from "./db/schema";
-import {eq} from "drizzle-orm";
+import {and, eq, isNull} from "drizzle-orm";
 import {create} from "zustand";
 import {generateToken} from "./totpUtil";
 import {syncWithCloud} from "./syncLogic";
 
+export const useAccountStore = create((set, get) => ({
+  accounts: [],
+  refreshAccounts: () => {
+    const accounts = db.select().from(schema.accounts).where(isNull(schema.accounts.deletedAt)).all();
+    set({accounts});
+  },
+  setAccounts: (accounts) => {
+    set({accounts});
+  },
+}));
+
 const useEditAccountStore = create((set, get) => ({
   account: {id: undefined, issuer: undefined, accountName: undefined, secretKey: undefined, oldAccountName: undefined},
-  setAccount: (account) => set({account}),
+  setAccount: (account) => {
+    set({account});
+  },
   updateAccount: () => {
     const {id, accountName, issuer, secretKey, oldAccountName} = get().account;
     if (!id) {return;}
@@ -56,13 +69,133 @@ const useEditAccountStore = create((set, get) => ({
   insertAccount: () => {
     const {accountName, issuer, secretKey} = get().account;
     if (!accountName || !secretKey) {return;}
-    db.insert(schema.accounts)
-      .values({accountName, issuer: issuer ? issuer : null, secretKey, token: generateToken(secretKey)})
-      .run();
-    set({account: {id: undefined, issuer: undefined, accountName: undefined, secretKey: undefined}});
+    const insertWithDuplicateCheck = (tx, baseAccName) => {
+      let attemptCount = 0;
+      const maxAttempts = 10;
+      const tryInsert = (accName) => {
+        const existingAccount = tx.select()
+          .from(schema.accounts)
+          .where(and(
+            eq(schema.accounts.accountName, accName),
+            eq(schema.accounts.issuer, issuer || null),
+            eq(schema.accounts.secretKey, secretKey)
+          ))
+          .get();
+
+        if (existingAccount) {
+          return accName;
+        }
+
+        const conflictingAccount = tx.select()
+          .from(schema.accounts)
+          .where(and(
+            eq(schema.accounts.accountName, accName),
+            eq(schema.accounts.issuer, issuer || null)
+          ))
+          .get();
+
+        if (conflictingAccount) {
+          if (attemptCount >= maxAttempts) {
+            throw new Error(`Cannot generate a unique name for account ${baseAccName}, tried ${maxAttempts} times`);
+          }
+          attemptCount++;
+          const newAccountName = `${baseAccName}_${Math.random().toString(36).slice(2, 5)}`;
+          return tryInsert(newAccountName);
+        }
+
+        tx.insert(schema.accounts)
+          .values({
+            accountName: accName,
+            issuer: issuer || null,
+            secretKey,
+            token: generateToken(secretKey),
+          })
+          .run();
+
+        return accName;
+      };
+
+      return tryInsert(baseAccName);
+    };
+
+    try {
+      const finalAccountName = db.transaction((tx) => {
+        return insertWithDuplicateCheck(tx, accountName);
+      });
+      set({account: {id: undefined, issuer: undefined, accountName: undefined, secretKey: undefined}});
+      return finalAccountName;
+    } catch (error) {
+      return null;
+    }
+  },
+
+  insertAccounts: (accounts) => {
+    try {
+      db.transaction((tx) => {
+        const insertWithDuplicateCheck = (baseAccName, issuer, secretKey) => {
+          let attemptCount = 0;
+          const maxAttempts = 10;
+          const tryInsert = (accName) => {
+            const existingAccount = tx.select()
+              .from(schema.accounts)
+              .where(and(
+                eq(schema.accounts.accountName, accName),
+                eq(schema.accounts.issuer, issuer || null),
+                eq(schema.accounts.secretKey, secretKey)
+              ))
+              .get();
+
+            if (existingAccount) {
+              return accName;
+            }
+
+            const conflictingAccount = tx.select()
+              .from(schema.accounts)
+              .where(and(
+                eq(schema.accounts.accountName, accName),
+                eq(schema.accounts.issuer, issuer || null)
+              ))
+              .get();
+
+            if (conflictingAccount) {
+              if (attemptCount >= maxAttempts) {
+                throw new Error(`Cannot generate a unique name for account ${baseAccName}, tried ${maxAttempts} times`);
+              }
+              attemptCount++;
+              const newAccountName = `${baseAccName}_${Math.random().toString(36).slice(2, 7)}`;
+              return tryInsert(newAccountName);
+            }
+
+            tx.insert(schema.accounts)
+              .values({
+                accountName: accName,
+                issuer: issuer || null,
+                secretKey,
+                token: generateToken(secretKey),
+              })
+              .run();
+
+            return accName;
+          };
+
+          return tryInsert(baseAccName);
+        };
+
+        for (const account of accounts) {
+          const {accountName, issuer, secretKey} = account;
+          if (!accountName || !secretKey) {continue;}
+          insertWithDuplicateCheck(accountName, issuer, secretKey);
+        }
+      });
+    } catch (error) {
+      return null;
+    }
   },
   deleteAccount: async(id) => {
-    db.update(schema.accounts).set({deletedAt: new Date()}).where(eq(schema.accounts.id, id)).run();
+    db.update(schema.accounts)
+      .set({deletedAt: new Date()})
+      .where(eq(schema.accounts.id, id))
+      .run();
   },
 }));
 
@@ -71,6 +204,7 @@ export const useEditAccount = () => useEditAccountStore(state => ({
   setAccount: state.setAccount,
   updateAccount: state.updateAccount,
   insertAccount: state.insertAccount,
+  insertAccounts: state.insertAccounts,
   deleteAccount: state.deleteAccount,
 }));
 
@@ -108,8 +242,17 @@ const useUpdateAccountTokenStore = create(() => ({
       db.update(schema.accounts).set({token: generateToken(account.secretKey)}).where(eq(schema.accounts.id, id)).run();
     }
   },
+  updateAllTokens: async() => {
+    db.transaction(async(tx) => {
+      const accounts = tx.select().from(schema.accounts).where(isNull(schema.accounts.deletedAt)).all();
+      for (const account of accounts) {
+        tx.update(schema.accounts).set({token: generateToken(account.secretKey)}).where(eq(schema.accounts.id, account.id)).run();
+      }
+    });
+  },
 }));
 
 export const useUpdateAccountToken = () => useUpdateAccountTokenStore(state => ({
   updateToken: state.updateToken,
+  updateAllTokens: state.updateAllTokens,
 }));

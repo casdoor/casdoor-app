@@ -13,15 +13,13 @@
 // limitations under the License.
 
 import React, {useEffect, useRef, useState} from "react";
-import {Dimensions, RefreshControl, TouchableOpacity, View} from "react-native";
+import {Dimensions, InteractionManager, RefreshControl, TouchableOpacity, View} from "react-native";
 import {Divider, IconButton, List, Modal, Portal, Text} from "react-native-paper";
 import {GestureHandlerRootView, Swipeable} from "react-native-gesture-handler";
 import {CountdownCircleTimer} from "react-native-countdown-circle-timer";
 import {useNetInfo} from "@react-native-community/netinfo";
 import {FlashList} from "@shopify/flash-list";
 import Toast from "react-native-toast-message";
-import {useLiveQuery} from "drizzle-orm/expo-sqlite";
-import {isNull} from "drizzle-orm";
 
 import SearchBar from "./SearchBar";
 import EnterAccountDetails from "./EnterAccountDetails";
@@ -29,10 +27,9 @@ import ScanQRCode from "./ScanQRCode";
 import EditAccountDetails from "./EditAccountDetails";
 import AvatarWithFallback from "./AvatarWithFallback";
 import useStore from "./useStorage";
-import * as schema from "./db/schema";
-import {db} from "./db/client";
-import {calculateCountdown, validateSecret} from "./totpUtil";
-import {useAccountSync, useEditAccount, useUpdateAccountToken} from "./useAccountStore";
+import {calculateCountdown} from "./totpUtil";
+import {generateToken, validateSecret} from "./totpUtil";
+import {useAccountStore, useAccountSync, useEditAccount} from "./useAccountStore";
 
 const {width, height} = Dimensions.get("window");
 const REFRESH_INTERVAL = 10000;
@@ -44,7 +41,6 @@ export default function HomePage() {
   const [showOptions, setShowOptions] = useState(false);
   const [showEnterAccountModal, setShowEnterAccountModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const {data: accounts} = useLiveQuery(db.select().from(schema.accounts).where(isNull(schema.accounts.deletedAt)));
   const [filteredData, setFilteredData] = useState(accounts);
   const [showScanner, setShowScanner] = useState(false);
   const [showEditAccountModal, setShowEditAccountModal] = useState(false);
@@ -58,8 +54,12 @@ export default function HomePage() {
   const swipeableRef = useRef(null);
   const {userInfo, serverUrl, token} = useStore();
   const {startSync} = useAccountSync();
-  const {updateToken} = useUpdateAccountToken();
-  const {setAccount, updateAccount, insertAccount, deleteAccount} = useEditAccount();
+  const {accounts, refreshAccounts} = useAccountStore();
+  const {setAccount, updateAccount, insertAccount, insertAccounts, deleteAccount} = useEditAccount();
+
+  useEffect(() => {
+    refreshAccounts();
+  }, []);
 
   useEffect(() => {
     setCanSync(Boolean(isConnected && userInfo && serverUrl));
@@ -71,10 +71,15 @@ export default function HomePage() {
 
   useEffect(() => {
     const timer = setInterval(() => {
-      if (canSync) {startSync(userInfo, serverUrl, token);}
+      if (canSync) {
+        InteractionManager.runAfterInteractions(() => {
+          startSync(userInfo, serverUrl, token);
+          refreshAccounts();
+        });
+      }
     }, REFRESH_INTERVAL);
     return () => clearInterval(timer);
-  }, [startSync]);
+  }, [startSync, canSync]);
 
   const onRefresh = async() => {
     setRefreshing(true);
@@ -96,15 +101,19 @@ export default function HomePage() {
         });
       }
     }
-    setKey(prevKey => prevKey + 1);
+    refreshAccounts();
     setRefreshing(false);
   };
 
-  const handleAddAccount = async(accountData) => {
-    setKey(prevKey => prevKey + 1);
-    setAccount(accountData);
-    insertAccount();
-    closeEnterAccountModal();
+  const handleAddAccount = async(accountDataInput) => {
+    if (Array.isArray(accountDataInput)) {
+      insertAccounts(accountDataInput);
+    } else {
+      await setAccount(accountDataInput);
+      await insertAccount();
+      closeEnterAccountModal();
+    }
+    refreshAccounts();
   };
 
   const handleEditAccount = (account) => {
@@ -118,10 +127,16 @@ export default function HomePage() {
     if (editingAccount) {
       setAccount({...editingAccount, accountName: newAccountName, oldAccountName: editingAccount.accountName});
       updateAccount();
+      refreshAccounts();
       setPlaceholder("");
       setEditingAccount(null);
       closeEditAccountModal();
     }
+  };
+
+  const onAccountDelete = async(account) => {
+    deleteAccount(account.id);
+    refreshAccounts();
   };
 
   const closeEditAccountModal = () => setShowEditAccountModal(false);
@@ -133,6 +148,16 @@ export default function HomePage() {
   };
 
   const handleCloseScanner = () => setShowScanner(false);
+
+  const handleScanError = (error) => {
+    setShowScanner(false);
+    Toast.show({
+      type: "error",
+      text1: "Scan error",
+      text2: error,
+      autoHide: true,
+    });
+  };
 
   const togglePlusButton = () => {
     setIsPlusButton(!isPlusButton);
@@ -172,7 +197,8 @@ export default function HomePage() {
       <FlashList
         data={searchQuery.trim() !== "" ? filteredData : accounts}
         keyExtractor={(item) => `${item.id}`}
-        estimatedItemSize={10}
+        extraData={key}
+        estimatedItemSize={80}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
@@ -190,7 +216,7 @@ export default function HomePage() {
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={{height: 70, width: 80, backgroundColor: "#FFC0CB", alignItems: "center", justifyContent: "center"}}
-                    onPress={() => deleteAccount(item.id)}
+                    onPress={() => onAccountDelete(item)}
                   >
                     <Text>Delete</Text>
                   </TouchableOpacity>
@@ -200,22 +226,23 @@ export default function HomePage() {
               <List.Item
                 style={{
                   height: 80,
-                  paddingVertical: 5,
                   paddingHorizontal: 25,
+                  justifyContent: "center",
                 }}
                 title={
-                  <View style={{flex: 1, justifyContent: "center"}}>
-                    <Text variant="titleMedium">{item.accountName}</Text>
-                    <Text variant="headlineSmall" style={{fontWeight: "bold"}}>{item.token}</Text>
+                  <View style={{justifyContent: "center", paddingLeft: 0, paddingTop: 6}}>
+                    <Text variant="titleMedium" numberOfLines={1}>
+                      {item.accountName}
+                    </Text>
+                    <Text variant="titleLarge" style={{fontWeight: "bold"}}>{generateToken(item.secretKey)}</Text>
                   </View>
                 }
                 left={() => (
                   <AvatarWithFallback
-                    source={{uri: item.issuer ? `https://cdn.casbin.org/img/social_${item.issuer.toLowerCase()}.png` : "https://cdn.casbin.org/img/social_default.png"}}
+                    source={{uri: `https://cdn.casbin.org/img/social_${item.issuer?.toLowerCase()}.png`}}
                     fallbackSource={{uri: "https://cdn.casbin.org/img/social_default.png"}}
                     size={60}
                     style={{
-                      marginRight: 15,
                       borderRadius: 10,
                       backgroundColor: "transparent",
                     }}
@@ -232,7 +259,7 @@ export default function HomePage() {
                       colorsTime={[30, 24, 18, 12, 6, 0]}
                       size={60}
                       onComplete={() => {
-                        updateToken(item.id);
+                        setKey(prevKey => prevKey + 1);
                         return {
                           shouldRepeat: true,
                           delay: 0,
@@ -328,7 +355,7 @@ export default function HomePage() {
       </Portal>
 
       {showScanner && (
-        <ScanQRCode onClose={handleCloseScanner} showScanner={showScanner} onAdd={handleAddAccount} />
+        <ScanQRCode onClose={handleCloseScanner} showScanner={showScanner} onAdd={handleAddAccount} onError={handleScanError} />
       )}
 
       <TouchableOpacity

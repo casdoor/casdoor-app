@@ -33,7 +33,7 @@ const AvatarWithFallback = ({source, fallbackSource, size, style}) => {
         onError={handleImageError}
         contentFit="cover"
         transition={300}
-        cachePolicy={"disk"}
+        cachePolicy={"memory-disk"}
       />
     </View>
   );
