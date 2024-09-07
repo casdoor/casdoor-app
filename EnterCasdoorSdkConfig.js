@@ -12,12 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React from "react";
+import React, {useState} from "react";
 import {ScrollView, Text, View} from "react-native";
 import {Button, IconButton, Portal, TextInput} from "react-native-paper";
 import Toast from "react-native-toast-message";
 import DefaultCasdoorSdkConfig from "./DefaultCasdoorSdkConfig";
 import PropTypes from "prop-types";
+import ScanQRCodeForLogin from "./ScanLogin";
 import useStore from "./useStorage";
 
 const EnterCasdoorSdkConfig = ({onClose, onWebviewClose}) => {
@@ -39,6 +40,8 @@ const EnterCasdoorSdkConfig = ({onClose, onWebviewClose}) => {
     setCasdoorConfig,
   } = useStore();
 
+  const [showScanner, setShowScanner] = useState(false);
+
   const closeConfigPage = () => {
     onClose();
     onWebviewClose();
@@ -58,12 +61,16 @@ const EnterCasdoorSdkConfig = ({onClose, onWebviewClose}) => {
   };
 
   const handleScanToLogin = () => {
-    Toast.show({
-      type: "info",
-      text1: "Info",
-      text2: "Scan to Login functionality not implemented yet.",
-      autoHide: true,
-    });
+    setShowScanner(true);
+  };
+
+  const handleLogin = (loginInfo) => {
+    setServerUrl(loginInfo.serverUrl);
+    setClientId(loginInfo.clientId);
+    setAppName(loginInfo.appName);
+    setOrganizationName(loginInfo.organizationName);
+    setShowScanner(false);
+    onClose();
   };
 
   const handleUseDefault = () => {
@@ -144,6 +151,13 @@ const EnterCasdoorSdkConfig = ({onClose, onWebviewClose}) => {
           </Button>
         </View>
       </ScrollView>
+      {showScanner && (
+        <ScanQRCodeForLogin
+          showScanner={showScanner}
+          onClose={() => setShowScanner(false)}
+          onLogin={handleLogin}
+        />
+      )}
     </Portal>
   );
 };

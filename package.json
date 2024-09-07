@@ -24,7 +24,7 @@
     "expo-asset": "~10.0.10",
     "expo-camera": "~15.0.15",
     "expo-crypto": "~13.0.2",
-    "expo-dev-client": "~4.0.25",
+    "expo-dev-client": "~4.0.26",
     "expo-drizzle-studio-plugin": "^0.0.2",
     "expo-image": "~1.12.15",
     "expo-image-picker": "~15.0.7",
