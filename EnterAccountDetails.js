@@ -15,7 +15,7 @@
 import React, {useCallback, useState} from "react";
 import {View} from "react-native";
 import {Button, IconButton, Menu, Text, TextInput} from "react-native-paper";
-import Toast from "react-native-toast-message";
+import {useNotifications} from "react-native-notificated";
 import PropTypes from "prop-types";
 
 const EnterAccountDetails = ({onClose, onAdd, validateSecret}) => {
@@ -24,6 +24,8 @@ const EnterAccountDetails = ({onClose, onAdd, validateSecret}) => {
     onAdd: PropTypes.func.isRequired,
     validateSecret: PropTypes.func.isRequired,
   };
+
+  const {notify} = useNotifications();
 
   const [accountName, setAccountName] = useState("");
   const [secretKey, setSecretKey] = useState("");
@@ -51,21 +53,17 @@ const EnterAccountDetails = ({onClose, onAdd, validateSecret}) => {
     }
 
     if (accountName.trim() === "" || secretKey.trim() === "") {
-      Toast.show({
-        type: "error",
-        text1: "Error",
-        text2: "Please fill in all the fields!",
-        autoHide: true,
+      notify("error", {
+        title: "Error",
+        description: "Please fill in all the fields!",
       });
       return;
     }
 
     if (secretError) {
-      Toast.show({
-        type: "error",
-        text1: "Invalid Secret Key",
-        text2: "Please check your secret key and try again.",
-        autoHide: true,
+      notify("error", {
+        title: "Error",
+        description: "Invalid Secret Key",
       });
       return;
     }

@@ -32,6 +32,12 @@ export const getMfaAccounts = async(serverUrl, owner, name, token, timeoutMs = T
     ]);
 
     const res = await result.json();
+
+    // Check the response status and message
+    if (res.status === "error") {
+      throw new Error(res.msg);
+    }
+
     return {updatedTime: res.data.updatedTime, mfaAccounts: res.data.mfaAccounts};
   } catch (error) {
     if (error.name === "AbortError") {
@@ -58,6 +64,7 @@ export const updateMfaAccounts = async(serverUrl, owner, name, newMfaAccounts, t
     ]);
 
     const userData = await getUserResult.json();
+
     userData.data.mfaAccounts = newMfaAccounts;
 
     const updateResult = await Promise.race([
@@ -74,6 +81,12 @@ export const updateMfaAccounts = async(serverUrl, owner, name, newMfaAccounts, t
     ]);
 
     const res = await updateResult.json();
+
+    // Check the response status and message
+    if (res.status === "error") {
+      throw new Error(res.msg);
+    }
+
     return {status: res.status, data: res.data};
   } catch (error) {
     if (error.name === "AbortError") {

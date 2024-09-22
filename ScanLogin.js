@@ -26,7 +26,7 @@ const ScanQRCodeForLogin = ({onClose, showScanner, onLogin}) => {
   };
 
   const isValidLoginQR = (data) => {
-    return data.startsWith("casdoor-app://login/into?");
+    return data.startsWith("casdoor-app://login?");
   };
 
   const parseLoginQR = (data) => {
@@ -34,10 +34,11 @@ const ScanQRCodeForLogin = ({onClose, showScanner, onLogin}) => {
     const params = new URLSearchParams(url.search);
 
     return {
+      // clientId: params.get("clientId"),
+      // appName: params.get("appName"),
+      // organizationName: params.get("organizationName"),
       serverUrl: params.get("serverUrl"),
-      clientId: params.get("clientId"),
-      appName: params.get("appName"),
-      organizationName: params.get("organizationName"),
+      accessToken: params.get("accessToken"),
     };
   };
 

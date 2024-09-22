@@ -16,10 +16,9 @@ import React, {useEffect, useState} from "react";
 import {WebView} from "react-native-webview";
 import {Platform, SafeAreaView, StatusBar, StyleSheet, Text, TouchableOpacity} from "react-native";
 import {Portal} from "react-native-paper";
+import {useNotifications} from "react-native-notificated";
 import SDK from "casdoor-react-native-sdk";
 import PropTypes from "prop-types";
-import Toast from "react-native-toast-message";
-
 import EnterCasdoorSdkConfig from "./EnterCasdoorSdkConfig";
 import useStore from "./useStorage";
 // import {LogBox} from "react-native";
@@ -31,6 +30,7 @@ const CasdoorLoginPage = ({onWebviewClose}) => {
     onWebviewClose: PropTypes.func.isRequired,
   };
 
+  const {notify} = useNotifications();
   const [casdoorLoginURL, setCasdoorLoginURL] = useState("");
   const [showConfigPage, setShowConfigPage] = useState(true);
 
@@ -40,6 +40,7 @@ const CasdoorLoginPage = ({onWebviewClose}) => {
     redirectPath,
     appName,
     organizationName,
+    token,
     getCasdoorConfig,
     setUserInfo,
     setToken,
@@ -65,6 +66,12 @@ const CasdoorLoginPage = ({onWebviewClose}) => {
     }
   }, [serverUrl, clientId, redirectPath, appName, organizationName]);
 
+  useEffect(() => {
+    if (token) {
+      onWebviewClose();
+    }
+  }, [token]);
+
   const onNavigationStateChange = async(navState) => {
     const {redirectPath} = getCasdoorConfig();
     if (navState.url.startsWith(redirectPath)) {
@@ -77,11 +84,11 @@ const CasdoorLoginPage = ({onWebviewClose}) => {
   };
 
   const handleErrorResponse = (error) => {
-    Toast.show({
-      type: "error",
-      text1: "Error",
-      text2: error.description,
-      autoHide: true,
+    notify("error", {
+      params: {
+        text1: "Error",
+        text2: error.description,
+      },
     });
     setShowConfigPage(true);
   };
@@ -95,7 +102,7 @@ const CasdoorLoginPage = ({onWebviewClose}) => {
             onWebviewClose={onWebviewClose}
           />
         )}
-        {!showConfigPage && casdoorLoginURL !== "" && (
+        {!showConfigPage && casdoorLoginURL !== "" && !token && (
           <>
             <TouchableOpacity
               style={styles.backButton}

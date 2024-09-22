@@ -13,25 +13,47 @@
 // limitations under the License.
 
 import * as React from "react";
+import {View} from "react-native";
 import {Searchbar} from "react-native-paper";
 
 const SearchBar = ({onSearch}) => {
   const [searchQuery, setSearchQuery] = React.useState("");
 
-  const onChangeSearch = query => {
+  const onChangeSearch = (query) => {
     setSearchQuery(query);
     onSearch(query);
   };
 
   return (
-    <Searchbar
-      placeholder="Search"
-      onChangeText={onChangeSearch}
-      value={searchQuery}
-      style={{height: 48, backgroundColor: "#E6DFF3"}}
-      inputStyle={{textAlignVertical: "center", justifyContent: "center", alignItems: "center", minHeight: 0}}
-    />
+    <View style={styles.container}>
+      <Searchbar
+        placeholder="Search"
+        onChangeText={onChangeSearch}
+        value={searchQuery}
+        style={styles.searchbar}
+        inputStyle={styles.inputStyle}
+      />
+    </View>
   );
+};
+
+const styles = {
+  container: {
+    alignItems: "center",
+    paddingTop: 2,
+  },
+  searchbar: {
+    height: 56,
+    backgroundColor: "#E6DFF3",
+    borderRadius: 99,
+    width: "95%",
+  },
+  inputStyle: {
+    minHeight: 0,
+    textAlignVertical: "center",
+    justifyContent: "center",
+    alignItems: "center",
+  },
 };
 
 export default SearchBar;

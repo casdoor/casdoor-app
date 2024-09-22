@@ -17,7 +17,8 @@ import {NavigationContainer} from "@react-navigation/native";
 import {PaperProvider} from "react-native-paper";
 import {SafeAreaView, Text} from "react-native";
 import ContentLoader, {Circle, Rect} from "react-content-loader/native";
-import Toast from "react-native-toast-message";
+import {ZoomInDownZoomOutUp, createNotifications} from "react-native-notificated";
+import {GestureHandlerRootView} from "react-native-gesture-handler";
 import {useMigrations} from "drizzle-orm/expo-sqlite/migrator";
 
 import Header from "./Header";
@@ -27,6 +28,21 @@ import migrations from "./drizzle/migrations";
 
 const App = () => {
   const {success, error} = useMigrations(db, migrations);
+  const {NotificationsProvider} = createNotifications({
+    duration: 800,
+    notificationPosition: "top",
+    animationConfig: ZoomInDownZoomOutUp,
+    isNotch: true,
+    notificationWidth: 350,
+    defaultStylesSettings: {
+      globalConfig: {
+        borderRadius: 15,
+        borderWidth: 2,
+        multiline: 3,
+        defaultIconType: "no-icon",
+      },
+    },
+  });
 
   if (error) {
     return (
@@ -59,13 +75,16 @@ const App = () => {
   }
 
   return (
-    <NavigationContainer>
-      <PaperProvider>
-        <Header />
-        <NavigationBar />
-      </PaperProvider>
-      <Toast />
-    </NavigationContainer>
+    <GestureHandlerRootView style={{flex: 1}}>
+      <NotificationsProvider>
+        <NavigationContainer>
+          <PaperProvider>
+            <Header />
+            <NavigationBar />
+          </PaperProvider>
+        </NavigationContainer>
+      </NotificationsProvider>
+    </GestureHandlerRootView>
   );
 };
 export default App;

@@ -19,7 +19,7 @@ import {GestureHandlerRootView, Swipeable} from "react-native-gesture-handler";
 import {CountdownCircleTimer} from "react-native-countdown-circle-timer";
 import {useNetInfo} from "@react-native-community/netinfo";
 import {FlashList} from "@shopify/flash-list";
-import Toast from "react-native-toast-message";
+import {useNotifications} from "react-native-notificated";
 
 import SearchBar from "./SearchBar";
 import EnterAccountDetails from "./EnterAccountDetails";
@@ -50,12 +50,12 @@ export default function HomePage() {
   const {isConnected} = useNetInfo();
   const [canSync, setCanSync] = useState(false);
   const [key, setKey] = useState(0);
-
   const swipeableRef = useRef(null);
   const {userInfo, serverUrl, token} = useStore();
   const {startSync} = useAccountSync();
   const {accounts, refreshAccounts} = useAccountStore();
   const {setAccount, updateAccount, insertAccount, insertAccounts, deleteAccount} = useEditAccount();
+  const {notify} = useNotifications();
 
   useEffect(() => {
     refreshAccounts();
@@ -79,25 +79,25 @@ export default function HomePage() {
       }
     }, REFRESH_INTERVAL);
     return () => clearInterval(timer);
-  }, [startSync, canSync]);
+  }, [startSync, canSync, token]);
 
   const onRefresh = async() => {
     setRefreshing(true);
     if (canSync) {
       const syncError = await startSync(userInfo, serverUrl, token);
       if (syncError) {
-        Toast.show({
-          type: "error",
-          text1: "Sync error",
-          text2: syncError,
-          autoHide: true,
+        notify("error", {
+          params: {
+            title: "Sync error",
+            description: syncError,
+          },
         });
       } else {
-        Toast.show({
-          type: "success",
-          text1: "Sync success",
-          text2: "All your accounts are up to date.",
-          autoHide: true,
+        notify("success", {
+          params: {
+            title: "Sync success",
+            description: "All your accounts are up to date.",
+          },
         });
       }
     }
@@ -151,11 +151,11 @@ export default function HomePage() {
 
   const handleScanError = (error) => {
     setShowScanner(false);
-    Toast.show({
-      type: "error",
-      text1: "Scan error",
-      text2: error,
-      autoHide: true,
+    notify("error", {
+      params: {
+        title: "Error scanning QR code",
+        description: error,
+      },
     });
   };
 
@@ -226,7 +226,8 @@ export default function HomePage() {
               <List.Item
                 style={{
                   height: 80,
-                  paddingHorizontal: 25,
+                  paddingVertical: 6,
+                  paddingHorizontal: 16,
                   justifyContent: "center",
                 }}
                 title={
