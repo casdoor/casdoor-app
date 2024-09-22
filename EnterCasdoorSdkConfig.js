@@ -15,7 +15,8 @@
 import React, {useState} from "react";
 import {ScrollView, Text, View} from "react-native";
 import {Button, IconButton, Portal, TextInput} from "react-native-paper";
-import Toast from "react-native-toast-message";
+import {useNotifications} from "react-native-notificated";
+import SDK from "casdoor-react-native-sdk";
 import DefaultCasdoorSdkConfig from "./DefaultCasdoorSdkConfig";
 import PropTypes from "prop-types";
 import ScanQRCodeForLogin from "./ScanLogin";
@@ -38,7 +39,12 @@ const EnterCasdoorSdkConfig = ({onClose, onWebviewClose}) => {
     setAppName,
     setOrganizationName,
     setCasdoorConfig,
+    getCasdoorConfig,
+    setToken,
+    setUserInfo,
   } = useStore();
+
+  const {notify} = useNotifications();
 
   const [showScanner, setShowScanner] = useState(false);
 
@@ -49,11 +55,11 @@ const EnterCasdoorSdkConfig = ({onClose, onWebviewClose}) => {
 
   const handleSave = () => {
     if (!serverUrl || !clientId || !appName || !organizationName || !redirectPath) {
-      Toast.show({
-        type: "error",
-        text1: "Error",
-        text2: "Please fill in all the fields!",
-        autoHide: true,
+      notify("error", {
+        params: {
+          title: "Error",
+          description: "Please fill in all the fields!",
+        },
       });
       return;
     }
@@ -66,11 +72,36 @@ const EnterCasdoorSdkConfig = ({onClose, onWebviewClose}) => {
 
   const handleLogin = (loginInfo) => {
     setServerUrl(loginInfo.serverUrl);
-    setClientId(loginInfo.clientId);
-    setAppName(loginInfo.appName);
-    setOrganizationName(loginInfo.organizationName);
-    setShowScanner(false);
-    onClose();
+    setClientId("");
+    setAppName("");
+    setOrganizationName("");
+
+    const sdk = new SDK(getCasdoorConfig());
+
+    try {
+      const accessToken = loginInfo.accessToken;
+      const userInfo = sdk.JwtDecode(accessToken);
+      setToken(accessToken);
+      setUserInfo(userInfo);
+
+      notify("success", {
+        params: {
+          title: "Success",
+          description: "Logged in successfully!",
+        },
+      });
+
+      setShowScanner(false);
+      onClose();
+      onWebviewClose();
+    } catch (error) {
+      notify("error", {
+        params: {
+          title: "Error in login",
+          description: error,
+        },
+      });
+    }
   };
 
   const handleUseDefault = () => {
@@ -147,7 +178,7 @@ const EnterCasdoorSdkConfig = ({onClose, onWebviewClose}) => {
             style={[styles.button, styles.outlinedButton]}
             labelStyle={styles.outlinedButtonLabel}
           >
-            Use Casdoor Demo Site
+            Try with Casdoor Demo Site
           </Button>
         </View>
       </ScrollView>

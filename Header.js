@@ -15,7 +15,8 @@
 import * as React from "react";
 import {Dimensions, StyleSheet, View} from "react-native";
 import {Appbar, Avatar, Menu, Text, TouchableRipple} from "react-native-paper";
-import Toast from "react-native-toast-message";
+import {useNotifications} from "react-native-notificated";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import CasdoorLoginPage, {CasdoorLogout} from "./CasdoorLoginPage";
 import useStore from "./useStorage";
 import {useAccountSync} from "./useAccountStore";
@@ -24,9 +25,10 @@ const {width} = Dimensions.get("window");
 
 const Header = () => {
   const {userInfo, clearAll} = useStore();
-  const {syncError, clearSyncError} = useAccountSync();
+  const {isSyncing, syncError, clearSyncError} = useAccountSync();
   const [showLoginPage, setShowLoginPage] = React.useState(false);
   const [menuVisible, setMenuVisible] = React.useState(false);
+  const {notify} = useNotifications();
 
   const openMenu = () => setMenuVisible(true);
   const closeMenu = () => setMenuVisible(false);
@@ -46,32 +48,40 @@ const Header = () => {
   };
 
   const handleSyncErrorPress = () => {
-    Toast.show({
-      type: "error",
-      text1: "Sync Error",
-      text2: syncError || "An unknown error occurred during synchronization.",
-      autoHide: true,
+    notify("error", {
+      params: {
+        title: "Error",
+        description: syncError || "An unknown error occurred during synchronization.",
+      },
     });
   };
 
   return (
-    <Appbar.Header mode="center-aligned">
-      <View style={styles.leftContainer}>
-        {true && syncError && (
-          <Appbar.Action
-            icon="sync-alert"
-            color="#E53935"
-            size={24}
-            onPress={handleSyncErrorPress}
-          />
-        )}
-      </View>
+    <Appbar.Header mode="small" style={styles.header}>
       <Appbar.Content
-        title="Casdoor"
-        titleStyle={styles.titleText}
-        style={styles.titleContainer}
+        title={
+          <View style={styles.titleContainer}>
+            <Text style={styles.titleTextCasdoor}>Casdoor</Text>
+          </View>
+        }
+        style={styles.titleWrapper}
       />
       <View style={styles.rightContainer}>
+        {userInfo !== null && (
+          <Icon
+            name={
+              isSyncing
+                ? "cloud-sync-outline"
+                : syncError
+                  ? "cloud-off-outline"
+                  : "cloud-check-outline"
+            }
+            size={22}
+            color={isSyncing ? "#FFC107" : syncError ? "#E53935" : "#4CAF50"}
+            style={styles.syncIcon}
+            onPress={(isSyncing || syncError === null) ? null : handleSyncErrorPress}
+          />
+        )}
         <Menu
           visible={menuVisible}
           onDismiss={closeMenu}
@@ -84,21 +94,19 @@ const Header = () => {
               style={styles.buttonContainer}
             >
               <View style={styles.buttonContent}>
-                <Text
-                  style={[
-                    styles.buttonText,
-                    userInfo !== null && {marginRight: 8},
-                  ]}
-                >
-                  {userInfo === null ? "Login" : userInfo.name}
-                </Text>
                 {userInfo !== null && (
                   <Avatar.Image
-                    size={24}
+                    size={28}
                     source={{uri: userInfo.avatar}}
                     style={styles.avatar}
                   />
                 )}
+                <Text style={[
+                  styles.buttonText,
+                  userInfo === null && {marginLeft: 0},
+                ]}>
+                  {userInfo === null ? "Login" : userInfo.name}
+                </Text>
               </View>
             </TouchableRipple>
           }
@@ -112,62 +120,62 @@ const Header = () => {
 };
 
 const styles = StyleSheet.create({
-  leftContainer: {
-    position: "absolute",
-    left: 0,
-    top: 0,
-    bottom: 0,
-    justifyContent: "center",
-    paddingLeft: width * 0.03,
+  header: {
+    backgroundColor: "#F2F2F2",
+    height: 56,
   },
   rightContainer: {
-    position: "absolute",
-    right: 0,
-    top: 0,
-    bottom: 0,
-    justifyContent: "center",
-    paddingRight: width * 0.03,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingRight: width * 0.04,
+  },
+  titleWrapper: {
+    alignItems: "flex-start",
   },
   titleContainer: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    top: 0,
-    bottom: 0,
-    justifyContent: "center",
-    alignItems: "center",
+    flexDirection: "row",
+    alignItems: "baseline",
   },
-  titleText: {
-    fontSize: Math.max(20, width * 0.045),
+  titleTextCasdoor: {
+    fontSize: Math.max(24, width * 0.05),
     fontWeight: "bold",
-    textAlign: "center",
+    color: "#212121",
+    fontFamily: "Lato-Bold",
   },
   buttonContainer: {
-    borderRadius: 20,
+    borderRadius: 24,
     overflow: "hidden",
+    borderWidth: 0.5,
+    borderColor: "#DDDDDD",
   },
   buttonContent: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 8,
-    paddingHorizontal: 16,
+    paddingVertical: 6,
+    paddingHorizontal: 14,
   },
   buttonText: {
-    fontSize: Math.max(14, width * 0.035),
-    fontWeight: "bold",
+    fontSize: Math.max(14, width * 0.042),
+    fontWeight: "600",
+    marginLeft: 8,
+    color: "#424242",
+    fontFamily: "Roboto-Medium",
   },
   menuContent: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FAFAFA",
     borderRadius: 8,
-    elevation: 3,
+    elevation: 2,
     shadowColor: "#000000",
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
+    shadowOffset: {width: 0, height: 1},
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
   },
   avatar: {
     backgroundColor: "transparent",
+  },
+  syncIcon: {
+    marginRight: 12,
   },
 });
 
