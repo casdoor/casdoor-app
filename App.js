@@ -20,6 +20,7 @@ import ContentLoader, {Circle, Rect} from "react-content-loader/native";
 import {ZoomInDownZoomOutUp, createNotifications} from "react-native-notificated";
 import {GestureHandlerRootView} from "react-native-gesture-handler";
 import {useMigrations} from "drizzle-orm/expo-sqlite/migrator";
+import {ActionSheetProvider} from "@expo/react-native-action-sheet";
 
 import Header from "./Header";
 import NavigationBar from "./NavigationBar";
@@ -77,12 +78,14 @@ const App = () => {
   return (
     <GestureHandlerRootView style={{flex: 1}}>
       <NotificationsProvider>
-        <NavigationContainer>
-          <PaperProvider>
-            <Header />
-            <NavigationBar />
-          </PaperProvider>
-        </NavigationContainer>
+        <ActionSheetProvider>
+          <NavigationContainer>
+            <PaperProvider>
+              <Header />
+              <NavigationBar />
+            </PaperProvider>
+          </NavigationContainer>
+        </ActionSheetProvider>
       </NotificationsProvider>
     </GestureHandlerRootView>
   );

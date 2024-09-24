@@ -12,22 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React, {useState} from "react";
-import {ScrollView, Text, View} from "react-native";
-import {Button, IconButton, Portal, TextInput} from "react-native-paper";
+import React from "react";
+import {StyleSheet, Text, View} from "react-native";
+import {Button, Portal, TextInput} from "react-native-paper";
 import {useNotifications} from "react-native-notificated";
-import SDK from "casdoor-react-native-sdk";
-import DefaultCasdoorSdkConfig from "./DefaultCasdoorSdkConfig";
 import PropTypes from "prop-types";
-import ScanQRCodeForLogin from "./ScanLogin";
 import useStore from "./useStorage";
 
-const EnterCasdoorSdkConfig = ({onClose, onWebviewClose}) => {
-  EnterCasdoorSdkConfig.propTypes = {
-    onClose: PropTypes.func.isRequired,
-    onWebviewClose: PropTypes.func.isRequired,
-  };
-
+function EnterCasdoorSdkConfig({onClose, onWebviewClose}) {
   const {
     serverUrl,
     clientId,
@@ -38,15 +30,9 @@ const EnterCasdoorSdkConfig = ({onClose, onWebviewClose}) => {
     setClientId,
     setAppName,
     setOrganizationName,
-    setCasdoorConfig,
-    getCasdoorConfig,
-    setToken,
-    setUserInfo,
   } = useStore();
 
   const {notify} = useNotifications();
-
-  const [showScanner, setShowScanner] = useState(false);
 
   const closeConfigPage = () => {
     onClose();
@@ -66,207 +52,121 @@ const EnterCasdoorSdkConfig = ({onClose, onWebviewClose}) => {
     onClose();
   };
 
-  const handleScanToLogin = () => {
-    setShowScanner(true);
-  };
-
-  const handleLogin = (loginInfo) => {
-    setServerUrl(loginInfo.serverUrl);
-    setClientId("");
-    setAppName("");
-    setOrganizationName("");
-
-    const sdk = new SDK(getCasdoorConfig());
-
-    try {
-      const accessToken = loginInfo.accessToken;
-      const userInfo = sdk.JwtDecode(accessToken);
-      setToken(accessToken);
-      setUserInfo(userInfo);
-
-      notify("success", {
-        params: {
-          title: "Success",
-          description: "Logged in successfully!",
-        },
-      });
-
-      setShowScanner(false);
-      onClose();
-      onWebviewClose();
-    } catch (error) {
-      notify("error", {
-        params: {
-          title: "Error in login",
-          description: error,
-        },
-      });
-    }
-  };
-
-  const handleUseDefault = () => {
-    setCasdoorConfig(DefaultCasdoorSdkConfig);
-    onClose();
-  };
-
   return (
     <Portal>
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <View style={styles.container}>
         <View style={styles.content}>
-          <View style={styles.header}>
-            <Text style={styles.title}>Casdoor server</Text>
-            <IconButton
-              icon="close"
-              size={24}
-              onPress={closeConfigPage}
-              style={styles.closeButton}
+          <Text style={styles.title}>Casdoor Configuration</Text>
+          <View style={styles.formContainer}>
+            <TextInput
+              label="Endpoint"
+              value={serverUrl}
+              onChangeText={setServerUrl}
+              autoCapitalize="none"
+              style={styles.input}
+              mode="outlined"
+            />
+            <TextInput
+              label="Client ID"
+              value={clientId}
+              onChangeText={setClientId}
+              autoCapitalize="none"
+              style={styles.input}
+              mode="outlined"
+            />
+            <TextInput
+              label="App Name"
+              value={appName}
+              onChangeText={setAppName}
+              autoCapitalize="none"
+              style={styles.input}
+              mode="outlined"
+            />
+            <TextInput
+              label="Organization Name"
+              value={organizationName}
+              onChangeText={setOrganizationName}
+              autoCapitalize="none"
+              style={styles.input}
+              mode="outlined"
             />
           </View>
-          <TextInput
-            label="Endpoint"
-            value={serverUrl}
-            onChangeText={setServerUrl}
-            autoCapitalize="none"
-            style={styles.input}
-            mode="outlined"
-          />
-          <TextInput
-            label="Client ID"
-            value={clientId}
-            onChangeText={setClientId}
-            autoCapitalize="none"
-            style={styles.input}
-            mode="outlined"
-          />
-          <TextInput
-            label="App Name"
-            value={appName}
-            onChangeText={setAppName}
-            autoCapitalize="none"
-            style={styles.input}
-            mode="outlined"
-          />
-          <TextInput
-            label="Organization Name"
-            value={organizationName}
-            onChangeText={setOrganizationName}
-            autoCapitalize="none"
-            style={styles.input}
-            mode="outlined"
-          />
-          <View style={styles.buttonRow}>
+          <View style={styles.buttonContainer}>
+            <Button
+              mode="outlined"
+              onPress={closeConfigPage}
+              style={styles.button}
+              labelStyle={styles.buttonLabel}
+            >
+              Cancel
+            </Button>
             <Button
               mode="contained"
               onPress={handleSave}
-              style={[styles.button, styles.confirmButton]}
+              style={styles.button}
               labelStyle={styles.buttonLabel}
             >
               Confirm
             </Button>
-            <Button
-              mode="contained"
-              onPress={handleScanToLogin}
-              style={[styles.button, styles.scanButton]}
-              labelStyle={styles.buttonLabel}
-            >
-              Scan to Login
-            </Button>
           </View>
-          <Button
-            mode="outlined"
-            onPress={handleUseDefault}
-            style={[styles.button, styles.outlinedButton]}
-            labelStyle={styles.outlinedButtonLabel}
-          >
-            Try with Casdoor Demo Site
-          </Button>
         </View>
-      </ScrollView>
-      {showScanner && (
-        <ScanQRCodeForLogin
-          showScanner={showScanner}
-          onClose={() => setShowScanner(false)}
-          onLogin={handleLogin}
-        />
-      )}
+      </View>
     </Portal>
   );
+}
+
+EnterCasdoorSdkConfig.propTypes = {
+  onClose: PropTypes.func.isRequired,
+  onWebviewClose: PropTypes.func.isRequired,
 };
 
-const styles = {
-  scrollContainer: {
-    flexGrow: 1,
-    width: "100%",
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.5)",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   content: {
-    width: "95%",
-    borderRadius: 10,
-    padding: 20,
-    backgroundColor: "#F5F5F5",
+    width: "90%",
+    maxWidth: 400,
+    borderRadius: 28,
+    padding: 24,
+    backgroundColor: "#FFFFFF",
     shadowColor: "#000",
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
-    shadowRadius: 10,
+    shadowRadius: 8,
     elevation: 5,
   },
-  input: {
-    marginVertical: 10,
-    fontSize: 16,
-    backgroundColor: "white",
+  title: {
+    fontSize: 20,
+    fontWeight: "bold",
+    fontFamily: "Lato-Bold",
+    color: "#212121",
+    textAlign: "center",
+    marginBottom: 16,
   },
-  buttonRow: {
+  buttonContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 14,
-    marginBottom: 12,
   },
   button: {
-    borderRadius: 5,
-    paddingVertical: 8,
-  },
-  confirmButton: {
-    backgroundColor: "#6200EE",
     flex: 1,
-    marginRight: 5,
-  },
-  scanButton: {
-    backgroundColor: "#03DAC6",
-    flex: 1,
-    marginLeft: 5,
+    marginHorizontal: 8,
+    borderRadius: 100,
   },
   buttonLabel: {
+    paddingVertical: 4,
     fontSize: 16,
-    color: "white",
-  },
-  outlinedButton: {
-    borderColor: "#6200EE",
-    borderWidth: 1,
-    width: "100%",
-  },
-  outlinedButtonLabel: {
-    color: "#6200EE",
-    fontSize: 16,
-    textAlign: "center",
-  },
-  header: {
-    position: "relative",
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  title: {
-    fontSize: 24,
     fontWeight: "bold",
-    color: "#333",
-    textAlign: "center",
   },
-  closeButton: {
-    position: "absolute",
-    right: 0,
-    top: -8,
+  formContainer: {
+    marginBottom: 8,
   },
-};
+  input: {
+    marginBottom: 16,
+  },
+});
 
 export default EnterCasdoorSdkConfig;

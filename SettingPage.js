@@ -12,64 +12,88 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as React from "react";
-import {StyleSheet, View, useWindowDimensions} from "react-native";
+import React, {useState} from "react";
+import {Dimensions, StyleSheet, View} from "react-native";
 import {Button, Surface, Text} from "react-native-paper";
+import {ActionSheetProvider} from "@expo/react-native-action-sheet";
 import CasdoorLoginPage, {CasdoorLogout} from "./CasdoorLoginPage";
+import LoginMethodSelector from "./LoginMethodSelector";
 import useStore from "./useStorage";
 
-const SettingPage = () => {
-  const [showLoginPage, setShowLoginPage] = React.useState(false);
-  const {userInfo, clearAll} = useStore();
-  const {width} = useWindowDimensions();
+const {width} = Dimensions.get("window");
 
-  const handleCasdoorLogin = () => setShowLoginPage(true);
-  const handleHideLoginPage = () => setShowLoginPage(false);
+const SettingPage = () => {
+  const [showLoginPage, setShowLoginPage] = useState(false);
+  const [loginMethod, setLoginMethod] = useState(null);
+  const {userInfo, clearAll} = useStore();
+
+  const {openActionSheet} = LoginMethodSelector({
+    onSelectMethod: (method) => {
+      setLoginMethod(method);
+      setShowLoginPage(true);
+    },
+  });
+
+  const handleCasdoorLogin = () => {
+    openActionSheet();
+  };
+
+  const handleHideLoginPage = () => {
+    setShowLoginPage(false);
+    setLoginMethod(null);
+  };
 
   const handleCasdoorLogout = () => {
     CasdoorLogout();
     clearAll();
   };
 
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      justifyContent: "center",
-      alignItems: "center",
-      padding: 16,
-    },
-    surface: {
-      padding: 16,
-      width: width > 600 ? 400 : "100%",
-      maxWidth: 400,
-      alignItems: "center",
-    },
-    title: {
-      fontSize: 24,
-      marginBottom: 24,
-    },
-    button: {
-      marginTop: 16,
-      width: "100%",
-    },
-  });
-
   return (
-    <View style={styles.container}>
-      <Surface style={styles.surface} elevation={4}>
-        <Text style={styles.title}>Account Settings</Text>
-        <Button
-          style={styles.button}
-          icon={userInfo === null ? "login" : "logout"}
-          mode="contained"
-          onPress={userInfo === null ? handleCasdoorLogin : handleCasdoorLogout}
-        >
-          {userInfo === null ? "Login with Casdoor" : "Logout"}
-        </Button>
-      </Surface>
-      {showLoginPage && <CasdoorLoginPage onWebviewClose={handleHideLoginPage} />}
-    </View>
+    <ActionSheetProvider>
+      <View style={styles.container}>
+        <Surface style={styles.surface} elevation={4}>
+          <Text style={styles.title}>Account Settings</Text>
+          <Button
+            style={styles.button}
+            icon={userInfo === null ? "login" : "logout"}
+            mode="contained"
+            onPress={userInfo === null ? handleCasdoorLogin : handleCasdoorLogout}
+          >
+            {userInfo === null ? "Login with Casdoor" : "Logout"}
+          </Button>
+        </Surface>
+        {showLoginPage && (
+          <CasdoorLoginPage
+            onWebviewClose={handleHideLoginPage}
+            initialMethod={loginMethod}
+          />
+        )}
+      </View>
+    </ActionSheetProvider>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 16,
+  },
+  surface: {
+    padding: 16,
+    width: width > 600 ? 400 : "100%",
+    maxWidth: 400,
+    alignItems: "center",
+  },
+  title: {
+    fontSize: 24,
+    marginBottom: 24,
+  },
+  button: {
+    marginTop: 16,
+    width: "100%",
+  },
+});
 
 export default SettingPage;
