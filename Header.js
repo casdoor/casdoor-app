@@ -20,6 +20,7 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import CasdoorLoginPage, {CasdoorLogout} from "./CasdoorLoginPage";
 import useStore from "./useStorage";
 import {useAccountSync} from "./useAccountStore";
+import LoginMethodSelector from "./LoginMethodSelector";
 
 const {width} = Dimensions.get("window");
 
@@ -28,6 +29,7 @@ const Header = () => {
   const {isSyncing, syncError, clearSyncError} = useAccountSync();
   const [showLoginPage, setShowLoginPage] = React.useState(false);
   const [menuVisible, setMenuVisible] = React.useState(false);
+  const [loginMethod, setLoginMethod] = React.useState(null);
   const {notify} = useNotifications();
 
   const openMenu = () => setMenuVisible(true);
@@ -38,8 +40,20 @@ const Header = () => {
     closeMenu();
   };
 
-  const handleCasdoorLogin = () => setShowLoginPage(true);
-  const handleHideLoginPage = () => setShowLoginPage(false);
+  const {openActionSheet} = LoginMethodSelector({
+    onSelectMethod: (method) => {
+      setLoginMethod(method);
+      setShowLoginPage(true);
+    },
+  });
+
+  const handleCasdoorLogin = () => {
+    openActionSheet();
+  };
+
+  const handleHideLoginPage = () => {
+    setShowLoginPage(false);
+  };
 
   const handleCasdoorLogout = () => {
     CasdoorLogout();
@@ -114,7 +128,12 @@ const Header = () => {
           <Menu.Item onPress={handleMenuLogoutClicked} title="Logout" />
         </Menu>
       </View>
-      {showLoginPage && <CasdoorLoginPage onWebviewClose={handleHideLoginPage} />}
+      {showLoginPage && (
+        <CasdoorLoginPage
+          onWebviewClose={handleHideLoginPage}
+          initialMethod={loginMethod}
+        />
+      )}
     </Appbar.Header>
   );
 };
