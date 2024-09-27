@@ -2,7 +2,7 @@
   "expo": {
     "name": "Casdoor",
     "slug": "casdoor-app",
-    "version": "1.7.0",
+    "version": "1.8.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -19,7 +19,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "org.casdoor.casdoorapp",
-      "buildNumber": "1.7.0"
+      "buildNumber": "1.8.0"
     },
     "android": {
       "adaptiveIcon": {
@@ -27,7 +27,7 @@
         "backgroundColor": "#ffffff"
       },
       "package": "org.casdoor.casdoorapp",
-      "versionCode": 510010700
+      "versionCode": 510010800
     },
     "web": {
       "favicon": "./assets/favicon.png"
