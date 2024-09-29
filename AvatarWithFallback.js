@@ -12,31 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React, {useState} from "react";
-import {View} from "react-native";
+import React from "react";
 import {Image} from "expo-image";
 
-const AvatarWithFallback = ({source, fallbackSource, size, style}) => {
-  const [hasError, setHasError] = useState(false);
-
-  const handleImageError = () => {
-    if (!hasError) {
-      setHasError(true);
-    }
-  };
+function AvatarWithFallback({source, fallbackSource, size, style}) {
+  const [imageSource, setImageSource] = React.useState(source);
 
   return (
-    <View style={{overflow: "hidden", borderRadius: 9999, width: size, height: size, ...style}}>
-      <Image
-        style={{width: "100%", height: "100%"}}
-        source={hasError ? fallbackSource : source}
-        onError={handleImageError}
-        contentFit="cover"
-        transition={300}
-        cachePolicy={"memory-disk"}
-      />
-    </View>
+    <Image
+      style={{
+        overflow: "hidden",
+        borderRadius: 9999,
+        width: size,
+        height: size,
+        ...style,
+      }}
+      source={imageSource}
+      onError={() => setImageSource(fallbackSource)}
+      placeholder={fallbackSource}
+      placeholderContentFit="cover"
+      contentFit="cover"
+      transition={300}
+      cachePolicy="memory-disk"
+    />
   );
-};
+}
 
 export default AvatarWithFallback;
