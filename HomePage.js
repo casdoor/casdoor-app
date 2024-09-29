@@ -26,6 +26,7 @@ import EnterAccountDetails from "./EnterAccountDetails";
 import ScanQRCode from "./ScanQRCode";
 import EditAccountDetails from "./EditAccountDetails";
 import AvatarWithFallback from "./AvatarWithFallback";
+import {useImportManager} from "./ImportManager";
 import useStore from "./useStorage";
 import {calculateCountdown} from "./totpUtil";
 import {generateToken, validateSecret} from "./totpUtil";
@@ -56,6 +57,16 @@ export default function HomePage() {
   const {accounts, refreshAccounts} = useAccountStore();
   const {setAccount, updateAccount, insertAccount, insertAccounts, deleteAccount} = useEditAccount();
   const {notify} = useNotifications();
+
+  const {showImportOptions} = useImportManager((data) => {
+    handleAddAccount(data);
+  }, (err) => {
+    notify("error", {
+      params: {title: "Import error", description: err.message},
+    });
+  }, () => {
+    setShowScanner(true);
+  });
 
   useEffect(() => {
     refreshAccounts();
@@ -107,7 +118,7 @@ export default function HomePage() {
 
   const handleAddAccount = async(accountDataInput) => {
     if (Array.isArray(accountDataInput)) {
-      insertAccounts(accountDataInput);
+      await insertAccounts(accountDataInput);
     } else {
       await setAccount(accountDataInput);
       await insertAccount();
@@ -172,6 +183,11 @@ export default function HomePage() {
 
   const openEnterAccountModal = () => {
     setShowEnterAccountModal(true);
+    closeOptions();
+  };
+
+  const openImportAccountModal = () => {
+    showImportOptions();
     closeOptions();
   };
 
@@ -291,11 +307,11 @@ export default function HomePage() {
             padding: 20,
             borderRadius: 10,
             width: 300,
-            height: 150,
+            height: 225,
             position: "absolute",
             top: "50%",
             left: "50%",
-            transform: [{translateX: -150}, {translateY: -75}],
+            transform: [{translateX: -150}, {translateY: -112.5}],
           }}
         >
           <TouchableOpacity
@@ -311,6 +327,13 @@ export default function HomePage() {
           >
             <IconButton icon={"keyboard"} size={35} />
             <Text style={{fontSize: 18}}>Enter Secret code</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{flexDirection: "row", alignItems: "center", marginTop: 10}}
+            onPress={openImportAccountModal}
+          >
+            <IconButton icon={"import"} size={35} />
+            <Text style={{fontSize: 18}}>Import from other app</Text>
           </TouchableOpacity>
         </Modal>
       </Portal>

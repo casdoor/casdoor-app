@@ -129,7 +129,7 @@ const useEditAccountStore = create((set, get) => ({
     }
   },
 
-  insertAccounts: (accounts) => {
+  insertAccounts: async(accounts) => {
     try {
       db.transaction((tx) => {
         const insertWithDuplicateCheck = (baseAccName, issuer, secretKey) => {
