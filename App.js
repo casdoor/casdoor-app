@@ -12,7 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as React from "react";
+import React from "react";
+import {Lato_700Bold, useFonts} from "@expo-google-fonts/lato";
+import {Roboto_500Medium} from "@expo-google-fonts/roboto";
 import {NavigationContainer} from "@react-navigation/native";
 import {PaperProvider} from "react-native-paper";
 import {SafeAreaView, Text} from "react-native";
@@ -29,6 +31,11 @@ import migrations from "./drizzle/migrations";
 
 const App = () => {
   const {success, error} = useMigrations(db, migrations);
+  const [fontsLoaded] = useFonts({
+    Lato_700Bold,
+    Roboto_500Medium,
+  });
+
   const {NotificationsProvider} = createNotifications({
     duration: 800,
     notificationPosition: "top",
@@ -53,25 +60,27 @@ const App = () => {
     );
   }
 
-  if (!success) {
+  if (!success || !fontsLoaded) {
     return (
-      <ContentLoader
-        speed={2}
-        width={400}
-        height={150}
-        viewBox="0 0 400 150"
-        backgroundColor="#f3f3f3"
-        foregroundColor="#ecebeb"
-      >
-        <Circle cx="10" cy="20" r="8" />
-        <Rect x="25" y="15" rx="5" ry="5" width="220" height="10" />
-        <Circle cx="10" cy="50" r="8" />
-        <Rect x="25" y="45" rx="5" ry="5" width="220" height="10" />
-        <Circle cx="10" cy="80" r="8" />
-        <Rect x="25" y="75" rx="5" ry="5" width="220" height="10" />
-        <Circle cx="10" cy="110" r="8" />
-        <Rect x="25" y="105" rx="5" ry="5" width="220" height="10" />
-      </ContentLoader>
+      <SafeAreaView style={{flex: 1, justifyContent: "center", alignItems: "center"}}>
+        <ContentLoader
+          speed={2}
+          width={300}
+          height={150}
+          viewBox="0 0 300 150"
+          backgroundColor="#f3f3f3"
+          foregroundColor="#ecebeb"
+        >
+          <Circle cx="10" cy="20" r="8" />
+          <Rect x="25" y="15" rx="5" ry="5" width="220" height="10" />
+          <Circle cx="10" cy="50" r="8" />
+          <Rect x="25" y="45" rx="5" ry="5" width="220" height="10" />
+          <Circle cx="10" cy="80" r="8" />
+          <Rect x="25" y="75" rx="5" ry="5" width="220" height="10" />
+          <Circle cx="10" cy="110" r="8" />
+          <Rect x="25" y="105" rx="5" ry="5" width="220" height="10" />
+        </ContentLoader>
+      </SafeAreaView>
     );
   }
 

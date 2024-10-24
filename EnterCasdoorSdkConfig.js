@@ -19,7 +19,7 @@ import {useNotifications} from "react-native-notificated";
 import PropTypes from "prop-types";
 import useStore from "./useStorage";
 
-function EnterCasdoorSdkConfig({onClose, onWebviewClose}) {
+function EnterCasdoorSdkConfig({onClose, onWebviewClose, usePortal = true}) {
   const {
     serverUrl,
     clientId,
@@ -52,72 +52,73 @@ function EnterCasdoorSdkConfig({onClose, onWebviewClose}) {
     onClose();
   };
 
-  return (
-    <Portal>
-      <View style={styles.container}>
-        <View style={styles.content}>
-          <Text style={styles.title}>Casdoor Configuration</Text>
-          <View style={styles.formContainer}>
-            <TextInput
-              label="Endpoint"
-              value={serverUrl}
-              onChangeText={setServerUrl}
-              autoCapitalize="none"
-              style={styles.input}
-              mode="outlined"
-            />
-            <TextInput
-              label="Client ID"
-              value={clientId}
-              onChangeText={setClientId}
-              autoCapitalize="none"
-              style={styles.input}
-              mode="outlined"
-            />
-            <TextInput
-              label="App Name"
-              value={appName}
-              onChangeText={setAppName}
-              autoCapitalize="none"
-              style={styles.input}
-              mode="outlined"
-            />
-            <TextInput
-              label="Organization Name"
-              value={organizationName}
-              onChangeText={setOrganizationName}
-              autoCapitalize="none"
-              style={styles.input}
-              mode="outlined"
-            />
-          </View>
-          <View style={styles.buttonContainer}>
-            <Button
-              mode="outlined"
-              onPress={closeConfigPage}
-              style={styles.button}
-              labelStyle={styles.buttonLabel}
-            >
-              Cancel
-            </Button>
-            <Button
-              mode="contained"
-              onPress={handleSave}
-              style={styles.button}
-              labelStyle={styles.buttonLabel}
-            >
-              Confirm
-            </Button>
-          </View>
+  const content = (
+    <View style={styles.container}>
+      <View style={styles.content}>
+        <Text style={styles.title}>Casdoor Configuration</Text>
+        <View style={styles.formContainer}>
+          <TextInput
+            label="Endpoint"
+            value={serverUrl}
+            onChangeText={setServerUrl}
+            autoCapitalize="none"
+            style={styles.input}
+            mode="outlined"
+          />
+          <TextInput
+            label="Client ID"
+            value={clientId}
+            onChangeText={setClientId}
+            autoCapitalize="none"
+            style={styles.input}
+            mode="outlined"
+          />
+          <TextInput
+            label="App Name"
+            value={appName}
+            onChangeText={setAppName}
+            autoCapitalize="none"
+            style={styles.input}
+            mode="outlined"
+          />
+          <TextInput
+            label="Organization Name"
+            value={organizationName}
+            onChangeText={setOrganizationName}
+            autoCapitalize="none"
+            style={styles.input}
+            mode="outlined"
+          />
+        </View>
+        <View style={styles.buttonContainer}>
+          <Button
+            mode="outlined"
+            onPress={closeConfigPage}
+            style={styles.button}
+            labelStyle={styles.buttonLabel}
+          >
+            Cancel
+          </Button>
+          <Button
+            mode="contained"
+            onPress={handleSave}
+            style={styles.button}
+            labelStyle={styles.buttonLabel}
+          >
+            Confirm
+          </Button>
         </View>
       </View>
-    </Portal>
+    </View>
   );
+
+  return usePortal ? <Portal>{content}</Portal> : content;
 }
 
 EnterCasdoorSdkConfig.propTypes = {
   onClose: PropTypes.func.isRequired,
   onWebviewClose: PropTypes.func.isRequired,
+  usePortal: PropTypes.bool,
 };
 
 const styles = StyleSheet.create({
@@ -142,7 +143,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: "bold",
-    fontFamily: "Lato-Bold",
+    fontFamily: "Lato_700Bold",
     color: "#212121",
     textAlign: "center",
     marginBottom: 16,

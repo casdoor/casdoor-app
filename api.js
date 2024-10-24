@@ -38,7 +38,10 @@ export const getMfaAccounts = async(serverUrl, owner, name, token, timeoutMs = T
       throw new Error(res.msg);
     }
 
-    return {updatedTime: res.data.updatedTime, mfaAccounts: res.data.mfaAccounts};
+    return {
+      updatedTime: res.data.updatedTime,
+      mfaAccounts: res.data.mfaAccounts || [],
+    };
   } catch (error) {
     if (error.name === "AbortError") {
       throw new Error("Request timed out");

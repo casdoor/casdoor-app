@@ -159,7 +159,7 @@ const styles = StyleSheet.create({
     fontSize: Math.max(24, width * 0.05),
     fontWeight: "bold",
     color: "#212121",
-    fontFamily: "Lato-Bold",
+    fontFamily: "Lato_700Bold",
   },
   buttonContainer: {
     borderRadius: 24,
@@ -179,7 +179,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     marginLeft: 8,
     color: "#424242",
-    fontFamily: "Roboto-Medium",
+    fontFamily: "Roboto_500Medium",
   },
   menuContent: {
     backgroundColor: "#FAFAFA",
