@@ -50,7 +50,8 @@
           "photosPermission": "The app accesses your photos to add Totp account."
         }
       ],
-      "expo-asset"
+      "expo-asset",
+      "expo-font"
     ],
     "owner": "casdoor"
   }

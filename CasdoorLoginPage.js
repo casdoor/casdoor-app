@@ -127,6 +127,7 @@ function CasdoorLoginPage({onWebviewClose, initialMethod}) {
         <EnterCasdoorSdkConfig
           onClose={() => handleLogin(initialMethod)}
           onWebviewClose={onWebviewClose}
+          usePortal={false}
         />
       ),
       scanner: (
