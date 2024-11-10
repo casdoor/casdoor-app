@@ -19,7 +19,7 @@ import {Camera, CameraView, scanFromURLAsync} from "expo-camera";
 import * as ImagePicker from "expo-image-picker";
 import PropTypes from "prop-types";
 
-const QRScanner = ({onScan, onClose}) => {
+const QRScanner = ({onScan, onClose, children}) => {
   const [hasPermission, setHasPermission] = useState(null);
 
   useEffect(() => {
@@ -73,14 +73,25 @@ const QRScanner = ({onScan, onClose}) => {
           onPress={onClose}
           style={{position: "absolute", top: 30, right: 5}}
         />
-        <Button
-          icon="image"
-          mode="contained"
-          onPress={pickImage}
-          style={{position: "absolute", bottom: 20, alignSelf: "center"}}
-        >
-          Choose Image
-        </Button>
+        <View style={{
+          position: "absolute",
+          bottom: 40,
+          left: 20,
+          right: 20,
+          flexDirection: "row",
+          justifyContent: children ? "space-evenly" : "center",
+          gap: 16,
+        }}>
+          <Button
+            icon="image"
+            mode="contained"
+            onPress={pickImage}
+            style={children ? {flex: 1} : {width: 200}}
+          >
+            Choose Image
+          </Button>
+          {children}
+        </View>
       </Portal>
     </View>
   );
@@ -89,6 +100,7 @@ const QRScanner = ({onScan, onClose}) => {
 QRScanner.propTypes = {
   onScan: PropTypes.func.isRequired,
   onClose: PropTypes.func.isRequired,
+  children: PropTypes.node,
 };
 
 export default QRScanner;

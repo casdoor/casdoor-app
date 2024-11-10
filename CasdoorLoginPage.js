@@ -138,6 +138,9 @@ function CasdoorLoginPage({onWebviewClose, initialMethod}) {
             onWebviewClose();
           }}
           onLogin={handleQRLogin}
+          onError={(message) => {
+            notify("error", {params: {title: "Error", description: message}});
+          }}
         />
       ),
       webview: casdoorLoginURL && !token && (
