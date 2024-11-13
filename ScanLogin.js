@@ -14,15 +14,42 @@
 
 import React from "react";
 import PropTypes from "prop-types";
+import * as Clipboard from "expo-clipboard";
 import QRScanner from "./QRScanner";
+import {Button} from "react-native-paper";
 
-const ScanQRCodeForLogin = ({onClose, showScanner, onLogin}) => {
-  const handleScan = (type, data) => {
-    if (isValidLoginQR(data)) {
-      const loginInfo = parseLoginQR(data);
-      onLogin(loginInfo);
-      onClose();
+const ScanQRCodeForLogin = ({onClose, showScanner, onLogin, onError}) => {
+  const handleClipboardPaste = async() => {
+    const text = await Clipboard.getStringAsync();
+    if (!isValidLoginQR(text)) {
+      onError?.("Invalid QR code format");
+      return;
     }
+
+    const loginInfo = parseLoginQR(text);
+    if (!loginInfo) {
+      onError?.("Missing required fields: serverUrl and accessToken");
+      return;
+    }
+
+    onLogin(loginInfo);
+    onClose();
+  };
+
+  const handleScan = (type, data) => {
+    if (!isValidLoginQR(data)) {
+      onError?.("Invalid QR code format");
+      return;
+    }
+
+    const loginInfo = parseLoginQR(data);
+    if (!loginInfo) {
+      onError?.("Missing required fields: serverUrl and accessToken");
+      return;
+    }
+
+    onLogin(loginInfo);
+    onClose();
   };
 
   const isValidLoginQR = (data) => {
@@ -30,28 +57,48 @@ const ScanQRCodeForLogin = ({onClose, showScanner, onLogin}) => {
   };
 
   const parseLoginQR = (data) => {
-    const url = new URL(data);
-    const params = new URLSearchParams(url.search);
+    try {
+      const url = new URL(data);
+      const params = new URLSearchParams(url.search);
 
-    return {
-      // clientId: params.get("clientId"),
-      // appName: params.get("appName"),
-      // organizationName: params.get("organizationName"),
-      serverUrl: params.get("serverUrl"),
-      accessToken: params.get("accessToken"),
-    };
+      const serverUrl = params.get("serverUrl");
+      const accessToken = params.get("accessToken");
+
+      if (!serverUrl || !accessToken) {
+        throw new Error("Missing required fields");
+      }
+
+      return {
+        serverUrl,
+        accessToken,
+      };
+    } catch (error) {
+      return null;
+    }
   };
 
   if (!showScanner) {
     return null;
   }
 
-  return <QRScanner onScan={handleScan} onClose={onClose} />;
+  return (
+    <QRScanner onScan={handleScan} onClose={onClose}>
+      <Button
+        icon="clipboard"
+        mode="contained"
+        onPress={handleClipboardPaste}
+        style={{flex: 1}}
+      >
+        Paste QR Code
+      </Button>
+    </QRScanner>
+  );
 };
 
 ScanQRCodeForLogin.propTypes = {
   onClose: PropTypes.func.isRequired,
   onLogin: PropTypes.func.isRequired,
+  onError: PropTypes.func,
   showScanner: PropTypes.bool.isRequired,
 };
 
