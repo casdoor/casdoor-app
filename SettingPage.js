@@ -13,12 +13,16 @@
 // limitations under the License.
 
 import React, {useState} from "react";
-import {Dimensions, StyleSheet, View} from "react-native";
-import {Button, Surface, Text} from "react-native-paper";
+import {Dimensions, ScrollView, StyleSheet, View} from "react-native";
+import {Avatar, Button, IconButton, List, Surface, Text, useTheme} from "react-native-paper";
 import {ActionSheetProvider} from "@expo/react-native-action-sheet";
+import * as Application from "expo-application";
+import {useTranslation} from "react-i18next";
+
 import CasdoorLoginPage, {CasdoorLogout} from "./CasdoorLoginPage";
 import LoginMethodSelector from "./LoginMethodSelector";
 import useStore from "./useStorage";
+import {Language} from "./Language";
 
 const {width} = Dimensions.get("window");
 
@@ -26,7 +30,8 @@ const SettingPage = () => {
   const [showLoginPage, setShowLoginPage] = useState(false);
   const [loginMethod, setLoginMethod] = useState(null);
   const {userInfo, clearAll} = useStore();
-
+  const theme = useTheme();
+  const {t} = useTranslation();
   const {openActionSheet} = LoginMethodSelector({
     onSelectMethod: (method) => {
       setLoginMethod(method);
@@ -50,49 +55,111 @@ const SettingPage = () => {
 
   return (
     <ActionSheetProvider>
-      <View style={styles.container}>
-        <Surface style={styles.surface} elevation={4}>
-          <Text style={styles.title}>Account Settings</Text>
-          <Button
-            style={styles.button}
-            icon={userInfo === null ? "login" : "logout"}
-            mode="contained"
-            onPress={userInfo === null ? handleCasdoorLogin : handleCasdoorLogout}
-          >
-            {userInfo === null ? "Login with Casdoor" : "Logout"}
-          </Button>
+      <ScrollView style={styles.scrollView}>
+        <Surface style={styles.container} elevation={0}>
+          <Surface style={styles.profileCard} elevation={1}>
+            {userInfo ? (
+              <View style={styles.profileInfo}>
+                <Avatar.Image
+                  size={60}
+                  source={{uri: userInfo.avatar}}
+                />
+                <View style={styles.profileText}>
+                  <Text variant="titleLarge">{userInfo.name}</Text>
+                  <Text variant="bodyMedium" style={{color: theme.colors.secondary}}>
+                    {userInfo.email}
+                  </Text>
+                </View>
+                <IconButton
+                  icon="logout"
+                  mode="contained-tonal"
+                  onPress={handleCasdoorLogout}
+                  style={styles.logoutButton}
+                />
+              </View>
+            ) : (
+              <Button
+                onPress={handleCasdoorLogin}
+                icon="login"
+                style={styles.loginButton}
+                labelStyle={styles.loginButtonLabel}
+              >
+                {t("settings.Sign In")}
+              </Button>
+            )}
+          </Surface>
+
+          {/* Settings Sections */}
+          <List.Section>
+            <List.Subheader>{t("settings.Preferences")}</List.Subheader>
+
+            <List.Item
+              title={t("settings.Language")}
+              left={props => <List.Icon {...props} icon="translate" />}
+              right={() => <Language />}
+            />
+
+          </List.Section>
+
+          <List.Section>
+            <List.Subheader>{t("settings.About")}</List.Subheader>
+
+            <List.Item
+              title={t("settings.Version")}
+              description={Application.nativeApplicationVersion}
+              left={props => <List.Icon {...props} icon="information" />}
+            />
+
+          </List.Section>
         </Surface>
+
         {showLoginPage && (
           <CasdoorLoginPage
             onWebviewClose={handleHideLoginPage}
             initialMethod={loginMethod}
           />
         )}
-      </View>
+      </ScrollView>
     </ActionSheetProvider>
   );
 };
 
 const styles = StyleSheet.create({
+  scrollView: {
+    flex: 1,
+    backgroundColor: "#F2F2F2",
+  },
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
     padding: 16,
+    width: width > 600 ? 600 : "100%",
+    alignSelf: "center",
+    backgroundColor: "#F2F2F2",
   },
-  surface: {
-    padding: 16,
-    width: width > 600 ? 400 : "100%",
-    maxWidth: 400,
+  profileCard: {
+    padding: 12,
+    marginBottom: 14,
+    borderRadius: 14,
+  },
+  profileInfo: {
+    flexDirection: "row",
     alignItems: "center",
+    padding: 8,
   },
-  title: {
-    fontSize: 24,
-    marginBottom: 24,
+  profileText: {
+    flex: 1,
+    marginLeft: 16,
   },
-  button: {
-    marginTop: 16,
-    width: "100%",
+  loginButton: {
+    borderRadius: 8,
+    alignSelf: "center",
+    paddingHorizontal: 20,
+  },
+  loginButtonLabel: {
+    fontSize: 18,
+  },
+  logoutButton: {
+    marginLeft: 8,
   },
 });
 

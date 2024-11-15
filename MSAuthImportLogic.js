@@ -15,6 +15,7 @@
 import * as DocumentPicker from "expo-document-picker";
 import * as FileSystem from "expo-file-system";
 import {openDatabaseSync} from "expo-sqlite/next";
+import i18next from "i18next";
 
 const SQLITE_DIR = `${FileSystem.documentDirectory}SQLite`;
 
@@ -30,7 +31,7 @@ const createDirectory = async(dir) => {
       await FileSystem.makeDirectoryAsync(dir, {intermediates: true});
     }
   } catch (error) {
-    throw new Error(`Error creating directory: ${error.message}`);
+    throw new Error(`${i18next.t("msAuthImport.Error creating directory")}: ${error.message}`);
   }
 };
 
@@ -65,19 +66,19 @@ export const importFromMSAuth = async() => {
 
           const rows = await queryMicrosoftAuthenticatorDatabase(db);
           if (rows.length === 0) {
-            throw new Error("No data found in Microsoft Authenticator database");
+            throw new Error(i18next.t("msAuthImport.No data found in Microsoft Authenticator database"));
           }
           return formatMicrosoftAuthenticatorData(rows);
         } catch (dbError) {
           if (dbError.message.includes("file is not a database")) {
-            throw new Error("file is not a database");
+            throw new Error(i18next.t("msAuthImport.file is not a database"));
           }
           throw new Error(dbError.message);
         }
       }
     }
   } catch (error) {
-    throw new Error(`Error importing from Microsoft Authenticator: ${error.message}`);
+    throw new Error(`${i18next.t("msAuthImport.Error importing from Microsoft Authenticator")}: ${error.message}`);
   } finally {
     await FileSystem.deleteAsync(internalDbName, {idempotent: true});
   }

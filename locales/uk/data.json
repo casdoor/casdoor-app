@@ -1,0 +1,98 @@
+{
+    "common": {
+      "success": "Успіх",
+      "error": "Помилка",
+      "back": "Назад",
+      "cancel": "Скасувати",
+      "confirm": "Підтвердити",
+      "save": "Зберегти",
+      "delete": "Видалити",
+      "edit": "Редагувати",
+      "login": "Увійти",
+      "logout": "Вийти"
+    },
+    "api": {
+      "Request timed out": "Час запиту вичерпано"
+    },
+    "casdoorLoginPage": {
+      "Logged in successfully!": "Успішно увійшли!",
+      "Back to Config": "Назад до налаштувань"
+    },
+    "editAccount": {
+      "Enter new account name": "Введіть нове ім'я акаунта",
+      "Account Name is required": "Ім'я акаунта обов'язкове",
+      "Secret Key is required": "Необхідний секретний ключ",
+      "Please fill in all the fields!": "Будь ласка, заповніть всі поля!",
+      "Invalid Secret Key": "Невірний секретний ключ",
+      "Add Account": "Додати акаунт",
+      "Account Name": "Ім'я акаунта",
+      "Secret Key": "Секретний ключ",
+      "Time based": "Залежно від часу",
+      "Counter based": "Залежно від лічильника"
+    },
+    "enterCasdoorSDKConfig": {
+      "Please fill in all the fields!": "Будь ласка, заповніть всі поля!",
+      "Casdoor Configuration": "Налаштування Casdoor",
+      "Server URL": "URL сервера",
+      "Client ID": "ID клієнта",
+      "Application Name": "Назва програми",
+      "Organization Name": "Назва організації"
+    },
+    "header": {
+      "Casdoor": "Casdoor",
+      "An unknown error occurred during synchronization": "Під час синхронізації сталася невідома помилка"
+    },
+    "homepage": {
+      "Import error": "Помилка імпорту",
+      "Error scanning QR code": "Помилка при скануванні QR коду",
+      "Scan QR Code": "Сканувати QR код",
+      "Enter Secret Code": "Введіть секретний код",
+      "Import from other app": "Імпортувати з іншого додатку"
+    },
+    "importManager": {
+      "Select app to import from": "Виберіть додаток для імпорту",
+      "Import function not implemented for": "Функція імпорту не реалізована для"
+    },
+    "loginMethod": {
+      "Select Login Method": "Виберіть метод входу",
+      "Manual Server Setup": "Ручне налаштування сервера",
+      "Login Using QR Code": "Увійти за допомогою QR коду",
+      "Try Casdoor Demo Site": "Спробуйте демонстраційний сайт Casdoor"
+    },
+    "msAuthImport": {
+      "Error creating directory": "Помилка при створенні каталогу",
+      "No data found in Microsoft Authenticator database": "Дані не знайдені в базі Microsoft Authenticator",
+      "file is not a database": "Файл не є базою даних",
+      "Error importing from Microsoft Authenticator": "Помилка при імпорті з Microsoft Authenticator"
+    },
+    "navBar": {
+      "Home": "Головна",
+      "Settings": "Налаштування"
+    },
+    "qrScanner": {
+      "Requesting permissions": "Запит на дозволи",
+      "No access to camera or media library": "Немає доступу до камери або медіатеки",
+      "Choose Image": "Вибрати зображення"
+    },
+    "scanLogin": {
+      "Invalid QR code format": "Невірний формат QR коду",
+      "Missing required fields: serverUrl and accessToken": "Відсутні обов'язкові поля: serverUrl і accessToken",
+      "Missing required fields": "Відсутні обов'язкові поля",
+      "Paste QR Code": "Вставити QR код"
+    },
+    "searchBar": {
+      "Search": "Пошук"
+    },
+    "settings": {
+      "Sign In": "Увійти",
+      "Preferences": "Налаштування",
+      "Language": "Мова",
+      "About": "Про програму",
+      "Version": "Версія"
+    },
+    "syncLogic": {
+      "Sync failed": "Синхронізація не вдалася",
+      "Access token has expired, please login again": "Токен доступу минув, будь ласка, увійдіть знову"
+    }
+  }
+  

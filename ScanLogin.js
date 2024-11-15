@@ -17,18 +17,19 @@ import PropTypes from "prop-types";
 import * as Clipboard from "expo-clipboard";
 import QRScanner from "./QRScanner";
 import {Button} from "react-native-paper";
+import i18next from "i18next";
 
 const ScanQRCodeForLogin = ({onClose, showScanner, onLogin, onError}) => {
   const handleClipboardPaste = async() => {
     const text = await Clipboard.getStringAsync();
     if (!isValidLoginQR(text)) {
-      onError?.("Invalid QR code format");
+      onError?.(i18next.t("scanLogin.Invalid QR code format"));
       return;
     }
 
     const loginInfo = parseLoginQR(text);
     if (!loginInfo) {
-      onError?.("Missing required fields: serverUrl and accessToken");
+      onError?.(i18next.t("scanLogin.Missing required fields: serverUrl and accessToken"));
       return;
     }
 
@@ -38,13 +39,13 @@ const ScanQRCodeForLogin = ({onClose, showScanner, onLogin, onError}) => {
 
   const handleScan = (type, data) => {
     if (!isValidLoginQR(data)) {
-      onError?.("Invalid QR code format");
+      onError?.(i18next.t("scanLogin.Invalid QR code format"));
       return;
     }
 
     const loginInfo = parseLoginQR(data);
     if (!loginInfo) {
-      onError?.("Missing required fields: serverUrl and accessToken");
+      onError?.(i18next.t("scanLogin.Missing required fields: serverUrl and accessToken"));
       return;
     }
 
@@ -65,7 +66,7 @@ const ScanQRCodeForLogin = ({onClose, showScanner, onLogin, onError}) => {
       const accessToken = params.get("accessToken");
 
       if (!serverUrl || !accessToken) {
-        throw new Error("Missing required fields");
+        throw new Error(i18next.t("scanLogin.Missing required fields"));
       }
 
       return {
@@ -89,7 +90,7 @@ const ScanQRCodeForLogin = ({onClose, showScanner, onLogin, onError}) => {
         onPress={handleClipboardPaste}
         style={{flex: 1}}
       >
-        Paste QR Code
+        {i18next.t("scanLogin.Paste QR Code")}
       </Button>
     </QRScanner>
   );

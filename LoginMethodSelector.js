@@ -13,22 +13,23 @@
 // limitations under the License.
 
 import {useActionSheet} from "@expo/react-native-action-sheet";
+import i18next from "i18next";
 
 const LoginMethodSelector = ({onSelectMethod}) => {
   const {showActionSheetWithOptions} = useActionSheet();
 
   const openActionSheet = () => {
     const options = [
-      "Manual Server Setup",
-      "Login Using QR Code",
-      "Try Casdoor Demo Site",
-      "Cancel",
+      i18next.t("loginMethod.Manual Server Setup"),
+      i18next.t("loginMethod.Login Using QR Code"),
+      i18next.t("loginMethod.Try Casdoor Demo Site"),
+      i18next.t("common.cancel"),
     ];
     const cancelButtonIndex = 3;
 
     showActionSheetWithOptions(
       {
-        title: "Select Login Method",
+        title: i18next.t("loginMethod.Select Login Method"),
         cancelButtonTintColor: "red",
         options,
         cancelButtonIndex,

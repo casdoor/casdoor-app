@@ -16,6 +16,7 @@ import React, {useState} from "react";
 import {Text, TextInput, View} from "react-native";
 import {Button, IconButton} from "react-native-paper";
 import PropTypes from "prop-types";
+import {useTranslation} from "react-i18next";
 
 export default function EnterAccountDetails({onClose, onEdit, placeholder}) {
   EnterAccountDetails.propTypes = {
@@ -24,6 +25,7 @@ export default function EnterAccountDetails({onClose, onEdit, placeholder}) {
     placeholder: PropTypes.string.isRequired,
   };
 
+  const {t} = useTranslation();
   const [accountName, setAccountName] = useState("");
 
   const handleConfirm = () => {
@@ -32,7 +34,7 @@ export default function EnterAccountDetails({onClose, onEdit, placeholder}) {
 
   return (
     <View style={{flex: 1, justifyContent: "center", alignItems: "center"}}>
-      <Text style={{fontSize: 24, marginBottom: 5}}>Enter new account name</Text>
+      <Text style={{fontSize: 24, marginBottom: 5}}>{t("editAccount.Enter new account name")}</Text>
       <View style={{flexDirection: "row", alignItems: "center"}}>
         <IconButton icon="account-details" size={35} />
         <TextInput
@@ -55,7 +57,7 @@ export default function EnterAccountDetails({onClose, onEdit, placeholder}) {
         }}
         onPress={handleConfirm}
       >
-        <Text style={{fontSize: 18, width: 280}}>Confirm</Text>
+        <Text style={{fontSize: 18, width: 280}}>{t("common.confirm")}</Text>
       </Button>
       <IconButton icon={"close"} size={30} onPress={onClose} style={{position: "absolute", top: 5, right: 5}} />
     </View>

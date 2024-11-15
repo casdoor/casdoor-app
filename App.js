@@ -24,6 +24,7 @@ import {GestureHandlerRootView} from "react-native-gesture-handler";
 import {useMigrations} from "drizzle-orm/expo-sqlite/migrator";
 import {ActionSheetProvider} from "@expo/react-native-action-sheet";
 
+import "./i18n";
 import Header from "./Header";
 import NavigationBar from "./NavigationBar";
 import {db} from "./db/client";

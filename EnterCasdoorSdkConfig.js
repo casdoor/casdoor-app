@@ -18,8 +18,10 @@ import {Button, Portal, TextInput} from "react-native-paper";
 import {useNotifications} from "react-native-notificated";
 import PropTypes from "prop-types";
 import useStore from "./useStorage";
+import {useTranslation} from "react-i18next";
 
 function EnterCasdoorSdkConfig({onClose, onWebviewClose, usePortal = true}) {
+  const {t} = useTranslation();
   const {
     serverUrl,
     clientId,
@@ -43,8 +45,8 @@ function EnterCasdoorSdkConfig({onClose, onWebviewClose, usePortal = true}) {
     if (!serverUrl || !clientId || !appName || !organizationName || !redirectPath) {
       notify("error", {
         params: {
-          title: "Error",
-          description: "Please fill in all the fields!",
+          title: t("common.error"),
+          description: t("enterCasdoorSDKConfig.Please fill in all the fields!"),
         },
       });
       return;
@@ -55,10 +57,10 @@ function EnterCasdoorSdkConfig({onClose, onWebviewClose, usePortal = true}) {
   const content = (
     <View style={styles.container}>
       <View style={styles.content}>
-        <Text style={styles.title}>Casdoor Configuration</Text>
+        <Text style={styles.title}>{t("enterCasdoorSDKConfig.Casdoor Configuration")}</Text>
         <View style={styles.formContainer}>
           <TextInput
-            label="Endpoint"
+            label={t("enterCasdoorSDKConfig.Server URL")}
             value={serverUrl}
             onChangeText={setServerUrl}
             autoCapitalize="none"
@@ -66,7 +68,7 @@ function EnterCasdoorSdkConfig({onClose, onWebviewClose, usePortal = true}) {
             mode="outlined"
           />
           <TextInput
-            label="Client ID"
+            label={t("enterCasdoorSDKConfig.Client ID")}
             value={clientId}
             onChangeText={setClientId}
             autoCapitalize="none"
@@ -74,7 +76,7 @@ function EnterCasdoorSdkConfig({onClose, onWebviewClose, usePortal = true}) {
             mode="outlined"
           />
           <TextInput
-            label="App Name"
+            label={t("enterCasdoorSDKConfig.Application Name")}
             value={appName}
             onChangeText={setAppName}
             autoCapitalize="none"
@@ -82,7 +84,7 @@ function EnterCasdoorSdkConfig({onClose, onWebviewClose, usePortal = true}) {
             mode="outlined"
           />
           <TextInput
-            label="Organization Name"
+            label={t("enterCasdoorSDKConfig.Organization Name")}
             value={organizationName}
             onChangeText={setOrganizationName}
             autoCapitalize="none"
@@ -97,7 +99,7 @@ function EnterCasdoorSdkConfig({onClose, onWebviewClose, usePortal = true}) {
             style={styles.button}
             labelStyle={styles.buttonLabel}
           >
-            Cancel
+            {t("common.cancel")}
           </Button>
           <Button
             mode="contained"
@@ -105,7 +107,7 @@ function EnterCasdoorSdkConfig({onClose, onWebviewClose, usePortal = true}) {
             style={styles.button}
             labelStyle={styles.buttonLabel}
           >
-            Confirm
+            {t("common.confirm")}
           </Button>
         </View>
       </View>

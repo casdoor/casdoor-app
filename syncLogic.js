@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import {eq} from "drizzle-orm";
+import i18next from "i18next";
 import * as schema from "./db/schema";
 import * as api from "./api";
 import {generateToken} from "./totpUtil";
@@ -179,7 +180,7 @@ export async function syncWithCloud(db, userInfo, serverUrl, token) {
       );
 
       if (status !== "ok") {
-        throw new Error("Sync failed");
+        throw new Error(i18next.t("syncLogic.Sync failed"));
       }
     }
 
@@ -188,7 +189,7 @@ export async function syncWithCloud(db, userInfo, serverUrl, token) {
   } catch (error) {
     if (error.message.includes("Access token has expired")) {
       handleTokenExpiration();
-      throw new Error("Access token has expired, please login again.");
+      throw new Error(i18next.t("syncLogic.Access token has expired, please login again"));
     }
     throw error;
   }

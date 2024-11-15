@@ -20,6 +20,7 @@ import {CountdownCircleTimer} from "react-native-countdown-circle-timer";
 import {useNetInfo} from "@react-native-community/netinfo";
 import {FlashList} from "@shopify/flash-list";
 import {useNotifications} from "react-native-notificated";
+import {useTranslation} from "react-i18next";
 
 import SearchBar from "./SearchBar";
 import EnterAccountDetails from "./EnterAccountDetails";
@@ -57,12 +58,15 @@ export default function HomePage() {
   const {accounts, refreshAccounts} = useAccountStore();
   const {setAccount, updateAccount, insertAccount, insertAccounts, deleteAccount} = useEditAccount();
   const {notify} = useNotifications();
-
+  const {t} = useTranslation();
   const {showImportOptions} = useImportManager((data) => {
     handleAddAccount(data);
   }, (err) => {
     notify("error", {
-      params: {title: "Import error", description: err.message},
+      params: {
+        title: t("homepage.Import error"),
+        description: err.message,
+      },
     });
   }, () => {
     setShowScanner(true);
@@ -164,7 +168,7 @@ export default function HomePage() {
     setShowScanner(false);
     notify("error", {
       params: {
-        title: "Error scanning QR code",
+        title: t("homepage.Error scanning QR code"),
         description: error,
       },
     });
@@ -228,13 +232,13 @@ export default function HomePage() {
                     style={{height: 70, width: 80, backgroundColor: "#E6DFF3", alignItems: "center", justifyContent: "center"}}
                     onPress={() => handleEditAccount(item)}
                   >
-                    <Text>Edit</Text>
+                    <Text>{t("common.edit")}</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={{height: 70, width: 80, backgroundColor: "#FFC0CB", alignItems: "center", justifyContent: "center"}}
                     onPress={() => onAccountDelete(item)}
                   >
-                    <Text>Delete</Text>
+                    <Text>{t("common.delete")}</Text>
                   </TouchableOpacity>
                 </View>
               )}
@@ -319,21 +323,21 @@ export default function HomePage() {
             onPress={handleScanPress}
           >
             <IconButton icon={"camera"} size={35} />
-            <Text style={{fontSize: 18}}>Scan QR code</Text>
+            <Text style={{fontSize: 18}}>{t("homepage.Scan QR Code")}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={{flexDirection: "row", alignItems: "center", marginTop: 10}}
             onPress={openEnterAccountModal}
           >
             <IconButton icon={"keyboard"} size={35} />
-            <Text style={{fontSize: 18}}>Enter Secret code</Text>
+            <Text style={{fontSize: 18}}>{t("homepage.Enter Secret Code")}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={{flexDirection: "row", alignItems: "center", marginTop: 10}}
             onPress={openImportAccountModal}
           >
             <IconButton icon={"import"} size={35} />
-            <Text style={{fontSize: 18}}>Import from other app</Text>
+            <Text style={{fontSize: 18}}>{t("homepage.Import from other app")}</Text>
           </TouchableOpacity>
         </Modal>
       </Portal>

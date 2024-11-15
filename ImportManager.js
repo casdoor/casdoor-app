@@ -14,6 +14,7 @@
 
 import {useActionSheet} from "@expo/react-native-action-sheet";
 import {importFromMSAuth} from "./MSAuthImportLogic";
+import i18next from "i18next";
 
 const importApps = [
   {name: "Google Authenticator", useScanner: true},
@@ -24,14 +25,14 @@ export const useImportManager = (onImportComplete, onError, onOpenScanner) => {
   const {showActionSheetWithOptions} = useActionSheet();
 
   const showImportOptions = () => {
-    const options = [...importApps.map(app => app.name), "Cancel"];
+    const options = [...importApps.map(app => app.name), i18next.t("common.cancel")];
     const cancelButtonIndex = options.length - 1;
 
     showActionSheetWithOptions(
       {
         options,
         cancelButtonIndex,
-        title: "Select app to import from",
+        title: i18next.t("importManager.Select app to import from"),
       },
       (selectedIndex) => {
         if (selectedIndex !== cancelButtonIndex) {
@@ -45,7 +46,7 @@ export const useImportManager = (onImportComplete, onError, onOpenScanner) => {
               })
               .catch(onError);
           } else {
-            onError(new Error(`Import function not implemented for ${selectedApp.name}`));
+            onError(new Error(`${i18next.t("importManager.Import function not implemented for")} ${selectedApp.name}`));
           }
         }
       }

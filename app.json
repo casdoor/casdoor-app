@@ -51,7 +51,8 @@
         }
       ],
       "expo-asset",
-      "expo-font"
+      "expo-font",
+      "expo-localization"
     ],
     "owner": "casdoor"
   }

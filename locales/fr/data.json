@@ -1,0 +1,98 @@
+{
+    "common": {
+      "success": "Succès",
+      "error": "Erreur",
+      "back": "Retour",
+      "cancel": "Annuler",
+      "confirm": "Confirmer",
+      "save": "Enregistrer",
+      "delete": "Supprimer",
+      "edit": "Modifier",
+      "login": "Connexion",
+      "logout": "Déconnexion"
+    },
+    "api": {
+      "Request timed out": "La requête a expiré"
+    },
+    "casdoorLoginPage": {
+      "Logged in successfully!": "Connexion réussie !",
+      "Back to Config": "Retour à la configuration"
+    },
+    "editAccount": {
+      "Enter new account name": "Entrez un nouveau nom de compte",
+      "Account Name is required": "Le nom du compte est requis",
+      "Secret Key is required": "La clé secrète est requise",
+      "Please fill in all the fields!": "Veuillez remplir tous les champs !",
+      "Invalid Secret Key": "Clé secrète invalide",
+      "Add Account": "Ajouter un compte",
+      "Account Name": "Nom du compte",
+      "Secret Key": "Clé secrète",
+      "Time based": "Basé sur le temps",
+      "Counter based": "Basé sur un compteur"
+    },
+    "enterCasdoorSDKConfig": {
+      "Please fill in all the fields!": "Veuillez remplir tous les champs !",
+      "Casdoor Configuration": "Configuration Casdoor",
+      "Server URL": "URL du serveur",
+      "Client ID": "ID client",
+      "Application Name": "Nom de l'application",
+      "Organization Name": "Nom de l'organisation"
+    },
+    "header": {
+      "Casdoor": "Casdoor",
+      "An unknown error occurred during synchronization": "Une erreur inconnue s'est produite lors de la synchronisation"
+    },
+    "homepage": {
+      "Import error": "Erreur d'importation",
+      "Error scanning QR code": "Erreur lors du scan du code QR",
+      "Scan QR Code": "Scanner le code QR",
+      "Enter Secret Code": "Entrez le code secret",
+      "Import from other app": "Importer depuis une autre application"
+    },
+    "importManager": {
+      "Select app to import from": "Sélectionnez l'application à partir de laquelle importer",
+      "Import function not implemented for": "Fonction d'importation non implémentée pour"
+    },
+    "loginMethod": {
+      "Select Login Method": "Sélectionnez une méthode de connexion",
+      "Manual Server Setup": "Configuration manuelle du serveur",
+      "Login Using QR Code": "Connexion via code QR",
+      "Try Casdoor Demo Site": "Essayez le site de démonstration Casdoor"
+    },
+    "msAuthImport": {
+      "Error creating directory": "Erreur lors de la création du répertoire",
+      "No data found in Microsoft Authenticator database": "Aucune donnée trouvée dans la base de données de Microsoft Authenticator",
+      "file is not a database": "Le fichier n'est pas une base de données",
+      "Error importing from Microsoft Authenticator": "Erreur lors de l'importation depuis Microsoft Authenticator"
+    },
+    "navBar": {
+      "Home": "Accueil",
+      "Settings": "Paramètres"
+    },
+    "qrScanner": {
+      "Requesting permissions": "Demande d'autorisations",
+      "No access to camera or media library": "Pas d'accès à la caméra ou à la bibliothèque multimédia",
+      "Choose Image": "Choisir une image"
+    },
+    "scanLogin": {
+      "Invalid QR code format": "Format de code QR invalide",
+      "Missing required fields: serverUrl and accessToken": "Champs requis manquants : serverUrl et accessToken",
+      "Missing required fields": "Champs requis manquants",
+      "Paste QR Code": "Coller le code QR"
+    },
+    "searchBar": {
+      "Search": "Rechercher"
+    },
+    "settings": {
+      "Sign In": "Se connecter",
+      "Preferences": "Préférences",
+      "Language": "Langue",
+      "About": "À propos",
+      "Version": "Version"
+    },
+    "syncLogic": {
+      "Sync failed": "Échec de la synchronisation",
+      "Access token has expired, please login again": "Le jeton d'accès a expiré, veuillez vous reconnecter"
+    }
+  }
+  

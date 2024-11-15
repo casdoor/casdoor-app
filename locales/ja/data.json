@@ -1,0 +1,97 @@
+{
+  "common": {
+    "success": "成功",
+    "error": "エラー",
+    "back": "戻る",
+    "cancel": "キャンセル",
+    "confirm": "確認",
+    "save": "保存",
+    "delete": "削除",
+    "edit": "編集",
+    "login": "ログイン",
+    "logout": "ログアウト"
+  },
+  "api": {
+    "Request timed out": "リクエストがタイムアウトしました"
+  },
+  "casdoorLoginPage": {
+    "Logged in successfully!": "ログインに成功しました！",
+    "Back to Config": "設定に戻る"
+  },
+  "editAccount": {
+    "Enter new account name": "新しいアカウント名を入力してください",
+    "Account Name is required": "アカウント名は必須です",
+    "Secret Key is required": "シークレットキーは必須です",
+    "Please fill in all the fields!": "すべてのフィールドを入力してください！",
+    "Invalid Secret Key": "無効なシークレットキー",
+    "Add Account": "アカウントを追加",
+    "Account Name": "アカウント名",
+    "Secret Key": "シークレットキー",
+    "Time based": "時間ベース",
+    "Counter based": "カウンターベース"
+  },
+  "enterCasdoorSDKConfig": {
+    "Please fill in all the fields!": "すべてのフィールドを入力してください！",
+    "Casdoor Configuration": "Casdoor設定",
+    "Server URL": "サーバーURL",
+    "Client ID": "クライアントID",
+    "Application Name": "アプリケーション名",
+    "Organization Name": "組織名"
+  },
+  "header": {
+    "Casdoor": "Casdoor",
+    "An unknown error occurred during synchronization": "同期中に不明なエラーが発生しました"
+  },
+  "homepage": {
+    "Import error": "インポートエラー",
+    "Error scanning QR code": "QRコードのスキャンエラー",
+    "Scan QR Code": "QRコードをスキャン",
+    "Enter Secret Code": "シークレットコードを入力",
+    "Import from other app": "他のアプリからインポート"
+  },
+  "importManager": {
+    "Select app to import from": "インポート元のアプリを選択",
+    "Import function not implemented for": "インポート機能は実装されていません"
+  },
+  "loginMethod": {
+    "Select Login Method": "ログイン方法を選択",
+    "Manual Server Setup": "手動サーバー設定",
+    "Login Using QR Code": "QRコードでログイン",
+    "Try Casdoor Demo Site": "Casdoorデモサイトを試す"
+  },
+  "msAuthImport": {
+    "Error creating directory": "ディレクトリの作成エラー",
+    "No data found in Microsoft Authenticator database": "Microsoft Authenticatorデータベースにデータが見つかりません",
+    "file is not a database": "ファイルはデータベースではありません",
+    "Error importing from Microsoft Authenticator": "Microsoft Authenticatorからのインポートエラー"
+  },
+  "navBar": {
+    "Home": "ホーム",
+    "Settings": "設定"
+  },
+  "qrScanner": {
+    "Requesting permissions": "権限をリクエストしています",
+    "No access to camera or media library": "カメラまたはメディアライブラリへのアクセスがありません",
+    "Choose Image": "画像を選択"
+  },
+  "scanLogin": {
+    "Invalid QR code format": "無効なQRコード形式",
+    "Missing required fields: serverUrl and accessToken": "必要なフィールドが不足しています: serverUrl と accessToken",
+    "Missing required fields": "必要なフィールドが不足しています",
+    "Paste QR Code": "QRコードを貼り付け"
+  },
+  "searchBar": {
+    "Search": "検索"
+  },
+  "settings": {
+    "Sign In": "サインイン",
+    "Preferences": "設定",
+    "Language": "言語",
+    "About": "について",
+    "Version": "バージョン"
+  },
+  "syncLogic": {
+    "Sync failed": "同期に失敗しました",
+    "Access token has expired, please login again": "アクセストークンの有効期限が切れました。再度ログインしてください"
+  }
+}
