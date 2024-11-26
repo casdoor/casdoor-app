@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import i18next from "i18next";
+
 const TIMEOUT_MS = 5000;
 
 const timeout = (ms) => {
@@ -44,7 +46,7 @@ export const getMfaAccounts = async(serverUrl, owner, name, token, timeoutMs = T
     };
   } catch (error) {
     if (error.name === "AbortError") {
-      throw new Error("Request timed out");
+      throw new Error(i18next.t("api.Request timed out"));
     }
     throw error;
   } finally {
@@ -93,7 +95,7 @@ export const updateMfaAccounts = async(serverUrl, owner, name, newMfaAccounts, t
     return {status: res.status, data: res.data};
   } catch (error) {
     if (error.name === "AbortError") {
-      throw new Error("Request timed out");
+      throw new Error(i18next.t("api.Request timed out"));
     }
     throw error;
   } finally {

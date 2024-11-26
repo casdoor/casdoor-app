@@ -1,0 +1,97 @@
+{
+  "common": {
+    "success": "成功",
+    "error": "错误",
+    "back": "返回",
+    "cancel": "取消",
+    "confirm": "确认",
+    "save": "保存",
+    "delete": "删除",
+    "edit": "编辑",
+    "login": "登录",
+    "logout": "退出登录"
+  },
+  "api": {
+    "Request timed out": "请求超时"
+  },
+  "casdoorLoginPage": {
+    "Logged in successfully!": "登录成功！",
+    "Back to Config": "返回配置"
+  },
+  "editAccount": {
+    "Enter new account name": "输入新账户名称",
+    "Account Name is required": "账户名称为必填项",
+    "Secret Key is required": "密钥为必填项",
+    "Please fill in all the fields!": "请填写所有字段！",
+    "Invalid Secret Key": "无效的密钥",
+    "Add Account": "添加账户",
+    "Account Name": "账户名称",
+    "Secret Key": "密钥",
+    "Time based": "基于时间",
+    "Counter based": "基于计数器"
+  },
+  "enterCasdoorSDKConfig": {
+    "Please fill in all the fields!": "请填写所有字段！",
+    "Casdoor Configuration": "Casdoor 配置",
+    "Server URL": "服务器地址",
+    "Client ID": "客户端 ID",
+    "Application Name": "应用名称",
+    "Organization Name": "组织名称"
+  },
+  "header": {
+    "Casdoor": "Casdoor",
+    "An unknown error occurred during synchronization": "同步过程中发生未知错误"
+  },
+  "homepage": {
+    "Import error": "导入错误",
+    "Error scanning QR code": "扫描二维码错误",
+    "Scan QR Code": "扫描二维码",
+    "Enter Secret Code": "输入密钥",
+    "Import from other app": "从其他应用导入"
+  },
+  "importManager": {
+    "Select app to import from": "选择要导入的应用",
+    "Import function not implemented for": "导入功能未实现于"
+  },
+  "loginMethod": {
+    "Select Login Method": "选择登录方式",
+    "Manual Server Setup": "手动服务器设置",
+    "Login Using QR Code": "使用二维码登录",
+    "Try Casdoor Demo Site": "试用 Casdoor 演示站点"
+  },
+  "msAuthImport": {
+    "Error creating directory": "创建目录错误",
+    "No data found in Microsoft Authenticator database": "Microsoft Authenticator 数据库中未找到数据",
+    "file is not a database": "文件不是数据库",
+    "Error importing from Microsoft Authenticator": "从 Microsoft Authenticator 导入时出错"
+  },
+  "navBar": {
+    "Home": "首页",
+    "Settings": "设置"
+  },
+  "qrScanner": {
+    "Requesting permissions": "请求权限",
+    "No access to camera or media library": "无法访问相机或媒体库",
+    "Choose Image": "选择图片"
+  },
+  "scanLogin": {
+    "Invalid QR code format": "无效的二维码格式",
+    "Missing required fields: serverUrl and accessToken": "缺少必需字段：serverUrl 和 accessToken",
+    "Missing required fields": "缺少必需字段",
+    "Paste QR Code": "粘贴二维码"
+  },
+  "searchBar": {
+    "Search": "搜索"
+  },
+  "settings": {
+    "Sign In": "登录",
+    "Preferences": "偏好设置",
+    "Language": "语言",
+    "About": "关于",
+    "Version": "版本"
+  },
+  "syncLogic": {
+    "Sync failed": "同步失败",
+    "Access token has expired, please login again": "访问令牌已过期，请重新登录"
+  }
+}

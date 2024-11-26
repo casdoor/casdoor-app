@@ -18,8 +18,10 @@ import {Button, IconButton, Portal} from "react-native-paper";
 import {Camera, CameraView, scanFromURLAsync} from "expo-camera";
 import * as ImagePicker from "expo-image-picker";
 import PropTypes from "prop-types";
+import {useTranslation} from "react-i18next";
 
 const QRScanner = ({onScan, onClose, children}) => {
+  const {t} = useTranslation();
   const [hasPermission, setHasPermission] = useState(null);
 
   useEffect(() => {
@@ -50,11 +52,11 @@ const QRScanner = ({onScan, onClose, children}) => {
   };
 
   if (hasPermission === null) {
-    return <Text style={{margin: "20%"}}>Requesting permissions...</Text>;
+    return <Text style={{margin: "20%"}}>{t("qrScanner.Requesting permissions")}</Text>;
   }
 
   if (hasPermission === false) {
-    return <Text style={{margin: "20%"}}>No access to camera or media library</Text>;
+    return <Text style={{margin: "20%"}}>{t("qrScanner.No access to camera or media library")}</Text>;
   }
 
   return (
@@ -88,7 +90,7 @@ const QRScanner = ({onScan, onClose, children}) => {
             onPress={pickImage}
             style={children ? {flex: 1} : {width: 200}}
           >
-            Choose Image
+            {t("qrScanner.Choose Image")}
           </Button>
           {children}
         </View>

@@ -20,10 +20,13 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import HomePage from "./HomePage";
 import {CommonActions} from "@react-navigation/native";
 import SettingPage from "./SettingPage";
+import {useTranslation} from "react-i18next";
 
 const Tab = createBottomTabNavigator();
 
 export default function NavigationBar() {
+  const {t} = useTranslation();
+
   return (
     <Tab.Navigator
       screenOptions={{
@@ -76,7 +79,7 @@ export default function NavigationBar() {
         name="Home"
         component={HomePage}
         options={{
-          tabBarLabel: "Home",
+          tabBarLabel: t("navBar.Home"),
           tabBarIcon: ({color, size}) => {
             return <Icon name="home" size={size} color={color} />;
           },
@@ -86,7 +89,7 @@ export default function NavigationBar() {
         name="Settings"
         component={SettingPage}
         options={{
-          tabBarLabel: "Settings",
+          tabBarLabel: t("navBar.Settings"),
           tabBarIcon: ({color, size}) => {
             return <Icon name="cog" size={size} color={color} />;
           },

@@ -23,6 +23,7 @@ import EnterCasdoorSdkConfig from "./EnterCasdoorSdkConfig";
 import ScanQRCodeForLogin from "./ScanLogin";
 import useStore from "./useStorage";
 import DefaultCasdoorSdkConfig from "./DefaultCasdoorSdkConfig";
+import {useTranslation} from "react-i18next";
 
 let sdk = null;
 
@@ -33,6 +34,7 @@ function CasdoorLoginPage({onWebviewClose, initialMethod}) {
   };
 
   const {notify} = useNotifications();
+  const {t} = useTranslation();
   const [casdoorLoginURL, setCasdoorLoginURL] = useState("");
   const [currentView, setCurrentView] = useState(initialMethod === "scan" ? "scanner" : "config");
 
@@ -113,11 +115,21 @@ function CasdoorLoginPage({onWebviewClose, initialMethod}) {
       const userInfo = sdk.JwtDecode(accessToken);
       setToken(accessToken);
       setUserInfo(userInfo);
-      notify("success", {params: {title: "Success", description: "Logged in successfully!"}});
+      notify("success", {
+        params: {
+          title: t("common.success"),
+          description: t("casdoorLoginPage.Logged in successfully!"),
+        },
+      });
       setCurrentView("config");
       onWebviewClose();
     } catch (error) {
-      notify("error", {params: {title: "Error in login", description: error.message}});
+      notify("error", {
+        params: {
+          title: t("common.error"),
+          description: error.message,
+        },
+      });
     }
   };
 
@@ -139,20 +151,25 @@ function CasdoorLoginPage({onWebviewClose, initialMethod}) {
           }}
           onLogin={handleQRLogin}
           onError={(message) => {
-            notify("error", {params: {title: "Error", description: message}});
+            notify("error", {params: {title: t("common.error"), description: message}});
           }}
         />
       ),
       webview: casdoorLoginURL && !token && (
         <SafeAreaView style={styles.safeArea}>
           <TouchableOpacity style={styles.backButton} onPress={() => setCurrentView("config")}>
-            <Text style={styles.backButtonText}>Back to Config</Text>
+            <Text style={styles.backButtonText}>{t("casdoorLoginPage.Back to Config")}</Text>
           </TouchableOpacity>
           <WebView
             source={{uri: casdoorLoginURL}}
             onNavigationStateChange={onNavigationStateChange}
             onError={({nativeEvent}) => {
-              notify("error", {params: {title: "Error", description: nativeEvent.description}});
+              notify("error", {
+                params: {
+                  title: t("common.error"),
+                  description: nativeEvent.description,
+                },
+              });
               setCurrentView("config");
             }}
             style={styles.webview}
@@ -186,7 +203,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "white",
     paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
-
   },
 });
 

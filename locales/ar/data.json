@@ -1,0 +1,98 @@
+{
+    "common": {
+      "success": "نجاح",
+      "error": "خطأ",
+      "back": "رجوع",
+      "cancel": "إلغاء",
+      "confirm": "تأكيد",
+      "save": "حفظ",
+      "delete": "حذف",
+      "edit": "تعديل",
+      "login": "تسجيل الدخول",
+      "logout": "تسجيل الخروج"
+    },
+    "api": {
+      "Request timed out": "انتهت مهلة الطلب"
+    },
+    "casdoorLoginPage": {
+      "Logged in successfully!": "تم تسجيل الدخول بنجاح!",
+      "Back to Config": "العودة إلى الإعدادات"
+    },
+    "editAccount": {
+      "Enter new account name": "أدخل اسم الحساب الجديد",
+      "Account Name is required": "اسم الحساب مطلوب",
+      "Secret Key is required": "المفتاح السري مطلوب",
+      "Please fill in all the fields!": "يرجى ملء جميع الحقول!",
+      "Invalid Secret Key": "المفتاح السري غير صالح",
+      "Add Account": "إضافة حساب",
+      "Account Name": "اسم الحساب",
+      "Secret Key": "المفتاح السري",
+      "Time based": "مبني على الوقت",
+      "Counter based": "مبني على العداد"
+    },
+    "enterCasdoorSDKConfig": {
+      "Please fill in all the fields!": "يرجى ملء جميع الحقول!",
+      "Casdoor Configuration": "إعداد Casdoor",
+      "Server URL": "عنوان URL للخادم",
+      "Client ID": "معرّف العميل",
+      "Application Name": "اسم التطبيق",
+      "Organization Name": "اسم المنظمة"
+    },
+    "header": {
+      "Casdoor": "كاسدور",
+      "An unknown error occurred during synchronization": "حدث خطأ غير معروف أثناء المزامنة"
+    },
+    "homepage": {
+      "Import error": "خطأ في الاستيراد",
+      "Error scanning QR code": "خطأ في مسح رمز الاستجابة السريعة",
+      "Scan QR Code": "مسح رمز الاستجابة السريعة",
+      "Enter Secret Code": "أدخل الكود السري",
+      "Import from other app": "استيراد من تطبيق آخر"
+    },
+    "importManager": {
+      "Select app to import from": "حدد التطبيق للاستيراد منه",
+      "Import function not implemented for": "وظيفة الاستيراد غير متوفرة لـ"
+    },
+    "loginMethod": {
+      "Select Login Method": "اختر طريقة تسجيل الدخول",
+      "Manual Server Setup": "إعداد الخادم يدويًا",
+      "Login Using QR Code": "تسجيل الدخول باستخدام رمز الاستجابة السريعة",
+      "Try Casdoor Demo Site": "جرب موقع كاسدور التجريبي"
+    },
+    "msAuthImport": {
+      "Error creating directory": "خطأ في إنشاء الدليل",
+      "No data found in Microsoft Authenticator database": "لم يتم العثور على بيانات في قاعدة بيانات Microsoft Authenticator",
+      "file is not a database": "الملف ليس قاعدة بيانات",
+      "Error importing from Microsoft Authenticator": "خطأ في الاستيراد من Microsoft Authenticator"
+    },
+    "navBar": {
+      "Home": "الرئيسية",
+      "Settings": "الإعدادات"
+    },
+    "qrScanner": {
+      "Requesting permissions": "طلب الأذونات",
+      "No access to camera or media library": "لا يوجد وصول إلى الكاميرا أو مكتبة الوسائط",
+      "Choose Image": "اختر صورة"
+    },
+    "scanLogin": {
+      "Invalid QR code format": "تنسيق رمز الاستجابة السريعة غير صالح",
+      "Missing required fields: serverUrl and accessToken": "الحقول المطلوبة مفقودة: serverUrl و accessToken",
+      "Missing required fields": "الحقول المطلوبة مفقودة",
+      "Paste QR Code": "الصق رمز الاستجابة السريعة"
+    },
+    "searchBar": {
+      "Search": "بحث"
+    },
+    "settings": {
+      "Sign In": "تسجيل الدخول",
+      "Preferences": "التفضيلات",
+      "Language": "اللغة",
+      "About": "حول",
+      "Version": "الإصدار"
+    },
+    "syncLogic": {
+      "Sync failed": "فشل المزامنة",
+      "Access token has expired, please login again": "انتهت صلاحية رمز الوصول، يرجى تسجيل الدخول مرة أخرى"
+    }
+  }
+  

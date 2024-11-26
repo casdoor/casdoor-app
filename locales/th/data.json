@@ -1,0 +1,98 @@
+{
+    "common": {
+      "success": "สำเร็จ",
+      "error": "ข้อผิดพลาด",
+      "back": "ย้อนกลับ",
+      "cancel": "ยกเลิก",
+      "confirm": "ยืนยัน",
+      "save": "บันทึก",
+      "delete": "ลบ",
+      "edit": "แก้ไข",
+      "login": "เข้าสู่ระบบ",
+      "logout": "ออกจากระบบ"
+    },
+    "api": {
+      "Request timed out": "การร้องขอล้มเหลว"
+    },
+    "casdoorLoginPage": {
+      "Logged in successfully!": "เข้าสู่ระบบสำเร็จ!",
+      "Back to Config": "กลับไปที่การตั้งค่า"
+    },
+    "editAccount": {
+      "Enter new account name": "กรอกชื่อบัญชีใหม่",
+      "Account Name is required": "ชื่อบัญชีเป็นสิ่งที่จำเป็น",
+      "Secret Key is required": "คีย์ลับเป็นสิ่งที่จำเป็น",
+      "Please fill in all the fields!": "กรุณากรอกข้อมูลให้ครบถ้วน!",
+      "Invalid Secret Key": "คีย์ลับไม่ถูกต้อง",
+      "Add Account": "เพิ่มบัญชี",
+      "Account Name": "ชื่อบัญชี",
+      "Secret Key": "คีย์ลับ",
+      "Time based": "อิงตามเวลา",
+      "Counter based": "อิงตามเคาน์เตอร์"
+    },
+    "enterCasdoorSDKConfig": {
+      "Please fill in all the fields!": "กรุณากรอกข้อมูลให้ครบถ้วน!",
+      "Casdoor Configuration": "การตั้งค่า Casdoor",
+      "Server URL": "URL เซิร์ฟเวอร์",
+      "Client ID": "ID ลูกค้า",
+      "Application Name": "ชื่อแอปพลิเคชัน",
+      "Organization Name": "ชื่อองค์กร"
+    },
+    "header": {
+      "Casdoor": "Casdoor",
+      "An unknown error occurred during synchronization": "เกิดข้อผิดพลาดที่ไม่รู้จักระหว่างการซิงค์ข้อมูล"
+    },
+    "homepage": {
+      "Import error": "ข้อผิดพลาดในการนำเข้า",
+      "Error scanning QR code": "ข้อผิดพลาดในการสแกน QR โค้ด",
+      "Scan QR Code": "สแกน QR โค้ด",
+      "Enter Secret Code": "กรอกรหัสลับ",
+      "Import from other app": "นำเข้าจากแอปอื่น"
+    },
+    "importManager": {
+      "Select app to import from": "เลือกแอปที่จะนำเข้า",
+      "Import function not implemented for": "ฟังก์ชันการนำเข้ามายังไม่ได้รับการพัฒนา"
+    },
+    "loginMethod": {
+      "Select Login Method": "เลือกวิธีการเข้าสู่ระบบ",
+      "Manual Server Setup": "ตั้งค่าเซิร์ฟเวอร์ด้วยตนเอง",
+      "Login Using QR Code": "เข้าสู่ระบบโดยใช้ QR โค้ด",
+      "Try Casdoor Demo Site": "ลองใช้เว็บไซต์สาธิต Casdoor"
+    },
+    "msAuthImport": {
+      "Error creating directory": "ข้อผิดพลาดในการสร้างไดเรกทอรี",
+      "No data found in Microsoft Authenticator database": "ไม่พบข้อมูลในฐานข้อมูลของ Microsoft Authenticator",
+      "file is not a database": "ไฟล์ไม่ใช่ฐานข้อมูล",
+      "Error importing from Microsoft Authenticator": "ข้อผิดพลาดในการนำเข้าจาก Microsoft Authenticator"
+    },
+    "navBar": {
+      "Home": "หน้าหลัก",
+      "Settings": "การตั้งค่า"
+    },
+    "qrScanner": {
+      "Requesting permissions": "ขอสิทธิ์",
+      "No access to camera or media library": "ไม่มีการเข้าถึงกล้องหรือห้องสมุดสื่อ",
+      "Choose Image": "เลือกภาพ"
+    },
+    "scanLogin": {
+      "Invalid QR code format": "รูปแบบ QR โค้ดไม่ถูกต้อง",
+      "Missing required fields: serverUrl and accessToken": "ขาดฟิลด์ที่จำเป็น: serverUrl และ accessToken",
+      "Missing required fields": "ขาดฟิลด์ที่จำเป็น",
+      "Paste QR Code": "วาง QR โค้ด"
+    },
+    "searchBar": {
+      "Search": "ค้นหา"
+    },
+    "settings": {
+      "Sign In": "เข้าสู่ระบบ",
+      "Preferences": "การตั้งค่า",
+      "Language": "ภาษา",
+      "About": "เกี่ยวกับ",
+      "Version": "เวอร์ชัน"
+    },
+    "syncLogic": {
+      "Sync failed": "การซิงค์ล้มเหลว",
+      "Access token has expired, please login again": "โทเค็นการเข้าถึงหมดอายุ กรุณาล็อกอินอีกครั้ง"
+    }
+  }
+  

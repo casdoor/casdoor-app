@@ -21,6 +21,7 @@ import CasdoorLoginPage, {CasdoorLogout} from "./CasdoorLoginPage";
 import useStore from "./useStorage";
 import {useAccountSync} from "./useAccountStore";
 import LoginMethodSelector from "./LoginMethodSelector";
+import {useTranslation} from "react-i18next";
 
 const {width} = Dimensions.get("window");
 
@@ -31,7 +32,7 @@ const Header = () => {
   const [menuVisible, setMenuVisible] = React.useState(false);
   const [loginMethod, setLoginMethod] = React.useState(null);
   const {notify} = useNotifications();
-
+  const {t} = useTranslation();
   const openMenu = () => setMenuVisible(true);
   const closeMenu = () => setMenuVisible(false);
 
@@ -64,8 +65,8 @@ const Header = () => {
   const handleSyncErrorPress = () => {
     notify("error", {
       params: {
-        title: "Error",
-        description: syncError || "An unknown error occurred during synchronization.",
+        title: t("common.error"),
+        description: syncError || t("header.An unknown error occurred during synchronization"),
       },
     });
   };
@@ -75,7 +76,7 @@ const Header = () => {
       <Appbar.Content
         title={
           <View style={styles.titleContainer}>
-            <Text style={styles.titleTextCasdoor}>Casdoor</Text>
+            <Text style={styles.titleTextCasdoor}>{t("header.Casdoor")}</Text>
           </View>
         }
         style={styles.titleWrapper}
@@ -119,13 +120,13 @@ const Header = () => {
                   styles.buttonText,
                   userInfo === null && {marginLeft: 0},
                 ]}>
-                  {userInfo === null ? "Login" : userInfo.name}
+                  {userInfo === null ? t("common.login") : userInfo.name}
                 </Text>
               </View>
             </TouchableRipple>
           }
         >
-          <Menu.Item onPress={handleMenuLogoutClicked} title="Logout" />
+          <Menu.Item onPress={handleMenuLogoutClicked} title={t("common.logout")} />
         </Menu>
       </View>
       {showLoginPage && (

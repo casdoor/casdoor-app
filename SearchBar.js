@@ -15,8 +15,10 @@
 import * as React from "react";
 import {View} from "react-native";
 import {Searchbar} from "react-native-paper";
+import {useTranslation} from "react-i18next";
 
 const SearchBar = ({onSearch}) => {
+  const {t} = useTranslation();
   const [searchQuery, setSearchQuery] = React.useState("");
 
   const onChangeSearch = (query) => {
@@ -27,7 +29,7 @@ const SearchBar = ({onSearch}) => {
   return (
     <View style={styles.container}>
       <Searchbar
-        placeholder="Search"
+        placeholder={t("searchBar.Search")}
         onChangeText={onChangeSearch}
         value={searchQuery}
         style={styles.searchbar}

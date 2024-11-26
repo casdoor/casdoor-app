@@ -17,6 +17,7 @@ import {View} from "react-native";
 import {Button, IconButton, Menu, Text, TextInput} from "react-native-paper";
 import {useNotifications} from "react-native-notificated";
 import PropTypes from "prop-types";
+import {useTranslation} from "react-i18next";
 
 const EnterAccountDetails = ({onClose, onAdd, validateSecret}) => {
   EnterAccountDetails.propTypes = {
@@ -26,7 +27,7 @@ const EnterAccountDetails = ({onClose, onAdd, validateSecret}) => {
   };
 
   const {notify} = useNotifications();
-
+  const {t} = useTranslation();
   const [accountName, setAccountName] = useState("");
   const [secretKey, setSecretKey] = useState("");
   const [secretError, setSecretError] = useState("");
@@ -45,25 +46,25 @@ const EnterAccountDetails = ({onClose, onAdd, validateSecret}) => {
 
   const handleAddAccount = useCallback(() => {
     if (accountName.trim() === "") {
-      setAccountNameError("Account Name is required");
+      setAccountNameError(t("editAccount.Account Name is required"));
     }
 
     if (secretKey.trim() === "") {
-      setSecretError("Secret Key is required");
+      setSecretError(t("editAccount.Secret Key is required"));
     }
 
     if (accountName.trim() === "" || secretKey.trim() === "") {
       notify("error", {
-        title: "Error",
-        description: "Please fill in all the fields!",
+        title: t("common.error"),
+        description: t("editAccount.Please fill in all the fields!"),
       });
       return;
     }
 
     if (secretError) {
       notify("error", {
-        title: "Error",
-        description: "Invalid Secret Key",
+        title: t("common.error"),
+        description: t("editAccount.Invalid Secret Key"),
       });
       return;
     }
@@ -94,7 +95,7 @@ const EnterAccountDetails = ({onClose, onAdd, validateSecret}) => {
     <View style={styles.container}>
       <View style={styles.content}>
         <View style={styles.header}>
-          <Text style={styles.title}>Add Account</Text>
+          <Text style={styles.title}>{t("editAccount.Add Account")}</Text>
           <IconButton
             icon="close"
             size={24}
@@ -103,7 +104,7 @@ const EnterAccountDetails = ({onClose, onAdd, validateSecret}) => {
           />
         </View>
         <TextInput
-          label="Account Name"
+          label={t("editAccount.Account Name")}
           value={accountName}
           onChangeText={handleAccountNameChange}
           error={!!accountNameError}
@@ -111,7 +112,7 @@ const EnterAccountDetails = ({onClose, onAdd, validateSecret}) => {
           mode="outlined"
         />
         <TextInput
-          label="Secret Key"
+          label={t("editAccount.Secret Key")}
           value={secretKey}
           onChangeText={handleSecretKeyChange}
           secureTextEntry={!showPassword}
@@ -137,13 +138,19 @@ const EnterAccountDetails = ({onClose, onAdd, validateSecret}) => {
                 contentStyle={styles.menuButtonContent}
                 style={styles.menuButton}
               >
-                {selectedItem}
+                {t(`editAccount.${selectedItem}`)}
               </Button>
             }
             contentStyle={styles.menuContent}
           >
-            <Menu.Item onPress={() => handleMenuItemPress("Time based")} title="Time based" />
-            <Menu.Item onPress={() => handleMenuItemPress("Counter based")} title="Counter based" />
+            <Menu.Item
+              onPress={() => handleMenuItemPress("Time based")}
+              title={t("editAccount.Time based")}
+            />
+            <Menu.Item
+              onPress={() => handleMenuItemPress("Counter based")}
+              title={t("editAccount.Counter based")}
+            />
           </Menu>
           <Button
             mode="contained"
@@ -151,7 +158,7 @@ const EnterAccountDetails = ({onClose, onAdd, validateSecret}) => {
             style={styles.addButton}
             labelStyle={styles.buttonLabel}
           >
-            Add Account
+            {t("editAccount.Add Account")}
           </Button>
         </View>
       </View>
