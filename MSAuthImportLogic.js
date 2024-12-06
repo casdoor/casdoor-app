@@ -14,7 +14,7 @@
 
 import * as DocumentPicker from "expo-document-picker";
 import * as FileSystem from "expo-file-system";
-import {openDatabaseSync} from "expo-sqlite/next";
+import {openDatabaseSync} from "expo-sqlite";
 import i18next from "i18next";
 
 const SQLITE_DIR = `${FileSystem.documentDirectory}SQLite`;

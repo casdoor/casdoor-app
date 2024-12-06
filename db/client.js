@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {drizzle} from "drizzle-orm/expo-sqlite";
-import {openDatabaseSync} from "expo-sqlite/next";
+import {openDatabaseSync} from "expo-sqlite";
 
 const expoDb = openDatabaseSync("account.db", {enableChangeListener: true});
 
