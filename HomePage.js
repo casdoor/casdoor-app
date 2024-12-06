@@ -323,21 +323,27 @@ export default function HomePage() {
             onPress={handleScanPress}
           >
             <IconButton icon={"camera"} size={35} />
-            <Text style={{fontSize: 18}}>{t("homepage.Scan QR Code")}</Text>
+            <View style={{width: 180}}>
+              <Text style={{fontSize: 18}}>{t("homepage.Scan QR Code")}</Text>
+            </View>
           </TouchableOpacity>
           <TouchableOpacity
             style={{flexDirection: "row", alignItems: "center", marginTop: 10}}
             onPress={openEnterAccountModal}
           >
             <IconButton icon={"keyboard"} size={35} />
-            <Text style={{fontSize: 18}}>{t("homepage.Enter Secret Code")}</Text>
+            <View style={{width: 180}}>
+              <Text style={{fontSize: 18}}>{t("homepage.Enter Secret Code")}</Text>
+            </View>
           </TouchableOpacity>
           <TouchableOpacity
             style={{flexDirection: "row", alignItems: "center", marginTop: 10}}
             onPress={openImportAccountModal}
           >
             <IconButton icon={"import"} size={35} />
-            <Text style={{fontSize: 18}}>{t("homepage.Import from other app")}</Text>
+            <View style={{width: 180}}>
+              <Text style={{fontSize: 18}}>{t("homepage.Import from other app")}</Text>
+            </View>
           </TouchableOpacity>
         </Modal>
       </Portal>

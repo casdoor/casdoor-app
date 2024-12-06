@@ -38,17 +38,17 @@ const languageResources = {en, zh, ja, fr, de, ko, ar, es, ru, pt, th, uk};
 
 export const languages = [
   {label: "English", key: "en", country: "US", alt: "English"},
-  {label: "中文", key: "zh", country: "CN", alt: "中文"},
-  {label: "日本語", key: "ja", country: "JP", alt: "Japanese"},
+  {label: "Español", key: "es", country: "ES", alt: "Spanish"},
   {label: "Français", key: "fr", country: "FR", alt: "French"},
   {label: "Deutsch", key: "de", country: "DE", alt: "German"},
+  {label: "中文", key: "zh", country: "CN", alt: "中文"},
+  {label: "日本語", key: "ja", country: "JP", alt: "Japanese"},
   {label: "한국어", key: "ko", country: "KR", alt: "Korean"},
-  {label: "العربية", key: "ar", country: "SA", alt: "Arabic"},
-  {label: "Español", key: "es", country: "ES", alt: "Spanish"},
   {label: "Русский", key: "ru", country: "RU", alt: "Russian"},
   {label: "Português", key: "pt", country: "PT", alt: "Portuguese"},
-  {label: "Thai", key: "th", country: "TH", alt: "Thai"},
+  {label: "العربية", key: "ar", country: "SA", alt: "Arabic"},
   {label: "Українська", key: "uk", country: "UA", alt: "Ukrainian"},
+  {label: "Thai", key: "th", country: "TH", alt: "Thai"},
 ];
 
 const rtlLanguages = ["ar"];

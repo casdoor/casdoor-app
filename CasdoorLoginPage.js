@@ -24,6 +24,7 @@ import ScanQRCodeForLogin from "./ScanLogin";
 import useStore from "./useStorage";
 import DefaultCasdoorSdkConfig from "./DefaultCasdoorSdkConfig";
 import {useTranslation} from "react-i18next";
+import {useLanguageSync} from "./useLanguageSync";
 
 let sdk = null;
 
@@ -33,6 +34,7 @@ function CasdoorLoginPage({onWebviewClose, initialMethod}) {
     initialMethod: PropTypes.oneOf(["manual", "scan", "demo"]).isRequired,
   };
 
+  useLanguageSync();
   const {notify} = useNotifications();
   const {t} = useTranslation();
   const [casdoorLoginURL, setCasdoorLoginURL] = useState("");
