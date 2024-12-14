@@ -88,11 +88,11 @@
       "Preferences": "Preferências",
       "Language": "Idioma",
       "About": "Sobre",
-      "Version": "Versão"
+      "Version": "Versão",
+      "Commit Hash": "Hash de Commit"
     },
     "syncLogic": {
       "Sync failed": "Sincronização falhou",
       "Access token has expired, please login again": "O token de acesso expirou, por favor faça login novamente"
     }
-  }
-  
+}

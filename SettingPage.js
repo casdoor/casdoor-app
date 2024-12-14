@@ -18,6 +18,7 @@ import {Avatar, Button, IconButton, List, Surface, Text, useTheme} from "react-n
 import {ActionSheetProvider} from "@expo/react-native-action-sheet";
 import * as Application from "expo-application";
 import {useTranslation} from "react-i18next";
+import Constants, {ExecutionEnvironment} from "expo-constants";
 
 import CasdoorLoginPage, {CasdoorLogout} from "./CasdoorLoginPage";
 import LoginMethodSelector from "./LoginMethodSelector";
@@ -32,6 +33,7 @@ const SettingPage = () => {
   const {userInfo, clearAll} = useStore();
   const theme = useTheme();
   const {t} = useTranslation();
+
   const {openActionSheet} = LoginMethodSelector({
     onSelectMethod: (method) => {
       setLoginMethod(method);
@@ -106,9 +108,21 @@ const SettingPage = () => {
 
             <List.Item
               title={t("settings.Version")}
-              description={Application.nativeApplicationVersion}
+              description={
+                Constants.executionEnvironment === ExecutionEnvironment.Standalone
+                  ? Application.nativeApplicationVersion
+                  : Constants.expoConfig?.version
+              }
               left={props => <List.Icon {...props} icon="information" />}
             />
+
+            {process.env.EXPO_PUBLIC_COMMIT_HASH && (
+              <List.Item
+                title={t("settings.Commit Hash")}
+                description={process.env.EXPO_PUBLIC_COMMIT_HASH.slice(0, 7)}
+                left={props => <List.Icon {...props} icon="git" />}
+              />
+            )}
 
           </List.Section>
         </Surface>

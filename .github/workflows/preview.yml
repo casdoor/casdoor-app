@@ -75,7 +75,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "20"
+          cache: "npm"
 
       - name: Install dependencies
         run: npm install
@@ -93,9 +94,11 @@ jobs:
       - name: Create preview
         id: preview
         uses: expo/expo-github-action/preview@v8
+        env:
+          EXPO_PUBLIC_COMMIT_HASH: ${{ steps.pr-details.outputs.head_sha }}
         with:
           comment: false
-          qr-target: 'expo-go'
+          qr-target: "expo-go"
           github-token: ${{ secrets.GITHUB_TOKEN }}
           command: eas update --auto --branch pr-${{ needs.check_permissions.outputs.pr_head_ref }}
 
@@ -104,7 +107,7 @@ jobs:
         id: find_comment
         with:
           issue-number: ${{ needs.check_permissions.outputs.pr_number }}
-          comment-author: 'github-actions[bot]'
+          comment-author: "github-actions[bot]"
           body-includes: Expo Preview
 
       - name: Create or Update Comment

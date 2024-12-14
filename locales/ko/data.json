@@ -88,11 +88,11 @@
       "Preferences": "설정",
       "Language": "언어",
       "About": "정보",
-      "Version": "버전"
+      "Version": "버전",
+      "Commit Hash": "커밋 해시"
     },
     "syncLogic": {
       "Sync failed": "동기화 실패",
       "Access token has expired, please login again": "액세스 토큰이 만료되었습니다. 다시 로그인해주세요"
     }
-  }
-  
+}

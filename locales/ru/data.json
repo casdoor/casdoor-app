@@ -88,11 +88,11 @@
       "Preferences": "Настройки",
       "Language": "Язык",
       "About": "О программе",
-      "Version": "Версия"
+      "Version": "Версия",
+      "Commit Hash": "Хэш коммита"
     },
     "syncLogic": {
       "Sync failed": "Синхронизация не удалась",
       "Access token has expired, please login again": "Токен доступа истёк, пожалуйста, войдите снова"
     }
-  }
-  
+}

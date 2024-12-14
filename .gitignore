@@ -37,3 +37,6 @@ yarn-error.*
 .idea/
 *.iml
 .vscode/
+
+android/
+ios/
