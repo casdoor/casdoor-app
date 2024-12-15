@@ -88,7 +88,8 @@
     "Preferences": "設定",
     "Language": "言語",
     "About": "について",
-    "Version": "バージョン"
+    "Version": "バージョン",
+    "Commit Hash": "コミットハッシュ"
   },
   "syncLogic": {
     "Sync failed": "同期に失敗しました",

@@ -88,11 +88,11 @@
       "Preferences": "การตั้งค่า",
       "Language": "ภาษา",
       "About": "เกี่ยวกับ",
-      "Version": "เวอร์ชัน"
+      "Version": "เวอร์ชัน",
+      "Commit Hash": "รหัสการตรวจสอบ"
     },
     "syncLogic": {
       "Sync failed": "การซิงค์ล้มเหลว",
       "Access token has expired, please login again": "โทเค็นการเข้าถึงหมดอายุ กรุณาล็อกอินอีกครั้ง"
     }
-  }
-  
+}

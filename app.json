@@ -7,14 +7,16 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "scheme": "casdoor-app",
+    "sdkVersion": "52.0.0",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "org.casdoor.casdoorapp",
@@ -26,7 +28,7 @@
         "backgroundColor": "#ffffff"
       },
       "package": "org.casdoor.casdoorapp",
-      "versionCode": 0
+      "versionCode": 510011500
     },
     "web": {
       "favicon": "./assets/favicon.png"

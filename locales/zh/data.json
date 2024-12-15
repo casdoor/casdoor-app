@@ -88,7 +88,8 @@
     "Preferences": "偏好设置",
     "Language": "语言",
     "About": "关于",
-    "Version": "版本"
+    "Version": "版本",
+    "Commit Hash": "提交哈希"
   },
   "syncLogic": {
     "Sync failed": "同步失败",
