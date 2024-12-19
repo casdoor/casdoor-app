@@ -17,6 +17,7 @@ import {WebView} from "react-native-webview";
 import {Platform, SafeAreaView, StatusBar, StyleSheet, Text, TouchableOpacity} from "react-native";
 import {Portal} from "react-native-paper";
 import {useNotifications} from "react-native-notificated";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import SDK from "casdoor-react-native-sdk";
 import PropTypes from "prop-types";
 import EnterCasdoorSdkConfig from "./EnterCasdoorSdkConfig";
@@ -25,6 +26,7 @@ import useStore from "./useStorage";
 import DefaultCasdoorSdkConfig from "./DefaultCasdoorSdkConfig";
 import {useTranslation} from "react-i18next";
 import {useLanguageSync} from "./useLanguageSync";
+import {useEditAccount} from "./useAccountStore";
 
 let sdk = null;
 
@@ -208,10 +210,20 @@ const styles = StyleSheet.create({
   },
 });
 
-export const CasdoorLogout = () => {
-  if (sdk) {
-    sdk.clearState();
-  }
+export const useCasdoorLogout = () => {
+  const {deleteAccountByOrigin} = useEditAccount();
+
+  const logout = async() => {
+    const origin = await AsyncStorage.getItem("origin");
+
+    if (sdk) {
+      sdk.clearState();
+    }
+
+    deleteAccountByOrigin(origin);
+  };
+
+  return logout;
 };
 
 export default CasdoorLoginPage;

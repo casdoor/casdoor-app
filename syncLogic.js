@@ -34,9 +34,6 @@ function getAccountKey(account) {
 
 async function updateLocalDatabase(db, accounts) {
   return db.transaction(async(tx) => {
-    // remove all accounts
-    // await tx.delete(schema.accounts).run();
-
     for (const account of accounts) {
       if (account.id) {
         if (account.deletedAt === null || account.deletedAt === undefined) {
@@ -45,7 +42,8 @@ async function updateLocalDatabase(db, accounts) {
           if (acc.issuer === account.issuer &&
             acc.accountName === account.accountName &&
             acc.secretKey === account.secretKey &&
-            acc.deletedAt === account.deletedAt
+            acc.deletedAt === account.deletedAt &&
+            acc.origin === account.origin
           ) {
             continue;
           }
@@ -56,6 +54,7 @@ async function updateLocalDatabase(db, accounts) {
             deletedAt: null,
             token: generateToken(account.secretKey),
             changedAt: new Date(),
+            origin: account.origin,
           }).where(eq(schema.accounts.id, account.id));
         } else {
           await tx.delete(schema.accounts).where(eq(schema.accounts.id, account.id));
@@ -65,6 +64,7 @@ async function updateLocalDatabase(db, accounts) {
           issuer: account.issuer || null,
           accountName: account.accountName,
           secretKey: account.secretKey,
+          origin: account.origin || null,
           token: generateToken(account.secretKey),
         });
       }
@@ -155,18 +155,25 @@ export async function syncWithCloud(db, userInfo, serverUrl, token) {
 
     await updateLocalDatabase(db, mergedAccounts);
 
-    const accountsToSync = mergedAccounts.filter(account => account.deletedAt === null || account.deletedAt === undefined)
-      .map(account => ({
-        issuer: account.issuer,
-        accountName: account.accountName,
-        secretKey: account.secretKey,
-      }));
+    const accountsToSync = mergedAccounts
+      .filter(account => account.deletedAt === null || account.deletedAt === undefined)
+      .map(account => {
+        const {issuer, accountName, secretKey, origin} = account;
+        const accountToSync = {issuer, accountName, secretKey};
+        if (origin !== null) {
+          accountToSync.origin = origin;
+        }
+        return accountToSync;
+      });
 
-    const serverAccountsStringified = serverAccounts.map(account => JSON.stringify({
-      issuer: account.issuer,
-      accountName: account.accountName,
-      secretKey: account.secretKey,
-    }));
+    const serverAccountsStringified = serverAccounts.map(account => {
+      const {issuer, accountName, secretKey, origin} = account;
+      const accountStringified = {issuer, accountName, secretKey};
+      if (origin !== null) {
+        accountStringified.origin = origin;
+      }
+      return JSON.stringify(accountStringified);
+    });
 
     const accountsToSyncStringified = accountsToSync.map(account => JSON.stringify(account));
 

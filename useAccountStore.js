@@ -12,23 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 import {db} from "./db/client";
 import * as schema from "./db/schema";
-import {and, eq, isNull} from "drizzle-orm";
+import {and, eq, isNull, not, or} from "drizzle-orm";
 import {create} from "zustand";
 import {generateToken} from "./totpUtil";
 import {syncWithCloud} from "./syncLogic";
+import {useLiveQuery} from "drizzle-orm/expo-sqlite";
 
-export const useAccountStore = create((set, get) => ({
-  accounts: [],
-  refreshAccounts: () => {
-    const accounts = db.select().from(schema.accounts).where(isNull(schema.accounts.deletedAt)).all();
-    set({accounts});
-  },
-  setAccounts: (accounts) => {
-    set({accounts});
-  },
-}));
+export const useAccounts = () => {
+  const {data: accounts} = useLiveQuery(
+    db.select().from(schema.accounts).where(isNull(schema.accounts.deletedAt))
+  );
+
+  return {
+    accounts: accounts || [],
+  };
+};
 
 const useEditAccountStore = create((set, get) => ({
   account: {id: undefined, issuer: undefined, accountName: undefined, secretKey: undefined, oldAccountName: undefined},
@@ -66,8 +68,9 @@ const useEditAccountStore = create((set, get) => ({
     });
   },
 
-  insertAccount: () => {
+  insertAccount: async() => {
     const {accountName, issuer, secretKey} = get().account;
+    const origin = await AsyncStorage.getItem("origin");
     if (!accountName || !secretKey) {return;}
     const insertWithDuplicateCheck = (tx, baseAccName) => {
       let attemptCount = 0;
@@ -109,6 +112,7 @@ const useEditAccountStore = create((set, get) => ({
             issuer: issuer || null,
             secretKey,
             token: generateToken(secretKey),
+            origin: origin || null,
           })
           .run();
 
@@ -131,6 +135,7 @@ const useEditAccountStore = create((set, get) => ({
 
   insertAccounts: async(accounts) => {
     try {
+      const origin = await AsyncStorage.getItem("origin");
       db.transaction((tx) => {
         const insertWithDuplicateCheck = (baseAccName, issuer, secretKey) => {
           let attemptCount = 0;
@@ -172,6 +177,7 @@ const useEditAccountStore = create((set, get) => ({
                 issuer: issuer || null,
                 secretKey,
                 token: generateToken(secretKey),
+                origin: origin || null,
               })
               .run();
 
@@ -197,6 +203,17 @@ const useEditAccountStore = create((set, get) => ({
       .where(eq(schema.accounts.id, id))
       .run();
   },
+
+  deleteAccountByOrigin: async(origin) => {
+    db.delete(schema.accounts)
+      .where(
+        or(
+          not(eq(schema.accounts.origin, origin)),
+          isNull(schema.accounts.origin)
+        )
+      )
+      .run();
+  },
 }));
 
 export const useEditAccount = () => useEditAccountStore(state => ({
@@ -206,6 +223,7 @@ export const useEditAccount = () => useEditAccountStore(state => ({
   insertAccount: state.insertAccount,
   insertAccounts: state.insertAccounts,
   deleteAccount: state.deleteAccount,
+  deleteAccountByOrigin: state.deleteAccountByOrigin,
 }));
 
 const useAccountSyncStore = create((set, get) => ({

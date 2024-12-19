@@ -15,12 +15,18 @@
 import React, {useEffect, useRef, useState} from "react";
 import {Dimensions, InteractionManager, RefreshControl, TouchableOpacity, View} from "react-native";
 import {Divider, IconButton, List, Modal, Portal, Text} from "react-native-paper";
-import {GestureHandlerRootView, Swipeable} from "react-native-gesture-handler";
+import {GestureHandlerRootView} from "react-native-gesture-handler";
+import Swipeable from "react-native-gesture-handler/ReanimatedSwipeable";
 import {CountdownCircleTimer} from "react-native-countdown-circle-timer";
 import {useNetInfo} from "@react-native-community/netinfo";
 import {FlashList} from "@shopify/flash-list";
 import {useNotifications} from "react-native-notificated";
 import {useTranslation} from "react-i18next";
+import Animated, {
+  useAnimatedStyle,
+  withTiming
+} from "react-native-reanimated";
+import {MaterialCommunityIcons} from "@expo/vector-icons";
 
 import SearchBar from "./SearchBar";
 import EnterAccountDetails from "./EnterAccountDetails";
@@ -31,7 +37,7 @@ import {useImportManager} from "./ImportManager";
 import useStore from "./useStorage";
 import {calculateCountdown} from "./totpUtil";
 import {generateToken, validateSecret} from "./totpUtil";
-import {useAccountStore, useAccountSync, useEditAccount} from "./useAccountStore";
+import {useAccountSync, useAccounts, useEditAccount} from "./useAccountStore";
 
 const {width, height} = Dimensions.get("window");
 const REFRESH_INTERVAL = 10000;
@@ -55,7 +61,7 @@ export default function HomePage() {
   const swipeableRef = useRef(null);
   const {userInfo, serverUrl, token} = useStore();
   const {startSync} = useAccountSync();
-  const {accounts, refreshAccounts} = useAccountStore();
+  const {accounts} = useAccounts();
   const {setAccount, updateAccount, insertAccount, insertAccounts, deleteAccount} = useEditAccount();
   const {notify} = useNotifications();
   const {t} = useTranslation();
@@ -73,10 +79,6 @@ export default function HomePage() {
   });
 
   useEffect(() => {
-    refreshAccounts();
-  }, []);
-
-  useEffect(() => {
     setCanSync(Boolean(isConnected && userInfo && serverUrl));
   }, [isConnected, userInfo, serverUrl]);
 
@@ -85,15 +87,17 @@ export default function HomePage() {
   }, [accounts]);
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      if (canSync) {
+    if (canSync) {
+      startSync(userInfo, serverUrl, token);
+
+      const timer = setInterval(() => {
         InteractionManager.runAfterInteractions(() => {
           startSync(userInfo, serverUrl, token);
-          refreshAccounts();
         });
-      }
-    }, REFRESH_INTERVAL);
-    return () => clearInterval(timer);
+      }, REFRESH_INTERVAL);
+
+      return () => clearInterval(timer);
+    }
   }, [startSync, canSync, token]);
 
   const onRefresh = async() => {
@@ -116,7 +120,6 @@ export default function HomePage() {
         });
       }
     }
-    refreshAccounts();
     setRefreshing(false);
   };
 
@@ -128,7 +131,6 @@ export default function HomePage() {
       await insertAccount();
       closeEnterAccountModal();
     }
-    refreshAccounts();
   };
 
   const handleEditAccount = (account) => {
@@ -142,7 +144,6 @@ export default function HomePage() {
     if (editingAccount) {
       setAccount({...editingAccount, accountName: newAccountName, oldAccountName: editingAccount.accountName});
       updateAccount();
-      refreshAccounts();
       setPlaceholder("");
       setEditingAccount(null);
       closeEditAccountModal();
@@ -151,7 +152,6 @@ export default function HomePage() {
 
   const onAccountDelete = async(account) => {
     deleteAccount(account.id);
-    refreshAccounts();
   };
 
   const closeEditAccountModal = () => setShowEditAccountModal(false);
@@ -211,6 +211,54 @@ export default function HomePage() {
     );
   };
 
+  const renderRightActions = (progress, dragX, account, onEdit, onDelete) => {
+    const styleAnimation = useAnimatedStyle(() => {
+      return {
+        transform: [{translateX: dragX.value + 160}],
+      };
+    });
+
+    return (
+      <Animated.View style={[{width: 160, flexDirection: "row"}, styleAnimation]}>
+        <TouchableOpacity
+          style={{
+            flex: 1,
+            backgroundColor: "#E6DFF3",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+          onPress={() => {
+            dragX.value = withTiming(0);
+            onEdit(account);
+          }}
+        >
+          <MaterialCommunityIcons name="pencil" size={24} color="#666" />
+          <Text style={{marginTop: 4, color: "#666"}}>
+            {t("common.edit")}
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={{
+            flex: 1,
+            backgroundColor: "#FF6B6B",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+          onPress={() => {
+            dragX.value = withTiming(0);
+            onDelete(account);
+          }}
+        >
+          <MaterialCommunityIcons name="trash-can" size={24} color="#FFF" />
+          <Text style={{marginTop: 4, color: "#FFF"}}>
+            {t("common.delete")}
+          </Text>
+        </TouchableOpacity>
+      </Animated.View>
+    );
+  };
+
   return (
     <View style={{flex: 1}}>
       <SearchBar onSearch={handleSearch} />
@@ -226,22 +274,18 @@ export default function HomePage() {
           <GestureHandlerRootView>
             <Swipeable
               ref={swipeableRef}
-              renderRightActions={() => (
-                <View style={{flexDirection: "row", alignItems: "center"}}>
-                  <TouchableOpacity
-                    style={{height: 70, width: 80, backgroundColor: "#E6DFF3", alignItems: "center", justifyContent: "center"}}
-                    onPress={() => handleEditAccount(item)}
-                  >
-                    <Text>{t("common.edit")}</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={{height: 70, width: 80, backgroundColor: "#FFC0CB", alignItems: "center", justifyContent: "center"}}
-                    onPress={() => onAccountDelete(item)}
-                  >
-                    <Text>{t("common.delete")}</Text>
-                  </TouchableOpacity>
-                </View>
-              )}
+              renderRightActions={(progress, dragX) =>
+                renderRightActions(progress, dragX, item, handleEditAccount, onAccountDelete)
+              }
+              rightThreshold={40}
+              overshootRight={false}
+              friction={2}
+              enableTrackpadTwoFingerGesture
+              onSwipeableOpen={() => {
+                if (swipeableRef.current) {
+                  swipeableRef.current.close();
+                }
+              }}
             >
               <List.Item
                 style={{
