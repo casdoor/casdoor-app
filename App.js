@@ -13,16 +13,19 @@
 // limitations under the License.
 
 import React from "react";
+import {SafeAreaView, Text} from "react-native";
+
 import {Lato_700Bold, useFonts} from "@expo-google-fonts/lato";
 import {Roboto_500Medium} from "@expo-google-fonts/roboto";
+import * as Crypto from "expo-crypto";
 import {NavigationContainer} from "@react-navigation/native";
 import {PaperProvider} from "react-native-paper";
-import {SafeAreaView, Text} from "react-native";
 import ContentLoader, {Circle, Rect} from "react-content-loader/native";
 import {ZoomInDownZoomOutUp, createNotifications} from "react-native-notificated";
 import {GestureHandlerRootView} from "react-native-gesture-handler";
 import {useMigrations} from "drizzle-orm/expo-sqlite/migrator";
 import {ActionSheetProvider} from "@expo/react-native-action-sheet";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import "./i18n";
 import Header from "./Header";
@@ -36,6 +39,17 @@ const App = () => {
     Lato_700Bold,
     Roboto_500Medium,
   });
+
+  React.useEffect(() => {
+    const storeOrigin = async() => {
+      let origin = await AsyncStorage.getItem("origin");
+      if (!origin) {
+        origin = Crypto.randomUUID();
+        await AsyncStorage.setItem("origin", origin);
+      }
+    };
+    storeOrigin();
+  }, []);
 
   const {NotificationsProvider} = createNotifications({
     duration: 800,

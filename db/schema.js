@@ -25,6 +25,7 @@ export const accounts = sqliteTable("accounts", {
   deletedAt: integer("deleted_at", {mode: "timestamp_ms"}).default(null),
   changedAt: integer("changed_at", {mode: "timestamp_ms"}).default(sql`(CURRENT_TIMESTAMP)`),
   syncAt: integer("sync_at", {mode: "timestamp_ms"}).default(null),
+  origin: text("origin").default(null),
 }, (accounts) => ({
   unq: unique().on(accounts.accountName, accounts.issuer),
 })

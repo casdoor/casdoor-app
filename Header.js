@@ -17,7 +17,7 @@ import {Dimensions, StyleSheet, View} from "react-native";
 import {Appbar, Avatar, Menu, Text, TouchableRipple} from "react-native-paper";
 import {useNotifications} from "react-native-notificated";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import CasdoorLoginPage, {CasdoorLogout} from "./CasdoorLoginPage";
+import CasdoorLoginPage, {useCasdoorLogout} from "./CasdoorLoginPage";
 import useStore from "./useStorage";
 import {useAccountSync} from "./useAccountStore";
 import LoginMethodSelector from "./LoginMethodSelector";
@@ -35,6 +35,7 @@ const Header = () => {
   const {t} = useTranslation();
   const openMenu = () => setMenuVisible(true);
   const closeMenu = () => setMenuVisible(false);
+  const logout = useCasdoorLogout();
 
   const handleMenuLogoutClicked = () => {
     handleCasdoorLogout();
@@ -57,7 +58,7 @@ const Header = () => {
   };
 
   const handleCasdoorLogout = () => {
-    CasdoorLogout();
+    logout();
     clearAll();
     clearSyncError();
   };
