@@ -20,12 +20,6 @@ import PropTypes from "prop-types";
 import {useTranslation} from "react-i18next";
 
 const EnterAccountDetails = ({onClose, onAdd, validateSecret}) => {
-  EnterAccountDetails.propTypes = {
-    onClose: PropTypes.func.isRequired,
-    onAdd: PropTypes.func.isRequired,
-    validateSecret: PropTypes.func.isRequired,
-  };
-
   const {notify} = useNotifications();
   const {t} = useTranslation();
   const [accountName, setAccountName] = useState("");
@@ -55,16 +49,20 @@ const EnterAccountDetails = ({onClose, onAdd, validateSecret}) => {
 
     if (accountName.trim() === "" || secretKey.trim() === "") {
       notify("error", {
-        title: t("common.error"),
-        description: t("editAccount.Please fill in all the fields!"),
+        params: {
+          title: t("common.error"),
+          description: t("editAccount.Please fill in all the fields!"),
+        },
       });
       return;
     }
 
     if (secretError) {
       notify("error", {
-        title: t("common.error"),
-        description: t("editAccount.Invalid Secret Key"),
+        params: {
+          title: t("common.error"),
+          description: t("editAccount.Invalid Secret Key"),
+        },
       });
       return;
     }
@@ -164,6 +162,12 @@ const EnterAccountDetails = ({onClose, onAdd, validateSecret}) => {
       </View>
     </View>
   );
+};
+
+EnterAccountDetails.propTypes = {
+  onClose: PropTypes.func.isRequired,
+  onAdd: PropTypes.func.isRequired,
+  validateSecret: PropTypes.func.isRequired,
 };
 
 const styles = {
