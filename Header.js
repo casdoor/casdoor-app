@@ -14,14 +14,17 @@
 
 import * as React from "react";
 import {Dimensions, StyleSheet, View} from "react-native";
+
 import {Appbar, Avatar, Menu, Text, TouchableRipple} from "react-native-paper";
 import {useNotifications} from "react-native-notificated";
+import {useTranslation} from "react-i18next";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import {SvgUri} from "react-native-svg";
+
 import CasdoorLoginPage, {useCasdoorLogout} from "./CasdoorLoginPage";
+import LoginMethodSelector from "./LoginMethodSelector";
 import useStore from "./useStorage";
 import {useAccountSync} from "./useAccountStore";
-import LoginMethodSelector from "./LoginMethodSelector";
-import {useTranslation} from "react-i18next";
 
 const {width} = Dimensions.get("window");
 
@@ -111,11 +114,21 @@ const Header = () => {
             >
               <View style={styles.buttonContent}>
                 {userInfo !== null && (
-                  <Avatar.Image
-                    size={28}
-                    source={{uri: userInfo.avatar}}
-                    style={styles.avatar}
-                  />
+                  userInfo.avatar?.endsWith(".svg") ? (
+                    <View style={[styles.avatar, {width: 28, height: 28}]}>
+                      <SvgUri
+                        width="28"
+                        height="28"
+                        uri={userInfo.avatar}
+                      />
+                    </View>
+                  ) : (
+                    <Avatar.Image
+                      size={28}
+                      source={{uri: userInfo.avatar}}
+                      style={styles.avatar}
+                    />
+                  )
                 )}
                 <Text style={[
                   styles.buttonText,

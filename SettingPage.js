@@ -19,6 +19,7 @@ import {ActionSheetProvider} from "@expo/react-native-action-sheet";
 import * as Application from "expo-application";
 import {useTranslation} from "react-i18next";
 import Constants, {ExecutionEnvironment} from "expo-constants";
+import {SvgUri} from "react-native-svg";
 
 import CasdoorLoginPage, {useCasdoorLogout} from "./CasdoorLoginPage";
 import LoginMethodSelector from "./LoginMethodSelector";
@@ -62,10 +63,20 @@ const SettingPage = () => {
           <Surface style={styles.profileCard} elevation={1}>
             {userInfo ? (
               <View style={styles.profileInfo}>
-                <Avatar.Image
-                  size={60}
-                  source={{uri: userInfo.avatar}}
-                />
+                {userInfo.avatar?.endsWith(".svg") ? (
+                  <View style={{width: 60, height: 60}}>
+                    <SvgUri
+                      width="60"
+                      height="60"
+                      uri={userInfo.avatar}
+                    />
+                  </View>
+                ) : (
+                  <Avatar.Image
+                    size={60}
+                    source={{uri: userInfo.avatar}}
+                  />
+                )}
                 <View style={styles.profileText}>
                   <Text variant="titleLarge">{userInfo.name}</Text>
                   <Text variant="bodyMedium" style={{color: theme.colors.secondary}}>
