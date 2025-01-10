@@ -94,5 +94,17 @@
     "syncLogic": {
       "Sync failed": "Синхронізація не вдалася",
       "Access token has expired, please login again": "Токен доступу минув, будь ласка, увійдіть знову"
+    },
+    "itemDetail": {
+      "token": "Токен",
+      "accountName": "Назва облікового запису",
+      "issuer": "Видавець",
+      "lastModified": "Останнє редагування",
+      "secretKey": "Секретний ключ",
+      "lastSynced": "Остання синхронізація",
+      "origin": "Походження",
+      "notSpecified": "Не вказано",
+      "neverSynced": "Ніколи не синхронізовано",
+      "copied": "Скопійовано"
     }
 }

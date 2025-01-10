@@ -13,10 +13,13 @@
 // limitations under the License.
 
 import totp from "totp-generator";
+import {useEffect, useState} from "react";
 
 export function calculateCountdown(period = 30) {
-  const now = Math.round(new Date().getTime() / 1000.0);
-  return period - (now % period);
+  const now = Date.now() / 1000;
+  const currentPeriod = Math.floor(now / period);
+  const nextPeriod = (currentPeriod + 1) * period;
+  return Math.max(0, Math.round(nextPeriod - now));
 }
 
 export function validateSecret(secret) {
@@ -39,4 +42,65 @@ export function generateToken(secret) {
   } else {
     return "Secret Empty";
   }
+}
+
+export function useTokenRefresh(secretKey, period = 30) {
+  const [token, setToken] = useState(() => generateToken(secretKey));
+  const [timeRemaining, setTimeRemaining] = useState(() => calculateCountdown());
+
+  useEffect(() => {
+    let timerRef = null;
+    let intervalRef = null;
+    let countdownRef = null;
+
+    const updateToken = () => {
+      setToken(generateToken(secretKey));
+      setTimeRemaining(period);
+    };
+
+    const scheduleNextUpdate = () => {
+      const now = Date.now() / 1000;
+      const nextUpdate = Math.ceil(now / period) * period;
+      const delay = Math.max(0, (nextUpdate - now) * 1000);
+
+      if (timerRef) {
+        clearTimeout(timerRef);
+      }
+      if (intervalRef) {
+        clearInterval(intervalRef);
+      }
+      if (countdownRef) {
+        clearInterval(countdownRef);
+      }
+
+      timerRef = setTimeout(() => {
+        updateToken();
+        intervalRef = setInterval(updateToken, period * 1000);
+      }, delay);
+
+      countdownRef = setInterval(() => {
+        setTimeRemaining(prev => {
+          const remaining = prev - 1;
+          return remaining >= 0 ? remaining : period;
+        });
+      }, 1000);
+    };
+
+    updateToken();
+    scheduleNextUpdate();
+
+    return () => {
+      if (timerRef) {
+        clearTimeout(timerRef);
+      }
+      if (intervalRef) {
+        clearInterval(intervalRef);
+      }
+      if (countdownRef) {
+        clearInterval(countdownRef);
+      }
+    };
+  }, [secretKey, period]);
+
+  return {token, timeRemaining};
 }

@@ -94,5 +94,17 @@
     "syncLogic": {
       "Sync failed": "Échec de la synchronisation",
       "Access token has expired, please login again": "Le jeton d'accès a expiré, veuillez vous reconnecter"
+    },
+    "itemDetail": {
+      "token": "Jeton",
+      "accountName": "Nom du compte",
+      "issuer": "Émetteur",
+      "lastModified": "Dernière modification",
+      "secretKey": "Clé secrète",
+      "lastSynced": "Dernière synchronisation",
+      "origin": "Origine",
+      "notSpecified": "Non spécifié",
+      "neverSynced": "Jamais synchronisé",
+      "copied": "Copié"
     }
 }

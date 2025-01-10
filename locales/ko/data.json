@@ -94,5 +94,17 @@
     "syncLogic": {
       "Sync failed": "동기화 실패",
       "Access token has expired, please login again": "액세스 토큰이 만료되었습니다. 다시 로그인해주세요"
+    },
+    "itemDetail": {
+      "token": "토큰",
+      "accountName": "계정 이름",
+      "issuer": "발행자",
+      "lastModified": "마지막 수정",
+      "secretKey": "비밀 키",
+      "lastSynced": "마지막 동기화",
+      "origin": "출처",
+      "notSpecified": "지정되지 않음",
+      "neverSynced": "동기화되지 않음",
+      "copied": "복사됨"
     }
 }

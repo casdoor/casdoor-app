@@ -17,9 +17,9 @@ import React from "react";
 import {createBottomTabNavigator} from "@react-navigation/bottom-tabs";
 import {BottomNavigation} from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import HomePage from "./HomePage";
+import HomeStackNavigator from "./HomeStackNavigator";
 import {CommonActions} from "@react-navigation/native";
-import SettingPage from "./SettingPage";
+import SettingsStackNavigator from "./SettingsStackNavigator";
 import {useTranslation} from "react-i18next";
 
 const Tab = createBottomTabNavigator();
@@ -77,7 +77,7 @@ export default function NavigationBar() {
     >
       <Tab.Screen
         name="Home"
-        component={HomePage}
+        component={HomeStackNavigator}
         options={{
           tabBarLabel: t("navBar.Home"),
           tabBarIcon: ({color, size}) => {
@@ -87,7 +87,7 @@ export default function NavigationBar() {
       />
       <Tab.Screen
         name="Settings"
-        component={SettingPage}
+        component={SettingsStackNavigator}
         options={{
           tabBarLabel: t("navBar.Settings"),
           tabBarIcon: ({color, size}) => {

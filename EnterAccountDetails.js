@@ -132,20 +132,26 @@ const EnterAccountDetails = ({onClose, onAdd, validateSecret}) => {
               <Button
                 onPress={openMenu}
                 mode="outlined"
-                icon="chevron-down"
                 contentStyle={styles.menuButtonContent}
                 style={styles.menuButton}
               >
-                {t(`editAccount.${selectedItem}`)}
+                <IconButton
+                  icon={selectedItem === "Time based" ? "clock-outline" : "counter"}
+                  size={25}
+                  iconColor="#8A7DF7"
+                  style={styles.icon}
+                />
               </Button>
             }
             contentStyle={styles.menuContent}
           >
             <Menu.Item
+              leadingIcon="clock-outline"
               onPress={() => handleMenuItemPress("Time based")}
               title={t("editAccount.Time based")}
             />
             <Menu.Item
+              leadingIcon="counter"
               onPress={() => handleMenuItemPress("Counter based")}
               title={t("editAccount.Counter based")}
             />
@@ -210,40 +216,56 @@ const styles = {
   },
   buttonContainer: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 10,
+    alignItems: "center",
+    marginTop: 20,
+    gap: 12,
   },
   menuButton: {
-    flex: 1,
-    marginRight: 10,
-    height: 50,
-    justifyContent: "center",
-    fontSize: 12,
+    width: 80,
+    height: 45,
+    borderColor: "#8A7DF7",
+    borderWidth: 1,
+    borderRadius: 22,
+    backgroundColor: "rgba(138, 125, 247, 0.05)",
+    padding: 0,
+    margin: 0,
   },
   menuButtonContent: {
-    height: 50,
-    justifyContent: "center",
+    margin: 0,
+    padding: 0,
+  },
+  icon: {
+    margin: 0,
+    padding: 0,
   },
   menuContent: {
     backgroundColor: "#FFFFFF",
-    borderRadius: 8,
+    borderRadius: 12,
     elevation: 3,
     shadowColor: "#000000",
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    marginTop: 4,
   },
   addButton: {
     flex: 1,
     backgroundColor: "#8A7DF7",
-    height: 50,
+    height: 45,
     justifyContent: "center",
-    paddingHorizontal: 5,
+    borderRadius: 22,
+    elevation: 2,
+    shadowColor: "#8A7DF7",
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
   },
   buttonLabel: {
-    fontSize: 14,
+    fontSize: 15,
     color: "white",
     textAlign: "center",
+    fontWeight: "600",
+    letterSpacing: 0.5,
   },
 };
 

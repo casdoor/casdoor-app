@@ -27,6 +27,7 @@ import Animated, {
   withTiming
 } from "react-native-reanimated";
 import {MaterialCommunityIcons} from "@expo/vector-icons";
+import {useNavigation} from "@react-navigation/native";
 
 import SearchBar from "./SearchBar";
 import EnterAccountDetails from "./EnterAccountDetails";
@@ -35,8 +36,7 @@ import EditAccountDetails from "./EditAccountDetails";
 import AvatarWithFallback from "./AvatarWithFallback";
 import {useImportManager} from "./ImportManager";
 import useStore from "./useStorage";
-import {calculateCountdown} from "./totpUtil";
-import {generateToken, validateSecret} from "./totpUtil";
+import {useTokenRefresh, validateSecret} from "./totpUtil";
 import {useAccountSync, useAccounts, useEditAccount} from "./useAccountStore";
 
 const {width, height} = Dimensions.get("window");
@@ -77,6 +77,7 @@ export default function HomePage() {
   }, () => {
     setShowScanner(true);
   });
+  const navigation = useNavigation();
 
   useEffect(() => {
     setCanSync(Boolean(isConnected && userInfo && serverUrl));
@@ -259,6 +260,94 @@ export default function HomePage() {
     );
   };
 
+  const handleItemPress = (item) => {
+    navigation.navigate("ItemDetailPage", {
+      item: {
+        ...item,
+        changedAt: item.changedAt.toISOString(),
+      },
+    });
+  };
+
+  const ListItem = ({item, onPress}) => {
+    const {token, timeRemaining} = useTokenRefresh(item.secretKey);
+
+    return (
+      <GestureHandlerRootView>
+        <Swipeable
+          ref={swipeableRef}
+          renderRightActions={(progress, dragX) =>
+            renderRightActions(progress, dragX, item, handleEditAccount, onAccountDelete)
+          }
+          rightThreshold={40}
+          overshootRight={false}
+          friction={2}
+          enableTrackpadTwoFingerGesture
+          onSwipeableOpen={() => {
+            if (swipeableRef.current) {
+              swipeableRef.current.close();
+            }
+          }}
+        >
+          <List.Item
+            style={{
+              height: 80,
+              paddingVertical: 6,
+              paddingHorizontal: 16,
+              justifyContent: "center",
+            }}
+            title={
+              <View style={{justifyContent: "center", paddingLeft: 0, paddingTop: 6}}>
+                <Text variant="titleMedium" numberOfLines={1}>
+                  {item.accountName}
+                </Text>
+                <Text variant="titleLarge" style={{fontWeight: "bold"}}>{token}</Text>
+              </View>
+            }
+            left={() => (
+              <AvatarWithFallback
+                source={{uri: `https://cdn.casbin.org/img/social_${item.issuer?.toLowerCase()}.png`}}
+                fallbackSource={{uri: "https://cdn.casbin.org/img/social_default.png"}}
+                size={60}
+                style={{
+                  borderRadius: 10,
+                  backgroundColor: "transparent",
+                }}
+              />
+            )}
+            right={() => (
+              <View style={{justifyContent: "center", alignItems: "center"}}>
+                <CountdownCircleTimer
+                  key={key}
+                  isPlaying={true}
+                  duration={30}
+                  initialRemainingTime={timeRemaining}
+                  colors={["#004777", "#0072A0", "#0099CC", "#FF6600", "#CC3300", "#A30000"]}
+                  colorsTime={[30, 24, 18, 12, 6, 0]}
+                  size={60}
+                  onComplete={() => {
+                    setKey(prevKey => prevKey + 1);
+                    return {
+                      shouldRepeat: true,
+                      delay: 0,
+                      newInitialRemainingTime: timeRemaining,
+                    };
+                  }}
+                  strokeWidth={5}
+                >
+                  {({remainingTime}) => (
+                    <Text style={{fontSize: 18, fontWeight: "bold"}}>{remainingTime}s</Text>
+                  )}
+                </CountdownCircleTimer>
+              </View>
+            )}
+            onPress={() => handleItemPress(item)}
+          />
+        </Swipeable>
+      </GestureHandlerRootView>
+    );
+  };
+
   return (
     <View style={{flex: 1}}>
       <SearchBar onSearch={handleSearch} />
@@ -271,77 +360,7 @@ export default function HomePage() {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
         renderItem={({item}) => (
-          <GestureHandlerRootView>
-            <Swipeable
-              ref={swipeableRef}
-              renderRightActions={(progress, dragX) =>
-                renderRightActions(progress, dragX, item, handleEditAccount, onAccountDelete)
-              }
-              rightThreshold={40}
-              overshootRight={false}
-              friction={2}
-              enableTrackpadTwoFingerGesture
-              onSwipeableOpen={() => {
-                if (swipeableRef.current) {
-                  swipeableRef.current.close();
-                }
-              }}
-            >
-              <List.Item
-                style={{
-                  height: 80,
-                  paddingVertical: 6,
-                  paddingHorizontal: 16,
-                  justifyContent: "center",
-                }}
-                title={
-                  <View style={{justifyContent: "center", paddingLeft: 0, paddingTop: 6}}>
-                    <Text variant="titleMedium" numberOfLines={1}>
-                      {item.accountName}
-                    </Text>
-                    <Text variant="titleLarge" style={{fontWeight: "bold"}}>{generateToken(item.secretKey)}</Text>
-                  </View>
-                }
-                left={() => (
-                  <AvatarWithFallback
-                    source={{uri: `https://cdn.casbin.org/img/social_${item.issuer?.toLowerCase()}.png`}}
-                    fallbackSource={{uri: "https://cdn.casbin.org/img/social_default.png"}}
-                    size={60}
-                    style={{
-                      borderRadius: 10,
-                      backgroundColor: "transparent",
-                    }}
-                  />
-                )}
-                right={() => (
-                  <View style={{justifyContent: "center", alignItems: "center"}}>
-                    <CountdownCircleTimer
-                      key={key}
-                      isPlaying={true}
-                      duration={30}
-                      initialRemainingTime={calculateCountdown()}
-                      colors={["#004777", "#0072A0", "#0099CC", "#FF6600", "#CC3300", "#A30000"]}
-                      colorsTime={[30, 24, 18, 12, 6, 0]}
-                      size={60}
-                      onComplete={() => {
-                        setKey(prevKey => prevKey + 1);
-                        return {
-                          shouldRepeat: true,
-                          delay: 0,
-                          newInitialRemainingTime: calculateCountdown(),
-                        };
-                      }}
-                      strokeWidth={5}
-                    >
-                      {({remainingTime}) => (
-                        <Text style={{fontSize: 18, fontWeight: "bold"}}>{remainingTime}s</Text>
-                      )}
-                    </CountdownCircleTimer>
-                  </View>
-                )}
-              />
-            </Swipeable>
-          </GestureHandlerRootView>
+          <ListItem item={item} onPress={handleItemPress} />
         )}
         ItemSeparatorComponent={() => <Divider />}
       />
