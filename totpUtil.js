@@ -55,7 +55,7 @@ export function useTokenRefresh(secretKey, period = 30) {
 
     const updateToken = () => {
       setToken(generateToken(secretKey));
-      setTimeRemaining(period);
+      setTimeRemaining(calculateCountdown(period));
     };
 
     const scheduleNextUpdate = () => {
