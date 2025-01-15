@@ -94,5 +94,17 @@
   "syncLogic": {
     "Sync failed": "Sync failed",
     "Access token has expired, please login again": "Access token has expired, please login again"
+  },
+  "itemDetail": {
+    "token": "Token",
+    "accountName": "Account Name",
+    "issuer": "Issuer",
+    "lastModified": "Last Modified",
+    "secretKey": "Secret Key",
+    "lastSynced": "Last Synced",
+    "origin": "Origin",
+    "notSpecified": "Not specified",
+    "neverSynced": "Never synced",
+    "copied": "Copied"
   }
 }

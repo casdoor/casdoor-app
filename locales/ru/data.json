@@ -94,5 +94,17 @@
     "syncLogic": {
       "Sync failed": "Синхронизация не удалась",
       "Access token has expired, please login again": "Токен доступа истёк, пожалуйста, войдите снова"
+    },
+    "itemDetail": {
+      "token": "Токен",
+      "accountName": "Имя аккаунта",
+      "issuer": "Издатель",
+      "lastModified": "Последнее изменение",
+      "secretKey": "Секретный ключ",
+      "lastSynced": "Последняя синхронизация",
+      "origin": "Источник",
+      "notSpecified": "Не указано",
+      "neverSynced": "Никогда не синхронизировано",
+      "copied": "Скопировано"
     }
 }

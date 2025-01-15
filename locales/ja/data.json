@@ -94,5 +94,17 @@
   "syncLogic": {
     "Sync failed": "同期に失敗しました",
     "Access token has expired, please login again": "アクセストークンの有効期限が切れました。再度ログインしてください"
+  },
+  "itemDetail": {
+    "token": "トークン",
+    "accountName": "アカウント名",
+    "issuer": "発行者",
+    "lastModified": "最終更新",
+    "secretKey": "シークレットキー",
+    "lastSynced": "最終同期",
+    "origin": "出典",
+    "notSpecified": "未指定",
+    "neverSynced": "未同期",
+    "copied": "コピーしました"
   }
 }

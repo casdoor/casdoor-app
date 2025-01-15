@@ -94,5 +94,17 @@
     "syncLogic": {
       "Sync failed": "การซิงค์ล้มเหลว",
       "Access token has expired, please login again": "โทเค็นการเข้าถึงหมดอายุ กรุณาล็อกอินอีกครั้ง"
+    },
+    "itemDetail": {
+      "token": "โทเค็น",
+      "accountName": "ชื่อบัญชี",
+      "issuer": "ผู้ออก",
+      "lastModified": "แก้ไขล่าสุด",
+      "secretKey": "รหัสลับ",
+      "lastSynced": "ซิงค์ล่าสุด",
+      "origin": "ที่มา",
+      "notSpecified": "ไม่ระบุ",
+      "neverSynced": "ไม่เคยซิงค์",
+      "copied": "คัดลอกแล้ว"
     }
 }

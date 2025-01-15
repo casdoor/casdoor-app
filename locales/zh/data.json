@@ -94,5 +94,17 @@
   "syncLogic": {
     "Sync failed": "同步失败",
     "Access token has expired, please login again": "访问令牌已过期，请重新登录"
+  },
+  "itemDetail": {
+    "token": "令牌",
+    "accountName": "账户名称",
+    "issuer": "发行方",
+    "lastModified": "最后修改",
+    "secretKey": "密钥",
+    "lastSynced": "最后同步",
+    "origin": "来源",
+    "notSpecified": "未指定",
+    "neverSynced": "从未同步",
+    "copied": "已复制"
   }
 }

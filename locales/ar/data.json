@@ -94,5 +94,17 @@
     "syncLogic": {
       "Sync failed": "فشل المزامنة",
       "Access token has expired, please login again": "انتهت صلاحية رمز الوصول، يرجى تسجيل الدخول مرة أخرى"
+    },
+    "itemDetail": {
+      "token": "رمز",
+      "accountName": "اسم الحساب",
+      "issuer": "المصدر",
+      "lastModified": "آخر تعديل",
+      "secretKey": "المفتاح السري",
+      "lastSynced": "آخر مزامنة",
+      "origin": "المصدر",
+      "notSpecified": "غير محدد",
+      "neverSynced": "لم تتم المزامنة",
+      "copied": "تم النسخ"
     }
 }
