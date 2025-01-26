@@ -12,7 +12,8 @@
       "logout": "Abmelden"
     },
     "api": {
-      "Request timed out": "Zeitüberschreitung der Anfrage"
+      "Request timed out": "Zeitüberschreitung der Anfrage",
+      "Invalid or expired credentials": "Ungültige oder abgelaufene Anmeldedaten"
     },
     "casdoorLoginPage": {
       "Logged in successfully!": "Erfolgreich angemeldet!",

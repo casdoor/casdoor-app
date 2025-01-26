@@ -12,7 +12,8 @@
       "logout": "Вийти"
     },
     "api": {
-      "Request timed out": "Час запиту вичерпано"
+      "Request timed out": "Час очікування запиту минув",
+      "Invalid or expired credentials": "Недійсні або прострочені облікові дані"
     },
     "casdoorLoginPage": {
       "Logged in successfully!": "Успішно увійшли!",

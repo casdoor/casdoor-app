@@ -194,7 +194,8 @@ export async function syncWithCloud(db, userInfo, serverUrl, token) {
     await db.update(schema.accounts).set({syncAt: new Date()}).run();
 
   } catch (error) {
-    if (error.message.includes("Access token has expired")) {
+    if (error.message.includes("Access token has expired") ||
+        error.message.includes("Access token doesn't exist in database")) {
       handleTokenExpiration();
       throw new Error(i18next.t("syncLogic.Access token has expired, please login again"));
     }

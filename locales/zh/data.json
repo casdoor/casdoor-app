@@ -12,7 +12,8 @@
     "logout": "退出登录"
   },
   "api": {
-    "Request timed out": "请求超时"
+    "Request timed out": "请求超时",
+    "Invalid or expired credentials": "登录凭证无效或已过期"
   },
   "casdoorLoginPage": {
     "Logged in successfully!": "登录成功！",

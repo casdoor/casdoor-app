@@ -12,7 +12,8 @@
       "logout": "Cerrar sesión"
     },
     "api": {
-      "Request timed out": "Tiempo de solicitud agotado"
+      "Request timed out": "Tiempo de solicitud agotado",
+      "Invalid or expired credentials": "Credenciales inválidas o expiradas"
     },
     "casdoorLoginPage": {
       "Logged in successfully!": "¡Inicio de sesión exitoso!",

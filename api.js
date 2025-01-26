@@ -102,3 +102,36 @@ export const updateMfaAccounts = async(serverUrl, owner, name, newMfaAccounts, t
     controller.abort();
   }
 };
+
+export const validateToken = async(serverUrl, token) => {
+  const controller = new AbortController();
+  const {signal} = controller;
+
+  try {
+    const result = await Promise.race([
+      fetch(`${serverUrl}/api/get-user?access_token=${token}`, {
+        method: "GET",
+        signal,
+      }),
+      timeout(TIMEOUT_MS),
+    ]);
+
+    const res = await result.json();
+    if (res.status === "error") {
+      throw new Error(res.msg);
+    }
+
+    return true;
+  } catch (error) {
+    if (error.name === "AbortError") {
+      throw new Error(i18next.t("api.Request timed out"));
+    }
+    if (error.message.includes("Access token has expired") ||
+        error.message.includes("Access token doesn't exist in database")) {
+      throw new Error(i18next.t("api.Invalid or expired credentials"));
+    }
+    throw error;
+  } finally {
+    controller.abort();
+  }
+};

@@ -12,7 +12,8 @@
     "logout": "ログアウト"
   },
   "api": {
-    "Request timed out": "リクエストがタイムアウトしました"
+    "Request timed out": "リクエストがタイムアウトしました",
+    "Invalid or expired credentials": "認証情報が無効または期限切れです"
   },
   "casdoorLoginPage": {
     "Logged in successfully!": "ログインに成功しました！",
