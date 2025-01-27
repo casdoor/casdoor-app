@@ -21,33 +21,44 @@ const timeout = (ms) => {
   return new Promise((_, reject) => setTimeout(() => reject(new Error("Request timed out")), ms));
 };
 
-export const getMfaAccounts = async(serverUrl, owner, name, token, timeoutMs = TIMEOUT_MS) => {
+const fetchWithTimeout = async(url, options = {}, timeoutMs = TIMEOUT_MS) => {
   const controller = new AbortController();
   const {signal} = controller;
 
   try {
+    // default headers
+    const defaultHeaders = {
+      "Accept-Language": await AsyncStorage.getItem("language"),
+      "Content-Type": "application/json",
+    };
+
+    const {token, ...fetchOptions} = options;
+
+    if (token) {
+      defaultHeaders.Authorization = `Bearer ${token}`;
+    }
+
+    const finalOptions = {
+      ...fetchOptions,
+      headers: {
+        ...defaultHeaders,
+        ...fetchOptions.headers,
+      },
+      signal,
+    };
+
     const result = await Promise.race([
-      fetch(`${serverUrl}/api/get-user?id=${owner}/${encodeURIComponent(name)}&access_token=${token}`, {
-        method: "GET",
-        headers: {
-          "Accept-Language": await AsyncStorage.getItem("language"),
-        },
-        signal,
-      }),
+      fetch(url, finalOptions),
       timeout(timeoutMs),
     ]);
 
     const res = await result.json();
 
-    // Check the response status and message
     if (res.status === "error") {
       throw new Error(res.msg);
     }
 
-    return {
-      updatedTime: res.data.updatedTime,
-      mfaAccounts: res.data.mfaAccounts || [],
-    };
+    return res;
   } catch (error) {
     if (error.name === "AbortError") {
       throw new Error(i18next.t("api.Request timed out"));
@@ -56,91 +67,58 @@ export const getMfaAccounts = async(serverUrl, owner, name, token, timeoutMs = T
   } finally {
     controller.abort();
   }
+};
+
+export const getMfaAccounts = async(serverUrl, owner, name, token, timeoutMs = TIMEOUT_MS) => {
+  const res = await fetchWithTimeout(
+    `${serverUrl}/api/get-user?id=${owner}/${encodeURIComponent(name)}`,
+    {
+      method: "GET",
+      token,
+    },
+    timeoutMs
+  );
+
+  return {
+    updatedTime: res.data.updatedTime,
+    mfaAccounts: res.data.mfaAccounts || [],
+  };
 };
 
 export const updateMfaAccounts = async(serverUrl, owner, name, newMfaAccounts, token, timeoutMs = TIMEOUT_MS) => {
-  const controller = new AbortController();
-  const {signal} = controller;
+  const userData = await fetchWithTimeout(
+    `${serverUrl}/api/get-user?id=${owner}/${encodeURIComponent(name)}`,
+    {
+      method: "GET",
+      token,
+    },
+    timeoutMs
+  );
 
-  try {
-    const getUserResult = await Promise.race([
-      fetch(`${serverUrl}/api/get-user?id=${owner}/${encodeURIComponent(name)}&access_token=${token}`, {
-        method: "GET",
-        headers: {
-          "Accept-Language": await AsyncStorage.getItem("language"),
-        },
-        Authorization: `Bearer ${token}`,
-        signal,
-      }),
-      timeout(timeoutMs),
-    ]);
+  userData.data.mfaAccounts = newMfaAccounts;
 
-    const userData = await getUserResult.json();
+  const res = await fetchWithTimeout(
+    `${serverUrl}/api/update-user?id=${owner}/${encodeURIComponent(name)}`,
+    {
+      method: "POST",
+      token,
+      body: JSON.stringify(userData.data),
+    },
+    timeoutMs
+  );
 
-    userData.data.mfaAccounts = newMfaAccounts;
-
-    const updateResult = await Promise.race([
-      fetch(`${serverUrl}/api/update-user?id=${owner}/${encodeURIComponent(name)}&access_token=${token}`, {
-        method: "POST",
-        Authorization: `Bearer ${token}`,
-        headers: {
-          "Accept-Language": await AsyncStorage.getItem("language"),
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(userData.data),
-        signal,
-      }),
-      timeout(timeoutMs),
-    ]);
-
-    const res = await updateResult.json();
-
-    // Check the response status and message
-    if (res.status === "error") {
-      throw new Error(res.msg);
-    }
-
-    return {status: res.status, data: res.data};
-  } catch (error) {
-    if (error.name === "AbortError") {
-      throw new Error(i18next.t("api.Request timed out"));
-    }
-    throw error;
-  } finally {
-    controller.abort();
-  }
+  return {status: res.status, data: res.data};
 };
 
 export const validateToken = async(serverUrl, token, timeoutMs = TIMEOUT_MS) => {
-  const controller = new AbortController();
-  const {signal} = controller;
+  const res = await fetchWithTimeout(
+    `${serverUrl}/api/userinfo`,
+    {
+      method: "GET",
+      token,
+    },
+    timeoutMs
+  );
 
-  try {
-    const result = await Promise.race([
-      fetch(`${serverUrl}/api/userinfo`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Accept-Language": await AsyncStorage.getItem("language"),
-          "Content-Type": "application/json",
-        },
-        signal,
-      }),
-      timeout(timeoutMs),
-    ]);
-
-    const res = await result.json();
-    if (res.status === "error") {
-      throw new Error(res.msg);
-    }
-
-    return true;
-  } catch (error) {
-    if (error.name === "AbortError") {
-      throw new Error(i18next.t("api.Request timed out"));
-    }
-    throw error;
-  } finally {
-    controller.abort();
-  }
+  return !!(res.sub && res.name && res.preferred_username);
 };
