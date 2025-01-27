@@ -141,64 +141,62 @@ function mergeAccounts(localAccounts, serverAccounts, serverTimestamp) {
 }
 
 export async function syncWithCloud(db, userInfo, serverUrl, token) {
-  try {
-    const localAccounts = await getLocalAccounts(db);
+  const localAccounts = await getLocalAccounts(db);
 
-    const {updatedTime, mfaAccounts: serverAccounts} = await api.getMfaAccounts(
+  try {
+    await api.validateToken(serverUrl, token);
+  } catch (error) {
+    handleTokenExpiration();
+    throw error;
+  }
+
+  const {updatedTime, mfaAccounts: serverAccounts} = await api.getMfaAccounts(
+    serverUrl,
+    userInfo.owner,
+    userInfo.name,
+    token
+  );
+
+  const mergedAccounts = mergeAccounts(localAccounts, serverAccounts, updatedTime);
+
+  await updateLocalDatabase(db, mergedAccounts);
+
+  const accountsToSync = mergedAccounts
+    .filter(account => account.deletedAt === null || account.deletedAt === undefined)
+    .map(account => {
+      const {issuer, accountName, secretKey, origin} = account;
+      const accountToSync = {issuer, accountName, secretKey};
+      if (origin !== null) {
+        accountToSync.origin = origin;
+      }
+      return accountToSync;
+    });
+
+  const serverAccountsStringified = serverAccounts.map(account => {
+    const {issuer, accountName, secretKey, origin} = account;
+    const accountStringified = {issuer, accountName, secretKey};
+    if (origin !== null) {
+      accountStringified.origin = origin;
+    }
+    return JSON.stringify(accountStringified);
+  });
+
+  const accountsToSyncStringified = accountsToSync.map(account => JSON.stringify(account));
+
+  if (JSON.stringify(accountsToSyncStringified.sort()) !== JSON.stringify(serverAccountsStringified.sort())) {
+    const {status} = await api.updateMfaAccounts(
       serverUrl,
       userInfo.owner,
       userInfo.name,
+      accountsToSync,
       token
     );
 
-    const mergedAccounts = mergeAccounts(localAccounts, serverAccounts, updatedTime);
-
-    await updateLocalDatabase(db, mergedAccounts);
-
-    const accountsToSync = mergedAccounts
-      .filter(account => account.deletedAt === null || account.deletedAt === undefined)
-      .map(account => {
-        const {issuer, accountName, secretKey, origin} = account;
-        const accountToSync = {issuer, accountName, secretKey};
-        if (origin !== null) {
-          accountToSync.origin = origin;
-        }
-        return accountToSync;
-      });
-
-    const serverAccountsStringified = serverAccounts.map(account => {
-      const {issuer, accountName, secretKey, origin} = account;
-      const accountStringified = {issuer, accountName, secretKey};
-      if (origin !== null) {
-        accountStringified.origin = origin;
-      }
-      return JSON.stringify(accountStringified);
-    });
-
-    const accountsToSyncStringified = accountsToSync.map(account => JSON.stringify(account));
-
-    if (JSON.stringify(accountsToSyncStringified.sort()) !== JSON.stringify(serverAccountsStringified.sort())) {
-      const {status} = await api.updateMfaAccounts(
-        serverUrl,
-        userInfo.owner,
-        userInfo.name,
-        accountsToSync,
-        token
-      );
-
-      if (status !== "ok") {
-        throw new Error(i18next.t("syncLogic.Sync failed"));
-      }
+    if (status !== "ok") {
+      throw new Error(i18next.t("syncLogic.Sync failed"));
     }
-
-    await db.update(schema.accounts).set({syncAt: new Date()}).run();
-
-  } catch (error) {
-    if (error.message.includes("Access token has expired") ||
-        error.message.includes("Access token doesn't exist in database")) {
-      handleTokenExpiration();
-      throw new Error(i18next.t("syncLogic.Access token has expired, please login again"));
-    }
-    throw error;
   }
+
+  await db.update(schema.accounts).set({syncAt: new Date()}).run();
+
 }

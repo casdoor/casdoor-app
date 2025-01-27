@@ -12,8 +12,7 @@
       "logout": "ออกจากระบบ"
     },
     "api": {
-      "Request timed out": "การร้องขอล้มเหลว",
-      "Invalid or expired credentials": "ข้อมูลการเข้าสู่ระบบไม่ถูกต้องหรือหมดอายุ"
+      "Request timed out": "การร้องขอล้มเหลว"
     },
     "casdoorLoginPage": {
       "Logged in successfully!": "เข้าสู่ระบบสำเร็จ!",

@@ -12,8 +12,7 @@
       "logout": "Sair"
     },
     "api": {
-      "Request timed out": "Tempo limite da solicitação esgotado",
-      "Invalid or expired credentials": "Credenciais inválidas ou expiradas"
+      "Request timed out": "Tempo de solicitação esgotado"
     },
     "casdoorLoginPage": {
       "Logged in successfully!": "Login realizado com sucesso!",

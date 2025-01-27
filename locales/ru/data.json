@@ -12,8 +12,7 @@
       "logout": "Выйти"
     },
     "api": {
-      "Request timed out": "Время запроса истекло",
-      "Invalid or expired credentials": "Недействительные или просроченные учетные данные"
+      "Request timed out": "Время запроса истекло"
     },
     "casdoorLoginPage": {
       "Logged in successfully!": "Успешный вход!",

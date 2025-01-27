@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import i18next from "i18next";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const TIMEOUT_MS = 5000;
 
@@ -28,6 +29,9 @@ export const getMfaAccounts = async(serverUrl, owner, name, token, timeoutMs = T
     const result = await Promise.race([
       fetch(`${serverUrl}/api/get-user?id=${owner}/${encodeURIComponent(name)}&access_token=${token}`, {
         method: "GET",
+        headers: {
+          "Accept-Language": await AsyncStorage.getItem("language"),
+        },
         signal,
       }),
       timeout(timeoutMs),
@@ -62,6 +66,9 @@ export const updateMfaAccounts = async(serverUrl, owner, name, newMfaAccounts, t
     const getUserResult = await Promise.race([
       fetch(`${serverUrl}/api/get-user?id=${owner}/${encodeURIComponent(name)}&access_token=${token}`, {
         method: "GET",
+        headers: {
+          "Accept-Language": await AsyncStorage.getItem("language"),
+        },
         Authorization: `Bearer ${token}`,
         signal,
       }),
@@ -77,6 +84,7 @@ export const updateMfaAccounts = async(serverUrl, owner, name, newMfaAccounts, t
         method: "POST",
         Authorization: `Bearer ${token}`,
         headers: {
+          "Accept-Language": await AsyncStorage.getItem("language"),
           "Content-Type": "application/json",
         },
         body: JSON.stringify(userData.data),
@@ -103,17 +111,22 @@ export const updateMfaAccounts = async(serverUrl, owner, name, newMfaAccounts, t
   }
 };
 
-export const validateToken = async(serverUrl, token) => {
+export const validateToken = async(serverUrl, token, timeoutMs = TIMEOUT_MS) => {
   const controller = new AbortController();
   const {signal} = controller;
 
   try {
     const result = await Promise.race([
-      fetch(`${serverUrl}/api/get-user?access_token=${token}`, {
+      fetch(`${serverUrl}/api/userinfo`, {
         method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Accept-Language": await AsyncStorage.getItem("language"),
+          "Content-Type": "application/json",
+        },
         signal,
       }),
-      timeout(TIMEOUT_MS),
+      timeout(timeoutMs),
     ]);
 
     const res = await result.json();
@@ -125,10 +138,6 @@ export const validateToken = async(serverUrl, token) => {
   } catch (error) {
     if (error.name === "AbortError") {
       throw new Error(i18next.t("api.Request timed out"));
-    }
-    if (error.message.includes("Access token has expired") ||
-        error.message.includes("Access token doesn't exist in database")) {
-      throw new Error(i18next.t("api.Invalid or expired credentials"));
     }
     throw error;
   } finally {

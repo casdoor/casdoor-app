@@ -12,8 +12,7 @@
       "logout": "Déconnexion"
     },
     "api": {
-      "Request timed out": "La requête a expiré",
-      "Invalid or expired credentials": "Identifiants invalides ou expirés"
+      "Request timed out": "La requête a expiré"
     },
     "casdoorLoginPage": {
       "Logged in successfully!": "Connexion réussie !",

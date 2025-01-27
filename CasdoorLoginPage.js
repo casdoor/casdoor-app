@@ -118,10 +118,10 @@ function CasdoorLoginPage({onWebviewClose, initialMethod}) {
 
     try {
       const accessToken = loginInfo.accessToken;
+      const userInfo = sdk.JwtDecode(accessToken);
 
       await api.validateToken(loginInfo.serverUrl, accessToken);
 
-      const userInfo = sdk.JwtDecode(accessToken);
       setToken(accessToken);
       setUserInfo(userInfo);
 

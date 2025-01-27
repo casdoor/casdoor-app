@@ -12,8 +12,7 @@
       "logout": "تسجيل الخروج"
     },
     "api": {
-      "Request timed out": "انتهت مهلة الطلب",
-      "Invalid or expired credentials": "بيانات الاعتماد غير صالحة أو منتهية الصلاحية"
+      "Request timed out": "انتهت مهلة الطلب"
     },
     "casdoorLoginPage": {
       "Logged in successfully!": "تم تسجيل الدخول بنجاح!",
