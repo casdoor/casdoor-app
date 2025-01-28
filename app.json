@@ -1,12 +1,12 @@
 {
   "expo": {
     "name": "Casdoor",
-    "slug": "casdoor-app",
+    "slug": "casdoor-authenticator",
     "version": "1.20.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "scheme": "casdoor-app",
+    "scheme": "casdoor-authenticator",
     "sdkVersion": "52.0.0",
     "runtimeVersion": {
       "policy": "appVersion"

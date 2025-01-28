@@ -1,10 +1,10 @@
 # Casdoor Authenticator App
 
-[![GitHub Actions](https://github.com/casdoor/casdoor-app/actions/workflows/release.yml/badge.svg)](https://github.com/casdoor/casdoor-app/actions/workflows/release.yml)
-[![Release](https://img.shields.io/github/release/casdoor/casdoor-app.svg)](https://github.com/casdoor/casdoor-app/releases/latest)
-[![GitHub issues](https://img.shields.io/github/issues/casdoor/casdoor-app?style=flat-square)](https://github.com/casdoor/casdoor-app/issues)
-[![GitHub forks](https://img.shields.io/github/forks/casdoor/casdoor-app?style=flat-square)](https://github.com/casdoor/casdoor-app/network)
-[![License](https://img.shields.io/github/license/casdoor/casdoor-app?style=flat-square)](https://github.com/casdoor/casdoor-app/blob/master/LICENSE)
+[![GitHub Actions](https://github.com/casdoor/casdoor-authenticator/actions/workflows/release.yml/badge.svg)](https://github.com/casdoor/casdoor-authenticator/actions/workflows/release.yml)
+[![Release](https://img.shields.io/github/release/casdoor/casdoor-authenticator.svg)](https://github.com/casdoor/casdoor-authenticator/releases/latest)
+[![GitHub issues](https://img.shields.io/github/issues/casdoor/casdoor-authenticator?style=flat-square)](https://github.com/casdoor/casdoor-authenticator/issues)
+[![GitHub forks](https://img.shields.io/github/forks/casdoor/casdoor-authenticator?style=flat-square)](https://github.com/casdoor/casdoor-authenticator/network)
+[![License](https://img.shields.io/github/license/casdoor/casdoor-authenticator?style=flat-square)](https://github.com/casdoor/casdoor-authenticator/blob/master/LICENSE)
 [![Discord](https://img.shields.io/discord/1022748306096537660?logo=discord&label=discord&color=5865F2)](https://discord.gg/5rPsrAzK7S)
 
 Casdoor Authenticator App is a mobile application for iOS and Android that provides multi-factor authentication using the TOTP protocol. This app helps secure user accounts by generating time-based one-time passwords (TOTP). The app is developed using the React Native framework.
@@ -19,8 +19,8 @@ Casdoor Authenticator App is a mobile application for iOS and Android that provi
 ## Quick Start
 
 ```bash
-git clone git@github.com:casdoor/casdoor-app.git
-cd casdoor-app
+git clone https://github.com/casdoor/casdoor-authenticator
+cd casdoor-authenticator
 npm install && npm run start
 ```
 
@@ -37,8 +37,8 @@ If you prefer to build the app yourself, follow these steps:
 ### Common Steps
 
 ```bash
-git clone git@github.com:casdoor/casdoor-app.git
-cd casdoor-app
+git clone https://github.com/casdoor/casdoor-authenticator
+cd casdoor-authenticator
 npm install
 ```
 
