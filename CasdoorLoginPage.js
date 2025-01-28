@@ -27,6 +27,7 @@ import DefaultCasdoorSdkConfig from "./DefaultCasdoorSdkConfig";
 import {useTranslation} from "react-i18next";
 import {useLanguageSync} from "./useLanguageSync";
 import {useEditAccount} from "./useAccountStore";
+import * as api from "./api";
 
 let sdk = null;
 
@@ -108,17 +109,22 @@ function CasdoorLoginPage({onWebviewClose, initialMethod}) {
     }
   };
 
-  const handleQRLogin = (loginInfo) => {
+  const handleQRLogin = async(loginInfo) => {
     setServerUrl(loginInfo.serverUrl);
     setClientId("");
     setAppName("");
     setOrganizationName("");
     initSdk();
+
     try {
       const accessToken = loginInfo.accessToken;
       const userInfo = sdk.JwtDecode(accessToken);
+
+      await api.validateToken(loginInfo.serverUrl, accessToken);
+
       setToken(accessToken);
       setUserInfo(userInfo);
+
       notify("success", {
         params: {
           title: t("common.success"),
