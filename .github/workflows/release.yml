@@ -32,11 +32,11 @@ jobs:
       - name: Build Android Release
         run: |
           cd android && ./gradlew assembleRelease
-          mv app/build/outputs/apk/release/app-release.apk app/build/outputs/apk/release/casdoorapp.apk
+          mv app/build/outputs/apk/release/app-release.apk app/build/outputs/apk/release/casdoor-authenticator.apk
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: casdoorapp.apk
+          name: casdoor-authenticator.apk
           path: android/app/build/outputs/apk/release/
 
   semantic-release:
@@ -53,7 +53,7 @@ jobs:
       - name: Download Android build artifacts
         uses: actions/download-artifact@v4
         with:
-          name: casdoorapp.apk
+          name: casdoor-authenticator.apk
           path: release/android/
 
       - name: Run semantic-release
