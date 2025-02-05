@@ -54,7 +54,7 @@ const ScanQRCodeForLogin = ({onClose, showScanner, onLogin, onError}) => {
   };
 
   const isValidLoginQR = (data) => {
-    return data.startsWith("casdoor-app://login?");
+    return data.startsWith("casdoor-authenticator://login?");
   };
 
   const parseLoginQR = (data) => {

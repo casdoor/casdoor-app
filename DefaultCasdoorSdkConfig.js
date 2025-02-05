@@ -17,7 +17,7 @@ const DefaultCasdoorSdkConfig = {
   clientId: "b800a86702dd4d29ec4d",
   appName: "app-example",
   organizationName: "casbin",
-  redirectPath: "http://casdoor-app",
+  redirectPath: "http://casdoor-authenticator",
   signinPath: "/api/signin",
 };
 export default DefaultCasdoorSdkConfig;

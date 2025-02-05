@@ -27,7 +27,7 @@ const useStore = create(
     (set, get) => ({
       serverUrl: "",
       clientId: "",
-      redirectPath: "http://casdoor-app",
+      redirectPath: "http://casdoor-authenticator",
       appName: "",
       organizationName: "",
       signinPath: "/api/signin",
